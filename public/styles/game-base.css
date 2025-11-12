@@ -1,0 +1,283 @@
+/* ========================================
+   GAME BASE STYLES - Gemeinsames Layout
+   Für alle Spiele im Adventskalender
+   ======================================== */
+
+/* CSS Variables für einfache Anpassung */
+:root {
+    /* Farben */
+    --game-primary: #1a237e;
+    --game-secondary: #283593;
+    --game-accent-gold: #FFD700;
+    --game-accent-orange: #FF9800;
+    --game-text-primary: #ffffff;
+    --game-text-shadow: rgba(0, 0, 0, 0.7);
+    
+    /* Spacing */
+    --header-padding: 10px 15px;
+    --stats-padding: 12px 10px;
+    --stat-box-padding: 8px 12px;
+    --stat-box-gap: 8px;
+    
+    /* Sizes */
+    --stat-icon-size: 1.5rem;
+    --stat-value-size: 1.1rem;
+    --stat-label-size: 0.7rem;
+    --score-size: 1.8rem;
+    
+    /* Effects */
+    --blur-amount: 10px;
+    --transition-speed: 0.3s;
+}
+
+/* Global Reset für Spiele */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Game Container Base */
+.game-container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Shimmer Effect für Background */
+.game-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: shimmer 8s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes shimmer {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Header */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--header-padding);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(var(--blur-amount));
+    position: relative;
+    z-index: 100;
+    flex-shrink: 0;
+}
+
+.game-header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.game-header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Score Display in Header */
+.score-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.score-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--game-text-primary);
+    text-shadow: 2px 2px 4px var(--game-text-shadow);
+}
+
+.score-value {
+    font-size: var(--score-size);
+    font-weight: bold;
+    color: var(--game-accent-gold);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5),
+                 2px 2px 4px var(--game-text-shadow);
+    min-width: 60px;
+    text-align: center;
+}
+
+.score-unit {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--game-text-primary);
+    text-shadow: 2px 2px 4px var(--game-text-shadow);
+}
+
+/* Stats Banner */
+.stats-banner {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: var(--stats-padding);
+    background: linear-gradient(135deg, 
+        rgba(255, 215, 0, 0.15) 0%, 
+        rgba(255, 152, 0, 0.15) 100%);
+    border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+    backdrop-filter: blur(5px);
+    flex-shrink: 0;
+    z-index: 99;
+    position: relative;
+}
+
+.stat-box {
+    display: flex;
+    align-items: center;
+    gap: var(--stat-box-gap);
+    padding: var(--stat-box-padding);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(var(--blur-amount));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all var(--transition-speed) ease;
+    flex: 1;
+    justify-content: center;
+    margin: 0 4px;
+    min-width: 80px;
+}
+
+.stat-box:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.stat-icon {
+    font-size: var(--stat-icon-size);
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+.stat-value {
+    font-size: var(--stat-value-size);
+    font-weight: bold;
+    color: var(--game-accent-gold);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5),
+                 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.stat-label {
+    font-size: var(--stat-label-size);
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* Game Canvas Area */
+#game-canvas {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: relative;
+    z-index: 2;
+}
+
+#game-root {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* State Indicators */
+.stat-box.warning {
+    background: rgba(255, 152, 0, 0.3);
+    animation: pulse-warning 1s ease-in-out infinite;
+}
+
+.stat-box.critical {
+    background: rgba(244, 67, 54, 0.3);
+    animation: pulse-critical 0.5s ease-in-out infinite;
+}
+
+.stat-box.level-up {
+    animation: levelUpPulse 0.5s ease-out;
+    background: rgba(255, 215, 0, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    :root {
+        --header-padding: 8px 12px;
+        --stats-padding: 10px 8px;
+        --stat-box-padding: 6px 10px;
+        --stat-icon-size: 1.3rem;
+        --stat-value-size: 1rem;
+        --stat-label-size: 0.65rem;
+        --score-size: 1.5rem;
+    }
+    
+    .score-label {
+        font-size: 1rem;
+    }
+    
+    .stat-box {
+        min-width: 70px;
+        margin: 0 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --header-padding: 6px 10px;
+        --stats-padding: 8px 6px;
+        --stat-box-padding: 5px 8px;
+        --stat-icon-size: 1.2rem;
+        --stat-value-size: 0.9rem;
+        --stat-label-size: 0.6rem;
+        --score-size: 1.3rem;
+    }
+    
+    .score-label {
+        font-size: 0.9rem;
+    }
+    
+    .score-unit {
+        font-size: 1rem;
+    }
+    
+    .stat-box {
+        gap: 5px;
+        min-width: 60px;
+        margin: 0 1px;
+    }
+    
+    .stat-info {
+        display: none; /* Hide labels on very small screens */
+    }
+}

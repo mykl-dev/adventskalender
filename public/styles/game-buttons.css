@@ -1,0 +1,264 @@
+/* ========================================
+   GAME BUTTONS - Gemeinsame Button Styles
+   Back Button, Game Button, Pause Button
+   ======================================== */
+
+/* Back Button (Top Left) */
+.back-button {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 240, 240, 0.9) 100%);
+    border: none;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 2000;
+    text-decoration: none;
+    font-size: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.back-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 245, 245, 1) 100%);
+}
+
+.back-button:active {
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+.back-button::before {
+    content: '🏠';
+    font-size: 1.8rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Alternative Back Button Styles */
+.back-button.arrow::before {
+    content: '←';
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.back-button.close::before {
+    content: '✕';
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Game Button (Primary Action) */
+.game-button {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+    transition: all 0.3s ease;
+    margin-top: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.game-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+}
+
+.game-button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.game-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+}
+
+/* Secondary Button */
+.game-button.secondary {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+}
+
+.game-button.secondary:hover {
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.5);
+}
+
+/* Danger Button */
+.game-button.danger {
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+}
+
+.game-button.danger:hover {
+    background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5);
+}
+
+/* Pause Button (Top Right) */
+.pause-button {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 240, 240, 0.9) 100%);
+    border: none;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 2000;
+    font-size: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.pause-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 245, 245, 1) 100%);
+}
+
+.pause-button:active {
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+.pause-button::before {
+    content: '⏸️';
+    font-size: 1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.pause-button.playing::before {
+    content: '▶️';
+}
+
+/* Icon Buttons (allgemein) */
+.icon-button {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 240, 240, 0.9) 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    font-size: 1.5rem;
+}
+
+.icon-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 245, 245, 1) 100%);
+}
+
+.icon-button:active {
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Button Group */
+.button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.button-group .game-button {
+    margin-top: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .back-button,
+    .pause-button {
+        width: 45px;
+        height: 45px;
+        top: 12px;
+    }
+    
+    .back-button {
+        left: 12px;
+    }
+    
+    .pause-button {
+        right: 12px;
+    }
+    
+    .back-button::before {
+        font-size: 1.5rem;
+    }
+    
+    .game-button {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .back-button,
+    .pause-button {
+        width: 40px;
+        height: 40px;
+        top: 10px;
+        border-radius: 10px;
+    }
+    
+    .back-button {
+        left: 10px;
+    }
+    
+    .pause-button {
+        right: 10px;
+    }
+    
+    .back-button::before {
+        font-size: 1.3rem;
+    }
+    
+    .game-button {
+        padding: 10px 25px;
+        font-size: 0.95rem;
+    }
+    
+    .button-group {
+        gap: 10px;
+    }
+}
