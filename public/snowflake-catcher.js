@@ -667,116 +667,61 @@ class SnowflakeCatcherGame3D {
         // Berechne Spielzeit
         const playTime = Math.floor((Date.now() - this.startTime) / 1000);
         
-        // Stats speichern (richtige Funktionsname!)
+        // Stats speichern
         try {
             await statsManager.saveStats('snowflake-catcher', this.score, playTime);
         } catch (error) {
             console.error('Fehler beim Speichern der Stats:', error);
         }
         
-        // Zeige Highscores
-        let highscores = [];
+        // Game Over nach kurzer Verzögerung
+        setTimeout(() => {
+            this.showGameOver();
+        }, 1000);
+    }
+    
+    async showGameOver() {
+        // Bestenliste laden
+        let top3 = [];
         try {
-            const allScores = await statsManager.getAllScores('snowflake-catcher');
-            
-            if (allScores && Array.isArray(allScores) && allScores.length > 0) {
-                // Sortiere und nimm Top 5
-                // Server sendet 'highscore' nicht 'score'!
-                highscores = allScores
-                    .filter(entry => entry && (entry.score !== undefined || entry.highscore !== undefined))
-                    .sort((a, b) => {
-                        const scoreA = a.score !== undefined ? a.score : (a.highscore || 0);
-                        const scoreB = b.score !== undefined ? b.score : (b.highscore || 0);
-                        return scoreB - scoreA;
-                    })
-                    .slice(0, 5)
-                    .map(entry => ({
-                        username: entry.username || 'Spieler',
-                        score: entry.score !== undefined ? entry.score : (entry.highscore || 0),
-                        timestamp: entry.timestamp || entry.lastPlayed || Date.now(),
-                        isCurrentPlayer: entry.username === statsManager.username
-                    }));
-            }
-            
-            // Wenn keine Scores oder aktueller Score nicht dabei, füge ihn hinzu
-            if (highscores.length === 0) {
-                highscores = [{
-                    username: statsManager.username || 'Du',
-                    score: this.score,
-                    timestamp: Date.now(),
-                    isCurrentPlayer: true
-                }];
-            }
+            top3 = await statsManager.getTop3('snowflake-catcher');
         } catch (error) {
-            console.error('Fehler beim Laden der Highscores:', error);
-            // Fallback: Zeige nur aktuellen Score
-            highscores = [{
-                username: statsManager.username || 'Du',
-                score: this.score,
-                timestamp: Date.now(),
-                isCurrentPlayer: true
-            }];
+            console.error('Fehler beim Laden der Bestenliste:', error);
         }
         
-        // Game Over anzeigen
-        const instructions = this.container.querySelector('.snowflake-instructions');
-        if (instructions) {
-            instructions.style.display = 'block';
-            
-            // Erstelle Highscore-HTML
-            let highscoreHTML = '';
-            if (highscores.length > 0) {
-                highscoreHTML = `
-                    <div class="highscore-section">
-                        <h3>🏆 Top 5 Bestenliste 🏆</h3>
-                        <div class="highscore-list">
-                            ${highscores.map((entry, index) => {
-                                const username = entry.username || 'Spieler';
-                                const score = entry.score !== undefined ? entry.score : 0;
-                                const isCurrentPlayer = entry.isCurrentPlayer || false;
-                                
-                                return `
-                                    <div class="highscore-entry ${isCurrentPlayer ? 'current-player' : ''}">
-                                        <span class="rank">#${index + 1}</span>
-                                        <span class="player-name">${username}</span>
-                                        <span class="player-score">${score} Pkt</span>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
+        // Game Over Overlay erstellen
+        const overlay = document.getElementById('snowflake-instructions-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            overlay.querySelector('.instructions-content').innerHTML = `
+                <h2 class="game-over-title">❄️ Spiel beendet! �</h2>
+                <div class="game-over-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Punkte:</span>
+                        <span class="stat-value">${this.score}</span>
                     </div>
-                `;
-            }
-            
-            instructions.innerHTML = `
-                <div class="game-over">
-                    <h2>🎉 Spiel Beendet! 🎉</h2>
-                    <div class="final-score">
-                        <div class="score-label">Deine Punktzahl:</div>
-                        <div class="score-value">${this.score} Punkte</div>
+                    <div class="stat-item">
+                        <span class="stat-label">Nachricht:</span>
+                        <span class="stat-message">${this.getScoreMessage()}</span>
                     </div>
-                    <div class="score-message">${this.getScoreMessage()}</div>
-                    ${highscoreHTML}
                 </div>
+                ${top3.length > 0 ? `
+                    <div class="highscore-list">
+                        <h3>🏆 Top 3</h3>
+                        ${top3.map((entry, index) => `
+                            <div class="highscore-entry rank-${index + 1}">
+                                <span class="rank">${['🥇', '🥈', '🥉'][index]}</span>
+                                <span class="player-name">${entry.username}</span>
+                                <span class="player-score">${entry.score || entry.highscore || 0}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                <button class="instruction-ok-button" onclick="location.reload()">
+                    🔄 Nochmal spielen
+                </button>
             `;
         }
-        
-        // Clear Canvas mit Animation
-        this.ctx.fillStyle = 'rgba(13, 71, 161, 0.8)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        this.ctx.font = 'bold 48px Arial';
-        this.ctx.fillStyle = 'white';
-        this.ctx.textAlign = 'center';
-        this.ctx.shadowBlur = 20;
-        this.ctx.shadowColor = '#4FC3F7';
-        this.ctx.fillText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2 - 50);
-        
-        this.ctx.font = 'bold 36px Arial';
-        this.ctx.fillText(`${this.score} Punkte`, this.canvas.width / 2, this.canvas.height / 2 + 20);
-        
-        document.getElementById('snowflake-start-button').style.display = 'block';
-        document.getElementById('snowflake-start-button').textContent = 'Nochmal spielen! 🔄';
     }
     
     getScoreMessage() {

@@ -179,6 +179,7 @@
     justify-content: center;
     z-index: 1000;
     padding: 20px;
+    box-sizing: border-box;
 }
 
 .instructions-content {
@@ -187,12 +188,13 @@
     border-radius: 20px;
     padding: 30px 25px;
     max-width: 500px;
-    width: 100%;
+    width: calc(100% - 40px);
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
     text-align: center;
     animation: slideUp 0.4s ease-out;
+    box-sizing: border-box;
 }
 
 @keyframes slideUp {
@@ -354,7 +356,121 @@
     line-height: 1;
 }
 
-/* Game Over Styling */
+/* Game Over Screen */
+.game-over-title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #0D47A1;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.game-over-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #fff 0%, #f5f5f5 100%);
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    border: 2px solid #64B5F6;
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    color: #1565C0;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0D47A1;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.stat-message {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+/* Highscore List */
+.highscore-list {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #fff 0%, #f5f5f5 100%);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 2px solid #64B5F6;
+}
+
+.highscore-list h3 {
+    font-size: 1.4rem;
+    color: #0D47A1;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.highscore-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    margin: 8px 0;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.highscore-entry:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.highscore-entry.rank-1 {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA000 100%);
+    color: #fff;
+    font-weight: bold;
+}
+
+.highscore-entry.rank-2 {
+    background: linear-gradient(135deg, #E0E0E0 0%, #9E9E9E 100%);
+    color: #333;
+    font-weight: bold;
+}
+
+.highscore-entry.rank-3 {
+    background: linear-gradient(135deg, #FFAB91 0%, #FF7043 100%);
+    color: #fff;
+    font-weight: bold;
+}
+
+.highscore-entry .rank {
+    font-size: 1.5rem;
+    min-width: 40px;
+}
+
+.highscore-entry .player-name {
+    flex: 1;
+    text-align: left;
+    padding: 0 15px;
+    font-size: 1rem;
+}
+
+.highscore-entry .player-score {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Game Over Styling (alte Kompatibilität) */
 .snowflake-game .game-over {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 20px;
