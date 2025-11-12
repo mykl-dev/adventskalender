@@ -42,8 +42,9 @@ class FlappySanta {
         this.animationId = null;
         this.lastTime = 0;
         
-        // Stats Manager - Simple localStorage-based
+        // Game name for stats
         this.gameName = 'flappy-santa';
+        this.startTime = 0;
         
         this.init();
     }
@@ -153,7 +154,16 @@ class FlappySanta {
         document.body.appendChild(overlay);
     }
     
-    start() {
+    async start() {
+        // Ensure username
+        if (typeof statsManager !== 'undefined') {
+            try {
+                await statsManager.ensureUsername();
+            } catch (error) {
+                console.warn('Username prompt failed:', error);
+            }
+        }
+        
         // Remove overlays
         const startOverlay = document.getElementById('start-overlay');
         if (startOverlay) startOverlay.remove();
@@ -171,6 +181,7 @@ class FlappySanta {
         this.obstacleGap = 200;
         this.obstacleSpawnTime = 2500;
         this.lastObstacleTime = 0;
+        this.startTime = Date.now();
         
         document.getElementById('score-value').textContent = '0';
         document.body.classList.add('playing');
@@ -551,7 +562,7 @@ class FlappySanta {
             (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
     }
     
-    endGame() {
+    async endGame() {
         if (!this.gameActive) return; // Prevent multiple calls
         
         this.gameActive = false;
@@ -572,17 +583,40 @@ class FlappySanta {
             this.canvas.removeEventListener('touchstart', this.clickHandler);
         }
         
-        // Save score and show overlay
-        this.saveScore(this.score);
-        const topScores = this.getTopScores();
-        this.showGameOverOverlay(topScores);
+        // Calculate play time
+        const playTime = Math.floor((Date.now() - this.startTime) / 1000);
+        
+        // Save stats
+        if (typeof statsManager !== 'undefined') {
+            try {
+                await statsManager.saveStats(this.gameName, this.score, playTime);
+            } catch (error) {
+                console.error('Fehler beim Speichern der Stats:', error);
+            }
+        }
+        
+        // Show game over after short delay
+        setTimeout(() => {
+            this.showGameOver();
+        }, 500);
     }
     
-    showGameOverOverlay(topScores) {
+    async showGameOver() {
+        // Load top 3
+        let top3 = [];
+        if (typeof statsManager !== 'undefined') {
+            try {
+                top3 = await statsManager.getTop3(this.gameName);
+            } catch (error) {
+                console.error('Fehler beim Laden der Bestenliste:', error);
+            }
+        }
+        
         // Remove any existing overlays first
         const existingOverlays = document.querySelectorAll('.overlay');
         existingOverlays.forEach(el => el.remove());
         
+        // Create game over overlay
         const overlay = document.createElement('div');
         overlay.className = 'overlay';
         overlay.innerHTML = `
@@ -590,10 +624,18 @@ class FlappySanta {
                 <div class="overlay-title">🎅 Game Over! 🎄</div>
                 <div class="score-message">${this.getScoreMessage()}</div>
                 <div class="final-score">${this.score}</div>
-                <div class="highscore-table">
-                    <div class="highscore-title">🏆 Top 3 Bestenliste</div>
-                    ${this.renderHighscores(topScores)}
-                </div>
+                ${top3.length > 0 ? `
+                    <div class="highscore-table">
+                        <div class="highscore-title">🏆 Top 3</div>
+                        ${top3.map((entry, index) => `
+                            <div class="highscore-entry">
+                                <span class="highscore-rank">${['🥇', '🥈', '🥉'][index]}</span>
+                                <span class="highscore-name">${entry.username}</span>
+                                <span class="highscore-score">${entry.score || entry.highscore || 0}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
                 <button class="game-button" onclick="game.start()">Nochmal spielen! 🔄</button>
             </div>
         `;
@@ -603,23 +645,6 @@ class FlappySanta {
         overlay.offsetHeight;
     }
     
-    renderHighscores(topScores) {
-        if (topScores.length === 0) {
-            return '<div style="text-align: center; color: #999; padding: 20px;">Noch keine Einträge</div>';
-        }
-        
-        return topScores.map((entry, index) => {
-            const isCurrent = entry.score === this.score && index === 0;
-            return `
-                <div class="highscore-entry ${isCurrent ? 'current' : ''}">
-                    <div class="highscore-rank">#${index + 1}</div>
-                    <div class="highscore-name">${entry.username}</div>
-                    <div class="highscore-score">${entry.score}</div>
-                </div>
-            `;
-        }).join('');
-    }
-    
     getScoreMessage() {
         if (this.score >= 30) return '🌟 Legendär! Du bist der beste Pilot!';
         if (this.score >= 20) return '⭐ Fantastisch! Santa wäre stolz!';
@@ -627,50 +652,6 @@ class FlappySanta {
         if (this.score >= 10) return '🎄 Gut! Weiter so!';
         if (this.score >= 5) return '🎅 Nicht schlecht! Versuch es nochmal!';
         return '🛷 Übung macht den Meister!';
-    }
-    
-    // Simple localStorage-based highscore management
-    saveScore(score) {
-        const username = this.getUsername();
-        const scores = this.getAllScores();
-        
-        scores.push({
-            username: username,
-            score: score,
-            timestamp: Date.now()
-        });
-        
-        // Sort by score (highest first) and keep top 10
-        scores.sort((a, b) => b.score - a.score);
-        const top10 = scores.slice(0, 10);
-        
-        localStorage.setItem(this.gameName + '-scores', JSON.stringify(top10));
-    }
-    
-    getTopScores() {
-        const scores = this.getAllScores();
-        return scores.slice(0, 3); // Top 3
-    }
-    
-    getAllScores() {
-        try {
-            const stored = localStorage.getItem(this.gameName + '-scores');
-            return stored ? JSON.parse(stored) : [];
-        } catch (error) {
-            console.error('Error loading scores:', error);
-            return [];
-        }
-    }
-    
-    getUsername() {
-        let username = localStorage.getItem('playerName');
-        
-        if (!username) {
-            username = prompt('Wie heißt du?', 'Spieler') || 'Spieler';
-            localStorage.setItem('playerName', username);
-        }
-        
-        return username;
     }
 }
 
