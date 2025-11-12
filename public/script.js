@@ -324,6 +324,24 @@ function showModal(data) {
             break;
             
         case 'game':
+            // Liste der Spiele mit eigenen Seiten (Fullscreen für bessere Mobile Experience)
+            const fullscreenGames = [
+                'snowflake-catcher', 
+                'christmas-match3', 
+                'santa-launcher',
+                'gift-catcher',
+                'flappy-santa',
+                'santa-run',
+                'santa-snake'
+            ];
+            
+            if (fullscreenGames.includes(data.content)) {
+                // Leite direkt zur Spiel-Seite weiter
+                window.location.href = `games/${data.content}.html`;
+                return; // Modal nicht anzeigen
+            }
+            
+            // Andere Spiele im Modal anzeigen
             content += `<div id="game-container-${data.day}"></div>`;
             break;
     }

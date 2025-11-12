@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>❄️ Schneeflocken Fangen 3D</title>
+    <link rel="stylesheet" href="../snowflake-catcher.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            touch-action: none;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            z-index: 2000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        
+        .snowflake-game {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        
+        .snowflake-game .game-header {
+            margin-bottom: 10px;
+        }
+        
+        #snowflake-canvas {
+            flex: 1;
+            width: 100% !important;
+            height: auto !important;
+            max-height: calc(100vh - 150px);
+        }
+        
+        .snowflake-instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            z-index: 1500;
+        }
+        
+        .game-button {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .game-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+        }
+        
+        .game-button:active {
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 768px) {
+            .back-button {
+                padding: 8px 15px;
+                font-size: 1rem;
+            }
+            
+            #snowflake-canvas {
+                max-height: calc(100vh - 120px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">
+        <span>⬅️</span>
+        <span>Zurück</span>
+    </a>
+    
+    <div class="game-container">
+        <div id="game-root"></div>
+    </div>
+    
+    <script src="../stats-manager.js"></script>
+    <script src="../snowflake-catcher.js"></script>
+    <script>
+        // Initialisiere das Spiel
+        document.addEventListener('DOMContentLoaded', () => {
+            new SnowflakeCatcherGame3D('game-root');
+        });
+    </script>
+</body>
+</html>
