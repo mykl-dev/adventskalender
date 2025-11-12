@@ -519,18 +519,18 @@ class SantaLauncherGame {
                     this.starsCollected++;
                     this.energy = Math.min(this.maxEnergy, this.energy + 30); // Mehr Energie (war 20)
                     
-                    // Geschwindigkeits-Boost! (vorwärts)
-                    this.santa.vx += 2.5;
+                    // Sanfter Geschwindigkeits-Boost (reduziert von 2.5)
+                    this.santa.vx += 1.2;
                     
-                    // Sanfterer Auftrieb
-                    this.santa.vy -= 0.8;
+                    // Sanfter Auftrieb ähnlich wie manueller Boost (reduziert von -0.8)
+                    this.santa.vy -= 0.4;
                     
                     // Mini-Segelphase aktivieren (längeres Segeln nach Stern)
                     this.glidePhase = true;
                     this.glideTime = 0;
-                    this.maxGlideTime = 35; // ~0.6 Sekunden (war 25)
+                    this.maxGlideTime = 30; // ~0.5 Sekunden
                     
-                    this.showMessage('+30 Energie + Speed! ⭐🚀', '#f1c40f');
+                    this.showMessage('+30 Energie + Boost! ⭐🚀', '#f1c40f');
                     this.updateBanner();
                     return false;
                 }
