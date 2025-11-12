@@ -56,8 +56,12 @@ class SnowflakeCatcherGame3D {
         
         document.getElementById('snowflake-start-button').addEventListener('click', () => this.start());
         
-        // Click-Event für Canvas
+        // Touch- und Click-Events für Canvas
         this.canvas.addEventListener('click', (e) => this.handleClick(e));
+        this.canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Verhindert verzögerte Click-Events
+            this.handleTouch(e);
+        }, { passive: false });
     }
     
     resizeCanvas() {
@@ -220,18 +224,38 @@ class SnowflakeCatcherGame3D {
         const clickX = e.clientX - rect.left;
         const clickY = e.clientY - rect.top;
         
+        this.checkFlakeHit(clickX, clickY);
+    }
+    
+    handleTouch(e) {
+        if (!this.gameActive) return;
+        
+        const rect = this.canvas.getBoundingClientRect();
+        const touch = e.touches[0] || e.changedTouches[0];
+        const touchX = touch.clientX - rect.left;
+        const touchY = touch.clientY - rect.top;
+        
+        this.checkFlakeHit(touchX, touchY);
+    }
+    
+    checkFlakeHit(x, y) {
         // Prüfe alle Schneeflocken (von vorne nach hinten)
         for (let i = this.snowflakes.length - 1; i >= 0; i--) {
             const flake = this.snowflakes[i];
+            
+            // Vergrößerte Hit-Box für bessere Touch-Erkennung (besonders bei kleinen Flocken)
+            const hitboxMultiplier = flake.type === 'small' ? 1.5 : 1.2;
+            const hitRadius = flake.size * hitboxMultiplier;
+            
             const distance = Math.sqrt(
-                Math.pow(clickX - flake.x, 2) + 
-                Math.pow(clickY - flake.y, 2)
+                Math.pow(x - flake.x, 2) + 
+                Math.pow(y - flake.y, 2)
             );
             
-            if (distance < flake.size) {
+            if (distance < hitRadius) {
                 // Treffer!
                 this.catchSnowflake(flake, i);
-                break; // Nur eine Flocke pro Klick
+                break; // Nur eine Flocke pro Klick/Touch
             }
         }
     }
