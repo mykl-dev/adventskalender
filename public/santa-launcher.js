@@ -41,8 +41,8 @@ class SantaLauncherGame {
         this.energy = 100;
         this.maxEnergy = 100;
         this.energyDrain = 0.25; // Weniger Drain = länger Energie (war 0.4)
-        this.boost = -0.3; // Sanfterer Auftrieb (war -0.5)
-        this.boostSmoothing = 0.15; // Für weiche Boost-Übergänge
+        this.boost = -0.2; // Noch sanfterer Auftrieb für bessere Steuerbarkeit (war -0.3)
+        this.boostSmoothing = 0.12; // Langsamere Interpolation für smoothere Kontrolle (war 0.15)
         
         // Sterne zum Einsammeln
         this.stars = [];
@@ -227,6 +227,10 @@ class SantaLauncherGame {
         this.cameraX = 0;
         this.particles = [];
         
+        // Segelphase für initialen Momentum
+        this.glideTime = 0;
+        this.glidePhase = false;
+        
         // Verstecke Start-Button Overlay
         document.getElementById('start-button-overlay').style.display = 'none';
         
@@ -353,12 +357,18 @@ class SantaLauncherGame {
             return;
         }
         
-        // Berechne Start-Geschwindigkeit (reduziert für kontrollierbareres Gameplay)
+        // Berechne Start-Geschwindigkeit (erhöht für mehr initiale Power)
         const angleRad = (this.angle * Math.PI) / 180;
-        const force = this.power * 0.22; // Reduziert von 0.3 für langsameres Gameplay
+        const force = this.power * 0.28; // Erhöht von 0.22 für mehr Katapult-Power
         
         this.santa.vx = Math.cos(angleRad) * force;
         this.santa.vy = -Math.sin(angleRad) * force;
+        
+        // Aktiviere Segelphase basierend auf Power (mehr Power = länger segeln)
+        this.glidePhase = true;
+        this.glideTime = 0;
+        // Längere Segelphase: 60-130 Frames (~1-2.2 Sekunden)
+        this.maxGlideTime = 60 + (this.power * 0.8);
         
         this.phase = 'flying';
         this.showMessage('🚀 Los geht\'s!', '#2ecc71');
@@ -398,8 +408,34 @@ class SantaLauncherGame {
         }
         
         else if (this.phase === 'flying') {
-            // Physik
-            this.santa.vy += this.gravity;
+            // Segelphase - Santa "schwebt" erstmal mit Katapult-Momentum
+            if (this.glidePhase) {
+                this.glideTime++;
+                
+                // Während Segelphase: Stark reduzierte Schwerkraft
+                const glideProgress = this.glideTime / this.maxGlideTime;
+                
+                // Erste 50% der Segelphase: Fast keine Schwerkraft (nur 10%)
+                // Zweite 50%: Steigt von 10% auf 50%
+                let gravityMultiplier;
+                if (glideProgress < 0.5) {
+                    gravityMultiplier = 0.1; // Segelt fast horizontal
+                } else {
+                    const secondHalfProgress = (glideProgress - 0.5) * 2;
+                    gravityMultiplier = 0.1 + (secondHalfProgress * 0.4); // 10% → 50%
+                }
+                
+                const glideGravity = this.gravity * gravityMultiplier;
+                this.santa.vy += glideGravity;
+                
+                // Segelphase endet nach maxGlideTime
+                if (this.glideTime >= this.maxGlideTime) {
+                    this.glidePhase = false;
+                }
+            } else {
+                // Normale Physik nach Segelphase
+                this.santa.vy += this.gravity;
+            }
             
             // Smooth Boost - statt hartem On/Off
             if (!this.currentBoost) this.currentBoost = 0;
@@ -481,8 +517,13 @@ class SantaLauncherGame {
                     // Geschwindigkeits-Boost! (vorwärts)
                     this.santa.vx += 2.5;
                     
-                    // Etwas Auftrieb
-                    this.santa.vy -= 1.5;
+                    // Sanfterer Auftrieb (reduziert von -1.5)
+                    this.santa.vy -= 0.8;
+                    
+                    // Mini-Segelphase aktivieren (kurzes Segeln nach Stern)
+                    this.glidePhase = true;
+                    this.glideTime = 0;
+                    this.maxGlideTime = 25; // ~0.4 Sekunden kurzes Segeln
                     
                     this.showMessage('+20 Energie + Speed! ⭐🚀', '#f1c40f');
                     this.updateBanner();
