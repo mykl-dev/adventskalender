@@ -465,14 +465,25 @@ class SantaLauncherGame {
             this.santa.x += this.santa.vx;
             this.santa.y += this.santa.vy;
             
-            // Y-Begrenzung: Wenn Santa zu hoch fliegt, dämpfe vertikale Geschwindigkeit
-            // aber NICHT die horizontale (behält Speed bei)
-            const maxHeight = 100; // Obergrenze des Canvas (100px vom oberen Rand)
-            if (this.santa.y < maxHeight) {
-                this.santa.y = maxHeight; // Setze auf Maximal-Höhe
-                // Dämpfe nur vertikale Geschwindigkeit, horizontal bleibt erhalten
-                if (this.santa.vy < 0) { // Nur wenn nach oben
-                    this.santa.vy *= 0.5; // Stark dämpfen
+            // Sanfte Y-Begrenzung: Lasse Santa teilweise aus dem Bild (nur Füße sichtbar)
+            const softLimit = -10; // Kann 10px über Bildschirmrand (Füße noch sichtbar)
+            const hardLimit = -30; // Absolute Obergrenze
+            
+            // Sanfte progressive Dämpfung statt hartem Stop
+            if (this.santa.y < softLimit) {
+                // Je höher Santa fliegt, desto stärker die Dämpfung
+                const overDistance = softLimit - this.santa.y; // Wie weit über der Grenze
+                const dampingFactor = 0.92 - (overDistance * 0.002); // 0.92 bis 0.88 (sanft)
+                
+                // Nur vertikale Geschwindigkeit dämpfen, horizontal bleibt
+                if (this.santa.vy < 0) {
+                    this.santa.vy *= Math.max(dampingFactor, 0.85); // Mindestens 0.85
+                }
+                
+                // Harter Stop nur bei extremer Höhe
+                if (this.santa.y < hardLimit) {
+                    this.santa.y = hardLimit;
+                    this.santa.vy = Math.max(this.santa.vy, -0.5); // Sanft zurückdrücken
                 }
             }
             
