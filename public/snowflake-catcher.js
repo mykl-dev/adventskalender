@@ -137,36 +137,69 @@ class SnowflakeCatcherGame3D {
         const rand = Math.random();
         let type, points, color, glow, size;
         
-        if (rand < 0.7) {
-            // Normale blaue Schneeflocke (70%)
-            type = 'normal';
-            points = 10;
+        if (rand < 0.1) {
+            // Bonus-Zeit Flocke (10%)
+            type = 'timebonus';
+            points = 0;
+            color = '#00BCD4';
+            glow = '#00E5FF';
+            size = 25 + Math.random() * 10;
+        } else if (rand < 0.3) {
+            // Große Flocke (20%) - Langsam, wenig Punkte
+            type = 'large';
+            points = 5;
             color = '#4FC3F7';
             glow = '#81D4FA';
-            size = 20 + Math.random() * 15;
+            size = 35 + Math.random() * 10;
+        } else if (rand < 0.65) {
+            // Mittlere Flocke (35%) - Normal
+            type = 'medium';
+            points = 10;
+            color = '#2196F3';
+            glow = '#64B5F6';
+            size = 25 + Math.random() * 8;
         } else if (rand < 0.85) {
-            // Rote Feuerflocke - NEGATIV (15%)
+            // Kleine Flocke (20%) - Schnell, viele Punkte
+            type = 'small';
+            points = 25;
+            color = '#1976D2';
+            glow = '#42A5F5';
+            size = 15 + Math.random() * 8;
+        } else if (rand < 0.95) {
+            // Rote Feuerflocke - NEGATIV (10%)
             type = 'fire';
             points = -15;
             color = '#FF5722';
             glow = '#FF8A65';
-            size = 25 + Math.random() * 15;
+            size = 25 + Math.random() * 10;
         } else {
-            // Seltene Kristall-Flocke (15%)
-            type = 'crystal';
-            points = 25;
-            color = '#E1F5FE';
-            glow = '#B3E5FC';
+            // Goldene Kristall-Flocke (5%) - Sehr selten!
+            type = 'golden';
+            points = 50;
+            color = '#FFD700';
+            glow = '#FFF176';
             size = 30 + Math.random() * 10;
+        }
+        
+        // Geschwindigkeit basierend auf Größe (größer = langsamer, kleiner = schneller)
+        let baseSpeed;
+        if (type === 'large') {
+            baseSpeed = 1.5; // Langsam
+        } else if (type === 'small') {
+            baseSpeed = 3.5; // Schnell
+        } else if (type === 'timebonus') {
+            baseSpeed = 2.0; // Mittel-langsam
+        } else {
+            baseSpeed = 2.5; // Normal
         }
         
         const snowflake = {
             x: Math.random() * (this.canvas.width - 60) + 30,
             y: -50,
-            vx: (Math.random() - 0.5) * 2,
-            vy: 2 + Math.random() * 2 * this.difficulty,
+            vx: (Math.random() - 0.5) * 1.5, // Reduziert horizontale Bewegung
+            vy: baseSpeed + Math.random() * 0.8, // Weniger Variation
             rotation: Math.random() * Math.PI * 2,
-            rotationSpeed: (Math.random() - 0.5) * 0.1,
+            rotationSpeed: (Math.random() - 0.5) * 0.08, // Langsamere Rotation
             size: size,
             type: type,
             points: points,
@@ -204,6 +237,31 @@ class SnowflakeCatcherGame3D {
     }
     
     catchSnowflake(flake, index) {
+        // Bonus-Zeit Flocke
+        if (flake.type === 'timebonus') {
+            this.timeLeft += 5;
+            document.getElementById('snowflake-time').textContent = this.timeLeft;
+            
+            // Spezielle Effekte für Bonus-Zeit
+            this.createExplosion(flake);
+            this.createFloatingText(flake.x, flake.y, '+5 SEK ⏰', flake.color);
+            
+            // Kurzer Flash-Effekt im Zeit-Display
+            const timeDisplay = this.container.querySelector('.time-display');
+            if (timeDisplay) {
+                timeDisplay.style.transform = 'scale(1.2)';
+                timeDisplay.style.background = 'linear-gradient(135deg, #00BCD4 0%, #00E5FF 100%)';
+                setTimeout(() => {
+                    timeDisplay.style.transform = 'scale(1)';
+                    timeDisplay.style.background = 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)';
+                }, 300);
+            }
+            
+            // Entferne Flocke
+            this.snowflakes.splice(index, 1);
+            return;
+        }
+        
         // Punkte hinzufügen/abziehen
         this.score += flake.points;
         if (this.score < 0) this.score = 0; // Keine negativen Punkte
@@ -214,26 +272,33 @@ class SnowflakeCatcherGame3D {
         this.createExplosion(flake);
         
         // Floating Text für Feedback
-        this.createFloatingText(flake.x, flake.y, flake.points > 0 ? `+${flake.points}` : `${flake.points}`, flake.color);
+        let textContent = flake.points > 0 ? `+${flake.points}` : `${flake.points}`;
+        if (flake.type === 'golden') textContent = `+${flake.points} 💎`;
+        this.createFloatingText(flake.x, flake.y, textContent, flake.color);
         
-        // SPLIT-EFFEKT: Wenn normale oder Kristall-Flocke, spawne 2 kleinere (Performance: max 2 statt 2-3)
-        if ((flake.type === 'normal' || flake.type === 'crystal') && this.snowflakes.length < 18) {
+        // SPLIT-EFFEKT: Nur bei mittleren und großen Flocken
+        if ((flake.type === 'medium' || flake.type === 'large') && this.snowflakes.length < 18) {
             const numSplits = 2; // Fixiert auf 2 für bessere Performance
             
             for (let i = 0; i < numSplits; i++) {
                 const angle = (Math.PI * 2 / numSplits) * i + Math.random() * 0.5;
-                const speed = 3 + Math.random() * 2;
+                const speed = 2 + Math.random() * 1.5; // Langsamer
+                
+                // Splits werden zu kleineren Flocken mit entsprechenden Punkten
+                const splitType = flake.type === 'large' ? 'medium' : 'small';
+                const splitPoints = flake.type === 'large' ? 10 : 25;
+                const splitSize = flake.type === 'large' ? 25 : 15;
                 
                 const splitFlake = {
                     x: flake.x,
                     y: flake.y,
                     vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed + 2,
+                    vy: Math.sin(angle) * speed + 1.5,
                     rotation: Math.random() * Math.PI * 2,
-                    rotationSpeed: (Math.random() - 0.5) * 0.15,
-                    size: flake.size * 0.6, // Kleinere Splits
-                    type: flake.type,
-                    points: Math.ceil(flake.points * 0.5), // Halbe Punkte
+                    rotationSpeed: (Math.random() - 0.5) * 0.1,
+                    size: splitSize,
+                    type: splitType,
+                    points: splitPoints,
                     color: flake.color,
                     glow: flake.glow,
                     opacity: 1,
