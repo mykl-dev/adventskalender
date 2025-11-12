@@ -24,35 +24,104 @@ class SnowflakeCatcherGame3D {
     
     init() {
         this.container.innerHTML = `
-            <div class="snowflake-game">
-                <div class="game-header">
-                    <div class="score-display">
-                        ❄️ Punkte: <span id="snowflake-score">0</span>
+            <div class="snowflake-game-container">
+                <div class="snowflake-game-header">
+                    <div class="snowflake-score-display">
+                        <span class="score-label">❄️</span>
+                        <span id="snowflake-score" class="score-value">0</span>
                     </div>
-                    <div class="time-display">
-                        ⏰ Zeit: <span id="snowflake-time">30</span>s
+                    <div class="snowflake-time-display">
+                        <span class="time-label">⏰</span>
+                        <span id="snowflake-time" class="time-value">30</span>s
                     </div>
                 </div>
-                <canvas id="snowflake-canvas" width="400" height="600"></canvas>
-                <div class="snowflake-instructions">
-                    <h3>❄️ Schneeflocken Fangen 3D ❄️</h3>
-                    <p>❄️ <strong>Blaue Schneeflocken</strong> = +10 Punkte</p>
-                    <p>💎 <strong>Kristall-Flocken</strong> = +25 Punkte (selten!)</p>
-                    <p>🔥 <strong>Rote Feuerflocken</strong> = -15 Punkte (VERMEIDEN!)</p>
-                    <p>✨ Schneeflocken teilen sich in 2 kleinere beim Klicken!</p>
-                    <p>⚡ Je mehr du fängst, desto schneller werden sie!</p>
-                    <p>🎯 30 Sekunden Zeit - maximale Punktzahl erreichen!</p>
+                
+                <!-- Stats Banner -->
+                <div class="snowflake-stats-banner">
+                    <div class="stat-box">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="banner-score">0</div>
+                            <div class="stat-label">Punkte</div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="banner-time">30</div>
+                            <div class="stat-label">Zeit</div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">🚀</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="banner-difficulty">1</div>
+                            <div class="stat-label">Difficulty</div>
+                        </div>
+                    </div>
                 </div>
-                <button class="game-button" id="snowflake-start-button">Spiel starten! 🎮</button>
+                
+                <canvas id="snowflake-canvas" class="snowflake-canvas"></canvas>
+                
+                <!-- Instructions Overlay -->
+                <div class="snowflake-instructions-overlay" id="snowflake-instructions-overlay">
+                    <div class="instructions-content">
+                        <h2>❄️ Schneeflocken Fangen 3D ❄️</h2>
+                        <div class="instruction-items">
+                            <div class="instruction-item">
+                                <span class="item-icon">❄️</span>
+                                <span>Blaue Flocken = +10 Punkte</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">💎</span>
+                                <span>Kristall-Flocken = +25 Punkte (selten!)</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">🔥</span>
+                                <span>Rote Feuerflocken = -15 Punkte</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">✨</span>
+                                <span>Flocken teilen sich beim Klicken!</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">📱</span>
+                                <span>Touch oder Click zum Fangen</span>
+                            </div>
+                        </div>
+                        <p class="difficulty-info">⚡ 30 Sekunden Zeit - maximale Punktzahl erreichen!</p>
+                        <button class="instruction-ok-button" id="instruction-ok-button">
+                            ✓ Okay, verstanden!
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Start Button (erscheint nach OK) -->
+                <div class="start-button-overlay" id="start-button-overlay" style="display: none;">
+                    <button class="snowflake-start-button pulse" id="snowflake-start-button">
+                        <span class="button-icon">🎮</span>
+                        <span>Spiel starten!</span>
+                    </button>
+                </div>
             </div>
         `;
         
         this.canvas = document.getElementById('snowflake-canvas');
-        this.ctx = this.canvas.getContext('2d');
+        this.ctx = this.canvas.getContext('2d', { alpha: false });
+        
+        // Anti-Aliasing und smoothes Rendering
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
         
         // Responsive Canvas-Größe
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
+        
+        // Overlay Event-Handler
+        document.getElementById('instruction-ok-button').addEventListener('click', () => {
+            document.getElementById('snowflake-instructions-overlay').style.display = 'none';
+            document.getElementById('start-button-overlay').style.display = 'flex';
+        });
         
         document.getElementById('snowflake-start-button').addEventListener('click', () => this.start());
         
@@ -66,11 +135,19 @@ class SnowflakeCatcherGame3D {
     
     resizeCanvas() {
         const container = this.canvas.parentElement;
-        const maxWidth = Math.min(600, container.offsetWidth - 40);
-        const maxHeight = Math.min(700, window.innerHeight - 250);
+        const header = document.querySelector('.snowflake-game-header');
+        const banner = document.querySelector('.snowflake-stats-banner');
         
-        this.canvas.width = maxWidth;
-        this.canvas.height = maxHeight;
+        // Dynamische Höhenberechnung
+        const headerHeight = header ? header.offsetHeight : 0;
+        const bannerHeight = banner ? banner.offsetHeight : 0;
+        const containerHeight = container.offsetHeight;
+        
+        // Canvas nimmt verfügbaren Platz (100% - Header - Banner)
+        const availableHeight = containerHeight - headerHeight - bannerHeight;
+        
+        this.canvas.width = container.offsetWidth;
+        this.canvas.height = Math.max(400, availableHeight);
     }
     
     async start() {
@@ -85,12 +162,15 @@ class SnowflakeCatcherGame3D {
         this.difficulty = 1;
         this.startTime = Date.now();
         
-        const instructions = this.container.querySelector('.snowflake-instructions');
-        if (instructions) instructions.style.display = 'none';
+        // Verstecke Start-Button Overlay
+        document.getElementById('start-button-overlay').style.display = 'none';
         
-        document.getElementById('snowflake-start-button').style.display = 'none';
+        // Aktualisiere alle Anzeigen
         document.getElementById('snowflake-score').textContent = '0';
         document.getElementById('snowflake-time').textContent = '30';
+        document.getElementById('banner-score').textContent = '0';
+        document.getElementById('banner-time').textContent = '30';
+        document.getElementById('banner-difficulty').textContent = '1';
         
         this.startTimer();
         this.startSpawning();
@@ -102,22 +182,39 @@ class SnowflakeCatcherGame3D {
             this.timeLeft--;
             document.getElementById('snowflake-time').textContent = this.timeLeft;
             
-            // Zeit-Display färben
-            const timeDisplay = this.container.querySelector('.time-display');
-            if (this.timeLeft <= 5) {
-                timeDisplay.classList.add('time-critical');
-            } else if (this.timeLeft <= 10) {
-                timeDisplay.classList.add('time-warning');
-            }
-            
             // Schwierigkeit erhöhen
             this.difficulty = 1 + (30 - this.timeLeft) / 20;
+            
+            // Banner aktualisieren
+            this.updateBanner();
             
             if (this.timeLeft <= 0) {
                 clearInterval(interval);
                 this.endGame();
             }
         }, 1000);
+    }
+    
+    updateBanner() {
+        // Score
+        document.getElementById('banner-score').textContent = this.score;
+        
+        // Zeit
+        const timeElem = document.getElementById('banner-time');
+        timeElem.textContent = this.timeLeft;
+        
+        // Zeit-Warnung
+        const timeBox = timeElem.closest('.stat-box');
+        if (this.timeLeft <= 5) {
+            timeBox.classList.add('time-critical');
+        } else if (this.timeLeft <= 10) {
+            timeBox.classList.add('time-warning');
+        } else {
+            timeBox.classList.remove('time-warning', 'time-critical');
+        }
+        
+        // Difficulty
+        document.getElementById('banner-difficulty').textContent = this.difficulty.toFixed(1);
     }
     
     startSpawning() {
@@ -291,6 +388,7 @@ class SnowflakeCatcherGame3D {
         if (this.score < 0) this.score = 0; // Keine negativen Punkte
         
         document.getElementById('snowflake-score').textContent = this.score;
+        this.updateBanner();
         
         // Partikel-Explosion erstellen
         this.createExplosion(flake);
