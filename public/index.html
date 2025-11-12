@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎄 Adventskalender 2025</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="minigames.css">
+    <link rel="stylesheet" href="christmas-match3.css">
+    <link rel="stylesheet" href="santa-launcher.css">
+    <link rel="stylesheet" href="stats.css">
+</head>
+<body>
+    <!-- Schneefall Canvas -->
+    <canvas id="snow-canvas"></canvas>
+    
+    <!-- Header -->
+    <header class="header">
+        <h1 class="title">🎄 Adventskalender 2025 🎅</h1>
+        <p class="subtitle">Öffne jeden Tag ein neues Türchen!</p>
+        
+        <!-- Theme Switcher -->
+        <div class="theme-switcher">
+            <button id="theme-toggle" class="theme-button" aria-label="Theme wechseln">
+                <span class="theme-icon">🎨</span>
+                <span class="theme-text">Modern</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Adventskalender Grid -->
+    <main class="calendar-container">
+        <div class="calendar-grid" id="calendar-grid">
+            <!-- Türchen werden dynamisch mit JavaScript generiert -->
+        </div>
+    </main>
+
+    <!-- Modal für Türchen-Inhalt -->
+    <div id="door-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close">&times;</button>
+            <div class="modal-body" id="modal-body">
+                <!-- Inhalt wird dynamisch geladen -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>🎁 Frohe Weihnachten! 🎁</p>
+    </footer>
+
+    <script src="stats-manager.js"></script>
+    <script src="minigames.js"></script>
+    <script src="christmas-match3.js"></script>
+    <script src="santa-launcher.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

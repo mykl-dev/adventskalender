@@ -1,0 +1,164 @@
+{
+  "doors": [
+    {
+      "day": 1,
+      "type": "quote",
+      "content": "Die schönste Zeit des Jahres hat begonnen! Genieße jeden Moment und jedes Lächeln. 🎄",
+      "opened": false
+    },
+    {
+      "day": 2,
+      "type": "joke",
+      "content": "Was ist weiß und steht hinter einem Baum? Eine schüchterne Schneeflocke! ❄️",
+      "opened": false
+    },
+    {
+      "day": 3,
+      "type": "game",
+      "content": "gift-catcher",
+      "description": "Spiel: Fange die Geschenke und weiche der Kohle aus! 🎅�",
+      "opened": false
+    },
+    {
+      "day": 4,
+      "type": "image",
+      "content": "http://DEIN-NAS-SERVER/images/weihnacht-tag4.jpg",
+      "description": "Ein wunderschönes Winterbild zum Träumen! 🖼️",
+      "opened": false
+    },
+    {
+      "day": 5,
+      "type": "quote",
+      "content": "Weihnachten ist nicht ein Zeitpunkt noch eine Jahreszeit, sondern eine Gefühlslage. ✨",
+      "opened": false
+    },
+    {
+      "day": 6,
+      "type": "game",
+      "content": "snowflake-catcher",
+      "description": "Spiel: Fange so viele Schneeflocken wie möglich! ❄️🎮",
+      "opened": false
+    },
+    {
+      "day": 7,
+      "type": "video",
+      "content": "http://DEIN-NAS-SERVER/videos/weihnacht-tag7.mp4",
+      "description": "Ein lustiges Weihnachtsvideo! 🎬",
+      "opened": false
+    },
+    {
+      "day": 8,
+      "type": "quote",
+      "content": "In der Weihnachtszeit gibt es keine Fremden, nur Freunde, die sich noch nicht kennen! 🤗",
+      "opened": false
+    },
+    {
+      "day": 9,
+      "type": "game",
+      "content": "santa-launcher",
+      "description": "Spiel: Katapultiere den Weihnachtsmann so weit wie möglich! 🎅🚀",
+      "opened": false
+    },
+    {
+      "day": 10,
+      "type": "game",
+      "content": "flappy-santa",
+      "description": "Spiel: Fliege mit dem Weihnachtsmann durch die Stadt! 🎅🛷",
+      "opened": false
+    },
+    {
+      "day": 11,
+      "type": "quote",
+      "content": "Das Schönste an Weihnachten ist nicht das Geschenk, sondern die Zeit mit der Familie! 👨‍👩‍👧‍👦",
+      "opened": false
+    },
+    {
+      "day": 12,
+      "type": "game",
+      "content": "santa-snake",
+      "description": "Spiel: Santa Snake - Sammle Geschenke und werde länger! 🎅🎁",
+      "opened": false
+    },
+    {
+      "day": 13,
+      "type": "image",
+      "content": "http://DEIN-NAS-SERVER/images/weihnacht-tag13.jpg",
+      "description": "Magische Winterstimmung! ⛄",
+      "opened": false
+    },
+    {
+      "day": 14,
+      "type": "game",
+      "content": "christmas-memory",
+      "description": "Spiel: Finde alle Weihnachts-Paare im Memory! 🎄🎮",
+      "opened": false
+    },
+    {
+      "day": 15,
+      "type": "game",
+      "content": "christmas-match3",
+      "description": "Spiel: Christmas Match-3 - Kombiniere Christbaumkugeln und sammle Punkte! 🎄🔴�",
+      "opened": false
+    },
+    {
+      "day": 16,
+      "type": "video",
+      "content": "http://DEIN-NAS-SERVER/videos/weihnacht-tag16.mp4",
+      "description": "Ein herzerwärmendes Weihnachtsvideo! ❤️",
+      "opened": false
+    },
+    {
+      "day": 17,
+      "type": "joke",
+      "content": "Was ist grün und steht vor der Tür? Ein Klopfsalat! 🥬😂",
+      "opened": false
+    },
+    {
+      "day": 18,
+      "type": "game",
+      "content": "santa-run",
+      "description": "Spiel: Laufe mit Santa durch die Stadt und sammle Geschenke! 🎅�",
+      "opened": false
+    },
+    {
+      "day": 19,
+      "type": "quote",
+      "content": "Die besten Geschenke sind die, die von Herzen kommen! 💝",
+      "opened": false
+    },
+    {
+      "day": 20,
+      "type": "video",
+      "content": "http://DEIN-NAS-SERVER/videos/weihnacht-tag20.mp4",
+      "description": "Nur noch 4 Tage bis Heiligabend! 🎁",
+      "opened": false
+    },
+    {
+      "day": 21,
+      "type": "game",
+      "content": "gift-stack",
+      "description": "Spiel: Staple die Geschenke so hoch wie möglich! ��",
+      "opened": false
+    },
+    {
+      "day": 22,
+      "type": "image",
+      "content": "http://DEIN-NAS-SERVER/images/weihnacht-tag22.jpg",
+      "description": "Fast geschafft! Bald ist Weihnachten! 🌟",
+      "opened": false
+    },
+    {
+      "day": 23,
+      "type": "quote",
+      "content": "Morgen ist Heiligabend! Genieße die letzten Vorbereitungen und die Vorfreude! 🎊",
+      "opened": false
+    },
+    {
+      "day": 24,
+      "type": "video",
+      "content": "http://DEIN-NAS-SERVER/videos/weihnacht-tag24.mp4",
+      "description": "🎄🎅 FROHE WEIHNACHTEN! 🎁✨ Wir wünschen dir und deiner Familie ein besinnliches und fröhliches Fest!",
+      "opened": false
+    }
+  ]
+}

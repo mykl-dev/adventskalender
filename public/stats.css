@@ -1,0 +1,238 @@
+/* === Statistik & Highscore Styles === */
+
+/* Username-Dialog Overlay */
+.username-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.username-dialog {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 80px rgba(102, 126, 234, 0.4);
+    text-align: center;
+    max-width: 400px;
+    color: white;
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.username-dialog h2 {
+    margin: 0 0 20px 0;
+    font-size: 2em;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.username-dialog p {
+    margin: 15px 0;
+    font-size: 1.1em;
+}
+
+.username-hint {
+    font-size: 0.85em !important;
+    opacity: 0.8;
+    margin-top: 15px !important;
+}
+
+#username-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+#username-input:focus {
+    outline: none;
+    border-color: #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+#username-input.error {
+    animation: shake 0.5s ease;
+    border-color: #e74c3c;
+}
+
+#username-submit {
+    margin-top: 20px;
+    padding: 15px 40px;
+    font-size: 1.2em;
+    font-weight: bold;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+}
+
+#username-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 25px rgba(245, 87, 108, 0.6);
+}
+
+#username-submit:active {
+    transform: translateY(0);
+}
+
+/* Highscore Display */
+.highscore-display {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Highscore innerhalb Game-Over Overlay */
+.game-over .highscore-display {
+    background: rgba(30, 60, 114, 0.5);
+    margin-top: 20px;
+    padding: 15px;
+}
+
+.highscore-display h3 {
+    margin: 0 0 15px 0;
+    color: #FFD700;
+    font-size: 1.5em;
+    text-align: center;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.highscore-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.highscore-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 15px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.highscore-row:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(5px);
+}
+
+.highscore-row.current-player {
+    background: rgba(255, 215, 0, 0.2);
+    border: 2px solid rgba(255, 215, 0, 0.5);
+}
+
+.highscore-row.new-highscore {
+    background: rgba(46, 204, 113, 0.3);
+    border: 2px solid #2ecc71;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(46, 204, 113, 0.8);
+    }
+}
+
+.rank {
+    font-size: 1.5em;
+    min-width: 40px;
+}
+
+.player-name {
+    flex: 1;
+    font-weight: bold;
+    color: white;
+    font-size: 1.1em;
+}
+
+.player-score {
+    font-weight: bold;
+    color: #FFD700;
+    font-size: 1.2em;
+    min-width: 80px;
+    text-align: right;
+}
+
+.no-scores {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+    padding: 20px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .username-dialog {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+    
+    .username-dialog h2 {
+        font-size: 1.5em;
+    }
+    
+    #username-input {
+        font-size: 1em;
+    }
+    
+    #username-submit {
+        font-size: 1em;
+        padding: 12px 30px;
+    }
+    
+    .highscore-display {
+        padding: 15px;
+    }
+    
+    .highscore-row {
+        padding: 10px;
+    }
+    
+    .rank {
+        font-size: 1.2em;
+        min-width: 30px;
+    }
+    
+    .player-name {
+        font-size: 1em;
+    }
+    
+    .player-score {
+        font-size: 1em;
+        min-width: 60px;
+    }
+}

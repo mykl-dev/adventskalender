@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎅 Santa Launcher - Weihnachtsspiel</title>
+    <link rel="stylesheet" href="santa-launcher.css">
+    <link rel="stylesheet" href="christmas-match3.css">
+    <link rel="stylesheet" href="stats.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 3em;
+            margin: 20px 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎅 Santa Launcher 🚀</h1>
+        <div id="game-container"></div>
+    </div>
+    
+    <script src="stats-manager.js"></script>
+    <script src="santa-launcher.js"></script>
+    <script>
+        // Initialisiere das Spiel
+        const game = new SantaLauncherGame('game-container');
+    </script>
+</body>
+</html>

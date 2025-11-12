@@ -1,0 +1,630 @@
+/* ========================================
+   GRUNDLEGENDE STYLES & RESET
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.5s ease;
+}
+
+/* Snow Canvas */
+#snow-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ========================================
+   KLASSISCHES THEME (Standard)
+   ======================================== */
+body.classic-theme {
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+}
+
+body.classic-theme::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(220, 20, 60, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ========================================
+   MODERNES THEME (Verbesserte Lesbarkeit)
+   ======================================== */
+body.modern-theme {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+}
+
+body.modern-theme::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 30% 40%, rgba(52, 152, 219, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(155, 89, 182, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 50% 90%, rgba(46, 204, 113, 0.15) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+.header {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 2rem 1rem;
+    color: white;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    margin-bottom: 0.5rem;
+    animation: titleFloat 3s ease-in-out infinite;
+}
+
+@keyframes titleFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 1.5rem;
+}
+
+/* ========================================
+   THEME SWITCHER
+   ======================================== */
+.theme-switcher {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.theme-button {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.theme-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.theme-icon {
+    font-size: 1.5rem;
+}
+
+/* ========================================
+   KALENDER GRID
+   ======================================== */
+.calendar-container {
+    position: relative;
+    z-index: 10;
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 2rem 4rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    perspective: 1000px;
+}
+
+/* ========================================
+   TÜRCHEN - Klassisches Theme
+   ======================================== */
+.classic-theme .door {
+    background: linear-gradient(145deg, #c41e3a, #8b0000);
+    border: 3px solid #ffd700;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.classic-theme .door::before {
+    content: '❄️';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    opacity: 0.3;
+}
+
+.classic-theme .door:hover {
+    background: linear-gradient(145deg, #d32f2f, #a00000);
+    border-color: #ffeb3b;
+    box-shadow: 0 12px 24px rgba(255, 215, 0, 0.4);
+}
+
+.classic-theme .door.opened {
+    background: linear-gradient(145deg, #2e7d32, #1b5e20);
+    border-color: #4caf50;
+}
+
+.classic-theme .door.locked {
+    background: linear-gradient(145deg, #424242, #212121);
+    border-color: #757575;
+}
+
+/* ========================================
+   TÜRCHEN - Modernes Theme (Bessere Lesbarkeit)
+   ======================================== */
+.modern-theme .door {
+    background: linear-gradient(145deg, rgba(52, 152, 219, 0.3), rgba(41, 128, 185, 0.25));
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(52, 152, 219, 0.5);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    color: #fff;
+}
+
+.modern-theme .door::before {
+    content: '✨';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    opacity: 0.4;
+}
+
+.modern-theme .door:hover {
+    background: linear-gradient(145deg, rgba(52, 152, 219, 0.45), rgba(41, 128, 185, 0.35));
+    border-color: rgba(52, 152, 219, 0.8);
+    box-shadow: 0 12px 40px rgba(52, 152, 219, 0.4);
+}
+
+.modern-theme .door.opened {
+    background: linear-gradient(145deg, rgba(46, 204, 113, 0.4), rgba(39, 174, 96, 0.3));
+    border-color: rgba(46, 204, 113, 0.7);
+}
+
+.modern-theme .door.locked {
+    background: linear-gradient(145deg, rgba(149, 165, 166, 0.3), rgba(127, 140, 141, 0.25));
+    border-color: rgba(149, 165, 166, 0.5);
+}
+
+/* ========================================
+   TÜRCHEN - Gemeinsame Styles
+   ======================================== */
+.door {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    animation: doorAppear 0.6s ease-out backwards;
+}
+
+.door:nth-child(1) { animation-delay: 0.05s; }
+.door:nth-child(2) { animation-delay: 0.1s; }
+.door:nth-child(3) { animation-delay: 0.15s; }
+.door:nth-child(4) { animation-delay: 0.2s; }
+.door:nth-child(5) { animation-delay: 0.25s; }
+.door:nth-child(6) { animation-delay: 0.3s; }
+/* ... usw. für alle 24 Türchen */
+
+@keyframes doorAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.3) rotateY(180deg);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) rotateY(0);
+    }
+}
+
+.door:hover {
+    transform: translateY(-5px) scale(1.05);
+}
+
+.door.locked {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.door.locked:hover {
+    transform: none;
+}
+
+.door.opened {
+    animation: doorOpen 0.6s ease-out;
+}
+
+@keyframes doorOpen {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(-90deg) scale(1.1); }
+    100% { transform: rotateY(0deg); }
+}
+
+.door-number {
+    font-size: 3rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 0.5rem;
+}
+
+.door-label {
+    font-size: 0.9rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    opacity: 0.9;
+}
+
+.door-icon {
+    position: absolute;
+    bottom: 10px;
+    font-size: 1.8rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    display: none; /* Icons ausgeblendet für mehr Überraschung! */
+}
+
+/* ========================================
+   MODAL
+   ======================================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalSlideIn 0.4s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.7) translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    font-size: 2rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    background: rgba(0, 0, 0, 0.2);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 3rem 2rem 2rem;
+}
+
+.modal-body h2 {
+    color: #c41e3a;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.modal-body .content-video {
+    width: 100%;
+    border-radius: 10px;
+    margin: 1rem 0;
+}
+
+.modal-body .content-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin: 1rem 0;
+}
+
+.modal-body .content-text {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #333;
+    text-align: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, #fff9e6, #fff);
+    border-radius: 10px;
+    border-left: 4px solid #ffd700;
+}
+
+.modal-body .content-joke {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+    text-align: center;
+    padding: 2rem;
+    background: #f5f5f5;
+    border-radius: 10px;
+    font-style: italic;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+.footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 2rem;
+    color: white;
+    font-size: 1.2rem;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+    .title {
+        font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .calendar-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+    
+    .door-number {
+        font-size: 2.5rem;
+    }
+    
+    .modal-content {
+        width: 95%;
+    }
+    
+    .modal-body {
+        padding: 2.5rem 1.5rem 1.5rem;
+    }
+    
+    .modal-body h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.8rem;
+    }
+    
+    .door-number {
+        font-size: 2rem;
+    }
+    
+    .door-label {
+        font-size: 0.7rem;
+    }
+}
+
+/* ========================================
+   CUSTOM NOTIFICATION (statt Alert)
+   ======================================== */
+.notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    opacity: 0;
+    animation: notificationAppear 0.4s ease-out forwards;
+}
+
+@keyframes notificationAppear {
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.notification-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 1999;
+    opacity: 0;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+.notification-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: iconBounce 0.6s ease-out;
+}
+
+@keyframes iconBounce {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-20px); }
+    50% { transform: translateY(-10px); }
+    75% { transform: translateY(-5px); }
+}
+
+.notification-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #c41e3a;
+    margin-bottom: 1rem;
+}
+
+.notification-message {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.notification-button {
+    background: linear-gradient(135deg, #c41e3a, #8b0000);
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(196, 30, 58, 0.3);
+}
+
+.notification-button:hover {
+    background: linear-gradient(135deg, #d32f2f, #a00000);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+}
+
+/* ========================================
+   TEST-MODUS TOGGLE
+   ======================================== */
+.test-mode-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+}
+
+.test-mode-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.test-mode-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.test-mode-toggle.active {
+    background: rgba(46, 204, 113, 0.4);
+    border-color: rgba(46, 204, 113, 0.6);
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+}
+
+.test-mode-icon {
+    font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+    .test-mode-container {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .test-mode-toggle {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+}
