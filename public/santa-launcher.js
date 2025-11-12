@@ -41,8 +41,8 @@ class SantaLauncherGame {
         this.energy = 150; // Mehr Start-Energie (war 100)
         this.maxEnergy = 150; // Höheres Maximum (war 100)
         this.energyDrain = 0.18; // Noch weniger Verbrauch (war 0.22)
-        this.boost = -0.25; // Flacherer Boost-Winkel (war -0.35)
-        this.boostSmoothing = 0.15; // Sanftere Übergänge (war 0.18)
+        this.boost = -0.18; // Kleiner sanfter Schub (war -0.25)
+        this.boostSmoothing = 0.12; // Sehr sanfte Übergänge (war 0.15)
         
         // Sterne zum Einsammeln
         this.stars = [];
@@ -441,19 +441,13 @@ class SantaLauncherGame {
                 this.santa.vy += this.gravity;
             }
             
-            // Smooth Boost - statt hartem On/Off
+            // Smooth Boost - nur sanfter vertikaler Auftrieb
             if (!this.currentBoost) this.currentBoost = 0;
-            if (!this.currentHorizontalBoost) this.currentHorizontalBoost = 0;
             
             if (this.boostActive && this.energy > 0) {
-                // Sanft zum Ziel-Boost interpolieren (vertikal)
+                // Sanft zum Ziel-Boost interpolieren (nur vertikal, kein horizontaler Schub)
                 this.currentBoost += (this.boost - this.currentBoost) * this.boostSmoothing;
                 this.santa.vy += this.currentBoost;
-                
-                // Horizontaler Schub beim Boosten (hält Geschwindigkeit)
-                const targetHorizontalBoost = 0.15; // Leichter Vorwärtsschub
-                this.currentHorizontalBoost += (targetHorizontalBoost - this.currentHorizontalBoost) * this.boostSmoothing;
-                this.santa.vx += this.currentHorizontalBoost;
                 
                 this.energy -= this.energyDrain;
                 if (this.energy < 0) this.energy = 0;
@@ -461,9 +455,6 @@ class SantaLauncherGame {
                 // Sanft zurück zu 0 wenn nicht mehr geboostet
                 this.currentBoost *= 0.85;
                 if (Math.abs(this.currentBoost) < 0.01) this.currentBoost = 0;
-                
-                this.currentHorizontalBoost *= 0.9;
-                if (Math.abs(this.currentHorizontalBoost) < 0.01) this.currentHorizontalBoost = 0;
             }
             
             // Luftwiderstand (sehr minimal für langsamen Geschwindigkeitsverlust)
