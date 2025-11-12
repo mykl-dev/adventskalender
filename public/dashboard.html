@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🏆 Weihnachts-Dashboard - Adventskalender</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <a href="../index.html" class="back-button">
+                <span>←</span>
+                <span>Zurück zum Kalender</span>
+            </a>
+            <h1>🎄 Weihnachts-Dashboard 2024 🎁</h1>
+            <p class="subtitle">Gesamtübersicht aller Spieler und Spiele</p>
+        </header>
+
+        <!-- Winner Section (visible from 24.12) -->
+        <div id="winner-section" class="winner-section" style="display: none;">
+            <div class="winner-card">
+                <div class="winner-trophy">🏆</div>
+                <h2>Der Gewinner steht fest!</h2>
+                <div id="winner-name" class="winner-name"></div>
+                <div id="winner-stats" class="winner-stats"></div>
+            </div>
+        </div>
+
+        <!-- Overall Leaderboard -->
+        <section class="leaderboard-section">
+            <h2>🏆 Gesamtrangliste</h2>
+            <div class="ranking-description">
+                Sortiert nach Anzahl der 1. Plätze in allen Spielen
+            </div>
+            <div id="overall-leaderboard" class="overall-leaderboard">
+                <!-- Wird dynamisch gefüllt -->
+            </div>
+        </section>
+
+        <!-- Games Overview -->
+        <section class="games-section">
+            <h2>🎮 Alle Spiele im Überblick</h2>
+            <div id="games-overview" class="games-grid">
+                <!-- Wird dynamisch gefüllt -->
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <p>Viel Erfolg beim Spielen! 🎅</p>
+            <p class="update-info">Letzte Aktualisierung: <span id="last-update"></span></p>
+        </footer>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

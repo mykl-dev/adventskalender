@@ -725,8 +725,8 @@ class FlappySanta {
                 <div class="score-message">${this.getScoreMessage()}</div>
                 <div class="final-score">${this.score}</div>
                 ${top3.length > 0 ? `
-                    <div class="highscore-table">
-                        <div class="highscore-title">🏆 Top 3</div>
+                    <div class="highscore-table" onclick="window.location.href='../dashboard.html'" style="cursor: pointer;" title="Klicken für Gesamtübersicht">
+                        <div class="highscore-title">🏆 Top 3 <span style="font-size: 0.7em; opacity: 0.8;">(Klick für Dashboard)</span></div>
                         ${top3.map((entry, index) => `
                             <div class="highscore-entry">
                                 <span class="highscore-rank">${['🥇', '🥈', '🥉'][index]}</span>

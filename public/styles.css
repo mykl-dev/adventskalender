@@ -99,6 +99,49 @@ body.modern-theme::before {
 }
 
 /* ========================================
+   DASHBOARD LINK
+   ======================================== */
+.dashboard-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+    transition: all 0.3s ease;
+    margin: 1rem 0;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.dashboard-link:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+    background: linear-gradient(135deg, #FFA500, #FFD700);
+}
+
+.dashboard-icon {
+    font-size: 1.5rem;
+    animation: trophySpin 3s ease-in-out infinite;
+}
+
+@keyframes trophySpin {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+}
+
+.dashboard-text {
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
    THEME SWITCHER
    ======================================== */
 .theme-switcher {

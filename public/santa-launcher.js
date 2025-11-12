@@ -1081,8 +1081,8 @@ class SantaLauncherGame {
                     </div>
                 </div>
                 ${top3.length > 0 ? `
-                    <div class="highscore-list">
-                        <h3>🏆 Top 3</h3>
+                    <div class="highscore-list" onclick="window.location.href='dashboard.html'" style="cursor: pointer;" title="Klicken für Gesamtübersicht">
+                        <h3>🏆 Top 3 <span style="font-size: 0.7em; opacity: 0.8;">(Klick für Dashboard)</span></h3>
                         ${top3.map((entry, index) => `
                             <div class="highscore-entry rank-${index + 1}">
                                 <span class="rank">${['🥇', '🥈', '🥉'][index]}</span>
