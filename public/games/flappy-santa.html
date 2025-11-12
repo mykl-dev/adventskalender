@@ -4,14 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>🛷 Flappy Santa - Adventskalender</title>
-    
-    <!-- Modulares CSS System -->
-    <link rel="stylesheet" href="../styles/game-base.css">
-    <link rel="stylesheet" href="../styles/game-overlays.css">
-    <link rel="stylesheet" href="../styles/game-buttons.css">
-    <link rel="stylesheet" href="../styles/game-animations.css">
-    <link rel="stylesheet" href="flappy-santa.css">
-    
+    <link rel="stylesheet" href="../flappy-santa.css">
     <style>
         body {
             margin: 0;
@@ -43,7 +36,7 @@
             left: 15px;
             padding: 12px 24px;
             background: rgba(255, 255, 255, 0.95);
-            color: #87CEEB;
+            color: #d32f2f;
             text-decoration: none;
             border-radius: 25px;
             font-weight: bold;
@@ -67,37 +60,63 @@
             transform: translateY(0);
         }
         
+        /* Cloud Background Animation */
+        .cloud-bg {
+            position: fixed;
+            font-size: 4rem;
+            opacity: 0.6;
+            animation: floatCloud 15s linear infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        @keyframes floatCloud {
+            from {
+                transform: translateX(-100px);
+            }
+            to {
+                transform: translateX(calc(100vw + 100px));
+            }
+        }
+        
         @media (max-width: 768px) {
             .back-button {
                 top: 10px;
                 left: 10px;
-                padding: 10px 18px;
-                font-size: 0.9rem;
+                padding: 8px 15px;
+                font-size: 0.85rem;
+                gap: 5px;
+            }
+            
+            .cloud-bg {
+                font-size: 3rem;
             }
         }
         
         @media (max-width: 480px) {
             .back-button {
-                padding: 8px 15px;
-                font-size: 0.85rem;
-                gap: 5px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .cloud-bg {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
+    <a href="#" class="back-button" onclick="window.location.href = '..'; return false;">
+        <span>←</span>
+        <span>Zurück zum Kalender</span>
+    </a>
+    
     <!-- Animierte Wolken -->
     <div class="cloud-bg" style="top: 10%; animation-delay: 0s;">☁️</div>
     <div class="cloud-bg" style="top: 25%; animation-delay: 3s;">☁️</div>
     <div class="cloud-bg" style="top: 40%; animation-delay: 6s;">☁️</div>
     <div class="cloud-bg" style="top: 60%; animation-delay: 9s;">⛅</div>
     <div class="cloud-bg" style="top: 75%; animation-delay: 12s;">☁️</div>
-    
-    <!-- Back Button -->
-    <a href="#" class="back-button" onclick="window.location.href = '..'; return false;">
-        <span>←</span>
-        <span>Zurück zum Kalender</span>
-    </a>
     
     <div id="game-root"></div>
     
