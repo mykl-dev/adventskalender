@@ -21,10 +21,10 @@ class SantaLauncherGame {
         this.powerMax = 100;
         this.powerDanger = 85; // Ab hier rot/gefährlich
         
-        // Santa-Physik
+        // Santa-Physik (Y-Achse: größere Werte = tiefer/näher am Boden)
         this.santa = {
             x: 100,
-            y: 500,
+            y: 510, // Näher am Boden (Boden=550, war 500)
             vx: 0,
             vy: 0,
             size: 30,
@@ -237,10 +237,10 @@ class SantaLauncherGame {
         // Regeneriere Parallax-Elemente
         this.initParallax();
         
-        // Reset Santa
+        // Reset Santa (Y-Achse: größere Werte = tiefer/näher am Boden)
         this.santa = {
             x: 100,
-            y: 500,
+            y: 510, // Näher am Boden (Boden=550, war 500)
             vx: 0,
             vy: 0,
             size: 30,
