@@ -21,10 +21,10 @@ class FlappySanta {
             rotation: 0
         };
         
-        // Physics (verlangsamt)
-        this.gravity = 0.25;
-        this.jumpStrength = -5.5;
-        this.maxVelocity = 8;
+        // Physics (weiter verlangsamt für bessere Kontrolle)
+        this.gravity = 0.15;
+        this.jumpStrength = -4.5;
+        this.maxVelocity = 6;
         
         // Obstacles
         this.obstacles = [];
@@ -257,8 +257,8 @@ class FlappySanta {
         this.santa.velocity = Math.min(this.santa.velocity, this.maxVelocity);
         this.santa.y += this.santa.velocity;
         
-        // Rotation based on velocity
-        this.santa.rotation = Math.min(Math.max(this.santa.velocity * 3, -30), 60);
+        // Rotation based on velocity (invertiert - nach oben = negativ, nach unten = positiv)
+        this.santa.rotation = Math.min(Math.max(this.santa.velocity * 5, -25), 45);
         
         // Check boundaries
         if (this.santa.y < 0 || this.santa.y + this.santa.height > this.canvas.height) {
@@ -531,7 +531,8 @@ class FlappySanta {
         
         this.ctx.save();
         this.ctx.translate(x + width / 2, y + height / 2);
-        this.ctx.rotate(rotation * Math.PI / 180);
+        // Negierte Rotation für korrekte Richtung (nach oben = nach oben geneigt)
+        this.ctx.rotate(-rotation * Math.PI / 180);
         
         // Santa emoji
         this.ctx.font = '50px Arial';
@@ -569,6 +570,10 @@ class FlappySanta {
         this.gameStarted = false;
         document.body.classList.remove('playing');
         
+        // WICHTIG: Zeichne einen letzten Frame, damit die Grafiken sichtbar bleiben
+        this.draw();
+        
+        // Dann stoppe die Animation
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
             this.animationId = null;
