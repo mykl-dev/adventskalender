@@ -42,8 +42,8 @@ class FlappySanta {
         this.animationId = null;
         this.lastTime = 0;
         
-        // Stats Manager
-        this.statsManager = new StatsManager('flappy-santa');
+        // Stats Manager - Simple localStorage-based
+        this.gameName = 'flappy-santa';
         
         this.init();
     }
@@ -564,21 +564,25 @@ class FlappySanta {
         }
         
         // Remove controls
-        document.removeEventListener('keydown', this.keyHandler);
-        this.canvas.removeEventListener('click', this.clickHandler);
-        this.canvas.removeEventListener('touchstart', this.clickHandler);
+        if (this.keyHandler) {
+            document.removeEventListener('keydown', this.keyHandler);
+        }
+        if (this.clickHandler) {
+            this.canvas.removeEventListener('click', this.clickHandler);
+            this.canvas.removeEventListener('touchstart', this.clickHandler);
+        }
         
-        // Save score
-        this.statsManager.saveScore(this.score);
-        const topScores = this.statsManager.getTopScores();
-        
-        // Small delay before showing overlay
-        setTimeout(() => {
-            this.showGameOverOverlay(topScores);
-        }, 100);
+        // Save score and show overlay
+        this.saveScore(this.score);
+        const topScores = this.getTopScores();
+        this.showGameOverOverlay(topScores);
     }
     
     showGameOverOverlay(topScores) {
+        // Remove any existing overlays first
+        const existingOverlays = document.querySelectorAll('.overlay');
+        existingOverlays.forEach(el => el.remove());
+        
         const overlay = document.createElement('div');
         overlay.className = 'overlay';
         overlay.innerHTML = `
@@ -594,6 +598,9 @@ class FlappySanta {
             </div>
         `;
         document.body.appendChild(overlay);
+        
+        // Force reflow to ensure animation plays
+        overlay.offsetHeight;
     }
     
     renderHighscores(topScores) {
@@ -620,6 +627,50 @@ class FlappySanta {
         if (this.score >= 10) return '🎄 Gut! Weiter so!';
         if (this.score >= 5) return '🎅 Nicht schlecht! Versuch es nochmal!';
         return '🛷 Übung macht den Meister!';
+    }
+    
+    // Simple localStorage-based highscore management
+    saveScore(score) {
+        const username = this.getUsername();
+        const scores = this.getAllScores();
+        
+        scores.push({
+            username: username,
+            score: score,
+            timestamp: Date.now()
+        });
+        
+        // Sort by score (highest first) and keep top 10
+        scores.sort((a, b) => b.score - a.score);
+        const top10 = scores.slice(0, 10);
+        
+        localStorage.setItem(this.gameName + '-scores', JSON.stringify(top10));
+    }
+    
+    getTopScores() {
+        const scores = this.getAllScores();
+        return scores.slice(0, 3); // Top 3
+    }
+    
+    getAllScores() {
+        try {
+            const stored = localStorage.getItem(this.gameName + '-scores');
+            return stored ? JSON.parse(stored) : [];
+        } catch (error) {
+            console.error('Error loading scores:', error);
+            return [];
+        }
+    }
+    
+    getUsername() {
+        let username = localStorage.getItem('playerName');
+        
+        if (!username) {
+            username = prompt('Wie heißt du?', 'Spieler') || 'Spieler';
+            localStorage.setItem('playerName', username);
+        }
+        
+        return username;
     }
 }
 
