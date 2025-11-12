@@ -104,16 +104,16 @@ class FlappySanta {
     }
     
     resizeCanvas() {
-        // Check screen size BEFORE setting canvas dimensions
-        const isMobile = window.innerWidth < 768;
-        
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         
         // Adjust santa position for responsive
         this.santa.y = this.canvas.height / 2;
         
-        // Adjust obstacle parameters based on screen width
+        // Better mobile detection: Check width AND touch capability
+        const isMobile = this.isMobileDevice();
+        
+        // Adjust obstacle parameters based on device type
         if (isMobile) {
             this.obstacleSpawnTime = 3500; // Mobile: deutlich mehr Zeit zwischen Hindernissen
             this.obstacleGap = 250; // Mobile: deutlich größere Lücke
@@ -124,7 +124,21 @@ class FlappySanta {
             this.obstacleSpeed = 2; // Desktop
         }
         
-        console.log(`Screen: ${isMobile ? 'Mobile' : 'Desktop'} - Width: ${window.innerWidth}px - Gap: ${this.obstacleGap}px - Spawn: ${this.obstacleSpawnTime}ms`);
+        console.log(`Device: ${isMobile ? 'Mobile' : 'Desktop'} - Width: ${window.innerWidth}px - Touch: ${('ontouchstart' in window)} - Gap: ${this.obstacleGap}px - Spawn: ${this.obstacleSpawnTime}ms`);
+    }
+    
+    isMobileDevice() {
+        // Check if it's a real mobile device (not just narrow browser window)
+        const hasTouchScreen = ('ontouchstart' in window) || 
+                              (navigator.maxTouchPoints > 0) || 
+                              (navigator.msMaxTouchPoints > 0);
+        
+        const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        const isNarrowScreen = window.innerWidth < 900; // Erhöhter Breakpoint
+        
+        // Mobile if: (has touch AND narrow screen) OR is mobile user agent
+        return (hasTouchScreen && isNarrowScreen) || isMobileUA;
     }
     
     initBackground() {
@@ -242,8 +256,8 @@ class FlappySanta {
         this.santa.velocity = 0;
         this.obstacles = [];
         
-        // Set responsive parameters based on window width
-        const isMobile = window.innerWidth < 768;
+        // Set responsive parameters using mobile detection
+        const isMobile = this.isMobileDevice();
         if (isMobile) {
             this.obstacleGap = 250; // Mobile: deutlich größere Lücke
             this.obstacleSpawnTime = 3500; // Mobile: mehr Zeit
