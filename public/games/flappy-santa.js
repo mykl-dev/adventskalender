@@ -21,17 +21,17 @@ class FlappySanta {
             rotation: 0
         };
         
-        // Physics
-        this.gravity = 0.4;
-        this.jumpStrength = -8;
-        this.maxVelocity = 10;
+        // Physics (verlangsamt)
+        this.gravity = 0.25;
+        this.jumpStrength = -5.5;
+        this.maxVelocity = 8;
         
         // Obstacles
         this.obstacles = [];
-        this.obstacleSpeed = 3;
-        this.baseObstacleSpeed = 3;
-        this.obstacleGap = 180;
-        this.obstacleSpawnTime = 2000;
+        this.obstacleSpeed = 2;
+        this.baseObstacleSpeed = 2;
+        this.obstacleGap = 200;
+        this.obstacleSpawnTime = 2500;
         this.lastObstacleTime = 0;
         
         // Background 3D elements
@@ -105,6 +105,15 @@ class FlappySanta {
     }
     
     setupControls() {
+        // Remove old listeners first
+        if (this.keyHandler) {
+            document.removeEventListener('keydown', this.keyHandler);
+        }
+        if (this.clickHandler) {
+            this.canvas.removeEventListener('click', this.clickHandler);
+            this.canvas.removeEventListener('touchstart', this.clickHandler);
+        }
+        
         // Keyboard
         this.keyHandler = (e) => {
             if (e.code === 'Space') {
@@ -120,7 +129,7 @@ class FlappySanta {
             this.jump();
         };
         this.canvas.addEventListener('click', this.clickHandler);
-        this.canvas.addEventListener('touchstart', this.clickHandler);
+        this.canvas.addEventListener('touchstart', this.clickHandler, { passive: false });
     }
     
     showStartOverlay() {
@@ -145,9 +154,11 @@ class FlappySanta {
     }
     
     start() {
-        // Remove overlay
-        const overlay = document.getElementById('start-overlay');
-        if (overlay) overlay.remove();
+        // Remove overlays
+        const startOverlay = document.getElementById('start-overlay');
+        if (startOverlay) startOverlay.remove();
+        const gameOverOverlay = document.querySelector('.overlay');
+        if (gameOverOverlay) gameOverOverlay.remove();
         
         // Reset game state
         this.score = 0;
@@ -157,12 +168,15 @@ class FlappySanta {
         this.santa.velocity = 0;
         this.obstacles = [];
         this.obstacleSpeed = this.baseObstacleSpeed;
-        this.obstacleGap = 180;
-        this.obstacleSpawnTime = 2000;
+        this.obstacleGap = 200;
+        this.obstacleSpawnTime = 2500;
         this.lastObstacleTime = 0;
         
         document.getElementById('score-value').textContent = '0';
         document.body.classList.add('playing');
+        
+        // Setup controls
+        this.setupControls();
         
         this.showReadyMessage();
         
@@ -272,15 +286,16 @@ class FlappySanta {
     }
     
     spawnObstacle() {
-        const minHeight = 50;
-        const maxHeight = this.canvas.height - this.obstacleGap - minHeight;
+        const minHeight = 80;
+        const maxHeight = this.canvas.height - this.obstacleGap - minHeight - 50; // Mehr Abstand zum Boden
         const topHeight = Math.random() * (maxHeight - minHeight) + minHeight;
         
-        // Obstacle types with 3D styling
+        // Himmel-Hindernisse mit 3D styling
         const types = [
-            { emoji: '🏠', color: '#D32F2F', name: 'chimney' },
-            { emoji: '⛈️', color: '#1976D2', name: 'storm' },
-            { emoji: '🌩️', color: '#7B1FA2', name: 'lightning' }
+            { color: '#E3F2FD', color2: '#90CAF9', name: 'cloud-tower' }, // Wolkenturm
+            { color: '#FFE082', color2: '#FFB300', name: 'balloon' },      // Heißluftballon
+            { color: '#B39DDB', color2: '#7E57C2', name: 'zeppelin' },     // Zeppelin
+            { color: '#80DEEA', color2: '#00ACC1', name: 'ice-pillar' }    // Eis-Säule
         ];
         const type = types[Math.floor(Math.random() * types.length)];
         
@@ -288,10 +303,10 @@ class FlappySanta {
             x: this.canvas.width,
             topHeight: topHeight,
             bottomY: topHeight + this.obstacleGap,
-            width: 80,
+            width: 70,
             type: type,
             scored: false,
-            depth: Math.random() * 20 + 10 // 3D depth effect
+            depth: Math.random() * 15 + 10 // 3D depth effect
         });
     }
     
@@ -353,18 +368,21 @@ class FlappySanta {
     
     increaseDifficulty() {
         if (this.score === 5) {
-            this.obstacleSpeed += 0.5;
+            this.obstacleSpeed += 0.3;
             this.showDifficultyNotification();
         } else if (this.score === 10) {
-            this.obstacleSpeed += 0.5;
-            this.obstacleGap = 170;
+            this.obstacleSpeed += 0.3;
+            this.obstacleGap = 190;
             this.showDifficultyNotification();
         } else if (this.score === 15) {
-            this.obstacleSpeed += 0.5;
-            this.obstacleSpawnTime = 1800;
+            this.obstacleSpeed += 0.4;
+            this.obstacleSpawnTime = 2200;
             this.showDifficultyNotification();
         } else if (this.score === 20) {
-            this.obstacleGap = 160;
+            this.obstacleGap = 180;
+            this.showDifficultyNotification();
+        } else if (this.score === 25) {
+            this.obstacleSpeed += 0.3;
             this.showDifficultyNotification();
         }
     }
@@ -450,23 +468,26 @@ class FlappySanta {
             const { x, topHeight, bottomY, width, type, depth } = obstacle;
             
             // Top obstacle
-            this.drawObstacle3D(x, 0, width, topHeight, type.color, type.emoji, depth, true);
+            this.drawObstacle3D(x, 0, width, topHeight, type.color, type.color2, depth, true);
             
             // Bottom obstacle
             const bottomHeight = this.canvas.height - bottomY;
-            this.drawObstacle3D(x, bottomY, width, bottomHeight, type.color, type.emoji, depth, false);
+            this.drawObstacle3D(x, bottomY, width, bottomHeight, type.color, type.color2, depth, false);
         });
     }
     
-    drawObstacle3D(x, y, width, height, color, emoji, depth, isTop) {
+    drawObstacle3D(x, y, width, height, color, color2, depth, isTop) {
         const ctx = this.ctx;
         
-        // Front face
-        ctx.fillStyle = color;
+        // Front face with gradient
+        const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+        gradient.addColorStop(0, color);
+        gradient.addColorStop(1, color2);
+        ctx.fillStyle = gradient;
         ctx.fillRect(x, y, width, height);
         
         // 3D depth - right side
-        ctx.fillStyle = this.darkenColor(color, 20);
+        ctx.fillStyle = this.darkenColor(color2, 20);
         ctx.beginPath();
         ctx.moveTo(x + width, y);
         ctx.lineTo(x + width + depth, y + depth);
@@ -476,7 +497,7 @@ class FlappySanta {
         
         // 3D depth - top/bottom
         if (isTop) {
-            ctx.fillStyle = this.darkenColor(color, 10);
+            ctx.fillStyle = this.darkenColor(color, 15);
             ctx.beginPath();
             ctx.moveTo(x, y + height);
             ctx.lineTo(x + depth, y + height + depth);
@@ -492,10 +513,6 @@ class FlappySanta {
             ctx.lineTo(x + width, y);
             ctx.fill();
         }
-        
-        // Emoji decoration
-        ctx.font = '32px Arial';
-        ctx.fillText(emoji, x + width / 2 - 16, y + (isTop ? height - 20 : 40));
     }
     
     drawSanta() {
@@ -535,19 +552,30 @@ class FlappySanta {
     }
     
     endGame() {
+        if (!this.gameActive) return; // Prevent multiple calls
+        
         this.gameActive = false;
         this.gameStarted = false;
         document.body.classList.remove('playing');
         
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
+            this.animationId = null;
         }
+        
+        // Remove controls
+        document.removeEventListener('keydown', this.keyHandler);
+        this.canvas.removeEventListener('click', this.clickHandler);
+        this.canvas.removeEventListener('touchstart', this.clickHandler);
         
         // Save score
         this.statsManager.saveScore(this.score);
         const topScores = this.statsManager.getTopScores();
         
-        this.showGameOverOverlay(topScores);
+        // Small delay before showing overlay
+        setTimeout(() => {
+            this.showGameOverOverlay(topScores);
+        }, 100);
     }
     
     showGameOverOverlay(topScores) {
