@@ -36,6 +36,8 @@ class SantaLauncherGame {
         
         // Kamera-Offset für scrollenden Hintergrund
         this.cameraX = 0;
+        this.cameraOffset = 250; // Start: Santa weiter rechts (größerer Offset)
+        this.targetCameraOffset = 100; // Ziel: Santa weit links (kleiner Offset)
         
         // Energie zum Hochhalten
         this.energy = 150; // Mehr Start-Energie (war 100)
@@ -230,6 +232,9 @@ class SantaLauncherGame {
         // Segelphase für initialen Momentum
         this.glideTime = 0;
         this.glidePhase = false;
+        
+        // Kamera-Offset zurücksetzen (Start: Santa rechts)
+        this.cameraOffset = 250;
         
         // Verstecke Start-Button Overlay
         document.getElementById('start-button-overlay').style.display = 'none';
@@ -487,8 +492,17 @@ class SantaLauncherGame {
                 }
             }
             
-            // Kamera folgt Santa (sanft) - Santa weiter links für mehr Vorschau
-            const targetCameraX = this.santa.x - 150; // War 200, jetzt 150 = Santa mehr links
+            // Dynamisches Kamera-System: Start rechts, dann langsam nach links
+            // Offset verringert sich über Zeit (unabhängig von Geschwindigkeit)
+            if (this.cameraOffset > this.targetCameraOffset) {
+                this.cameraOffset -= 0.3; // Langsames Gleiten nach links
+                if (this.cameraOffset < this.targetCameraOffset) {
+                    this.cameraOffset = this.targetCameraOffset;
+                }
+            }
+            
+            // Kamera folgt Santa mit dynamischem Offset
+            const targetCameraX = this.santa.x - this.cameraOffset;
             this.cameraX += (targetCameraX - this.cameraX) * 0.1;
             
             // Rotation basierend auf Geschwindigkeit
