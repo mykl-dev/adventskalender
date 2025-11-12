@@ -487,8 +487,8 @@ class SantaLauncherGame {
                 }
             }
             
-            // Kamera folgt Santa (sanft)
-            const targetCameraX = this.santa.x - 200;
+            // Kamera folgt Santa (sanft) - Santa weiter links für mehr Vorschau
+            const targetCameraX = this.santa.x - 150; // War 200, jetzt 150 = Santa mehr links
             this.cameraX += (targetCameraX - this.cameraX) * 0.1;
             
             // Rotation basierend auf Geschwindigkeit
