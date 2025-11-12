@@ -31,8 +31,8 @@ class SantaLauncherGame {
             rotation: 0
         };
         
-        this.gravity = 0.18; // Noch weniger Schwerkraft = längere Flüge (war 0.25)
-        this.airResistance = 0.996; // Weniger Luftwiderstand = Santa bremst langsamer (war 0.992)
+        this.gravity = 0.15; // Noch flacher fallen (war 0.18)
+        this.airResistance = 0.998; // Minimal Luftwiderstand = Santa behält Geschwindigkeit länger (war 0.996)
         
         // Kamera-Offset für scrollenden Hintergrund
         this.cameraX = 0;
@@ -41,8 +41,8 @@ class SantaLauncherGame {
         this.energy = 150; // Mehr Start-Energie (war 100)
         this.maxEnergy = 150; // Höheres Maximum (war 100)
         this.energyDrain = 0.18; // Noch weniger Verbrauch (war 0.22)
-        this.boost = -0.35; // Stärkerer Boost für echte Steuerbarkeit
-        this.boostSmoothing = 0.18; // Schnellere Reaktion für bessere Kontrolle
+        this.boost = -0.25; // Flacherer Boost-Winkel (war -0.35)
+        this.boostSmoothing = 0.15; // Sanftere Übergänge (war 0.18)
         
         // Sterne zum Einsammeln
         this.stars = [];
@@ -443,20 +443,30 @@ class SantaLauncherGame {
             
             // Smooth Boost - statt hartem On/Off
             if (!this.currentBoost) this.currentBoost = 0;
+            if (!this.currentHorizontalBoost) this.currentHorizontalBoost = 0;
             
             if (this.boostActive && this.energy > 0) {
-                // Sanft zum Ziel-Boost interpolieren
+                // Sanft zum Ziel-Boost interpolieren (vertikal)
                 this.currentBoost += (this.boost - this.currentBoost) * this.boostSmoothing;
                 this.santa.vy += this.currentBoost;
+                
+                // Horizontaler Schub beim Boosten (hält Geschwindigkeit)
+                const targetHorizontalBoost = 0.15; // Leichter Vorwärtsschub
+                this.currentHorizontalBoost += (targetHorizontalBoost - this.currentHorizontalBoost) * this.boostSmoothing;
+                this.santa.vx += this.currentHorizontalBoost;
+                
                 this.energy -= this.energyDrain;
                 if (this.energy < 0) this.energy = 0;
             } else {
                 // Sanft zurück zu 0 wenn nicht mehr geboostet
                 this.currentBoost *= 0.85;
                 if (Math.abs(this.currentBoost) < 0.01) this.currentBoost = 0;
+                
+                this.currentHorizontalBoost *= 0.9;
+                if (Math.abs(this.currentHorizontalBoost) < 0.01) this.currentHorizontalBoost = 0;
             }
             
-            // Luftwiderstand
+            // Luftwiderstand (sehr minimal für langsamen Geschwindigkeitsverlust)
             this.santa.vx *= this.airResistance;
             this.santa.vy *= this.airResistance;
             
