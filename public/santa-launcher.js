@@ -31,18 +31,18 @@ class SantaLauncherGame {
             rotation: 0
         };
         
-        this.gravity = 0.25; // Reduziert für sanfteres Fliegen
-        this.airResistance = 0.992; // Mehr Luftwiderstand = weniger schnell
+        this.gravity = 0.18; // Noch weniger Schwerkraft = längere Flüge (war 0.25)
+        this.airResistance = 0.996; // Weniger Luftwiderstand = Santa bremst langsamer (war 0.992)
         
         // Kamera-Offset für scrollenden Hintergrund
         this.cameraX = 0;
         
         // Energie zum Hochhalten
-        this.energy = 100;
-        this.maxEnergy = 100;
-        this.energyDrain = 0.22; // Noch weniger Drain für längeres Boosten
-        this.boost = -0.35; // Stärkerer Boost für echte Steuerbarkeit (war -0.2)
-        this.boostSmoothing = 0.18; // Schnellere Reaktion für bessere Kontrolle (war 0.12)
+        this.energy = 150; // Mehr Start-Energie (war 100)
+        this.maxEnergy = 150; // Höheres Maximum (war 100)
+        this.energyDrain = 0.18; // Noch weniger Verbrauch (war 0.22)
+        this.boost = -0.35; // Stärkerer Boost für echte Steuerbarkeit
+        this.boostSmoothing = 0.18; // Schnellere Reaktion für bessere Kontrolle
         
         // Sterne zum Einsammeln
         this.stars = [];
@@ -367,8 +367,8 @@ class SantaLauncherGame {
         // Aktiviere Segelphase basierend auf Power (mehr Power = länger segeln)
         this.glidePhase = true;
         this.glideTime = 0;
-        // Moderate Segelphase: 45-110 Frames (~0.75-1.8 Sekunden)
-        this.maxGlideTime = 45 + (this.power * 0.75);
+        // Längere Segelphase: 60-145 Frames (~1.0-2.4 Sekunden)
+        this.maxGlideTime = 60 + (this.power * 1.0);
         
         this.phase = 'flying';
         this.showMessage('🚀 Los geht\'s!', '#2ecc71');
@@ -516,20 +516,20 @@ class SantaLauncherGame {
                 if (distance < 30) {
                     // Stern eingesammelt!
                     this.starsCollected++;
-                    this.energy = Math.min(this.maxEnergy, this.energy + 20);
+                    this.energy = Math.min(this.maxEnergy, this.energy + 30); // Mehr Energie (war 20)
                     
                     // Geschwindigkeits-Boost! (vorwärts)
                     this.santa.vx += 2.5;
                     
-                    // Sanfterer Auftrieb (reduziert von -1.5)
+                    // Sanfterer Auftrieb
                     this.santa.vy -= 0.8;
                     
-                    // Mini-Segelphase aktivieren (kurzes Segeln nach Stern)
+                    // Mini-Segelphase aktivieren (längeres Segeln nach Stern)
                     this.glidePhase = true;
                     this.glideTime = 0;
-                    this.maxGlideTime = 25; // ~0.4 Sekunden kurzes Segeln
+                    this.maxGlideTime = 35; // ~0.6 Sekunden (war 25)
                     
-                    this.showMessage('+20 Energie + Speed! ⭐🚀', '#f1c40f');
+                    this.showMessage('+30 Energie + Speed! ⭐🚀', '#f1c40f');
                     this.updateBanner();
                     return false;
                 }
