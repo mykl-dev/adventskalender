@@ -50,6 +50,7 @@ class SantaLauncherGame {
         // Score
         this.distance = 0;
         this.maxDistance = 0;
+        this.starsCollected = 0;
         this.startTime = 0;
         
         // 3D Effekte
@@ -64,34 +65,104 @@ class SantaLauncherGame {
     
     init() {
         this.container.innerHTML = `
-            <div class="launcher-game">
-                <div class="launcher-header">
+            <div class="launcher-game-container">
+                <div class="launcher-game-header">
+                    <div class="launcher-score-display">
+                        <span class="score-label">🚀</span>
+                        <span id="launcher-distance" class="score-value">0</span>
+                        <span class="score-unit">m</span>
+                    </div>
                     <div class="launcher-info">
-                        🎅 Santa Launcher 🚀
-                    </div>
-                    <div class="launcher-distance">
-                        📏 Distanz: <span id="launcher-distance">0</span>m
+                        🎅 Santa Launcher
                     </div>
                 </div>
-                <canvas id="launcher-canvas" width="800" height="600"></canvas>
-                <div class="launcher-instructions">
-                    <h3>🎯 Santa-Katapult! 🚀</h3>
-                    <p>📐 <strong>Schritt 1:</strong> Wähle den Winkel (20°-80°)</p>
-                    <p>⚡ <strong>Schritt 2:</strong> Wähle die Power (⚠️ Nicht zu viel!)</p>
-                    <p>🌟 <strong>Im Flug:</strong> Drücke/Halte um Santa hochzuhalten</p>
-                    <p>⭐ Sammle Sterne für mehr Energie!</p>
-                    <p>🏠 Lande auf dem Dach für maximale Distanz!</p>
+                
+                <!-- Stats Banner -->
+                <div class="launcher-stats-banner">
+                    <div class="stat-box">
+                        <div class="stat-icon">📏</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="banner-distance">0</div>
+                            <div class="stat-label">Distanz (m)</div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="banner-stars">0</div>
+                            <div class="stat-label">Sterne</div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="banner-energy">100%</div>
+                            <div class="stat-label">Energie</div>
+                        </div>
+                    </div>
                 </div>
-                <button class="game-button" id="launcher-start-button">Spiel starten! 🎮</button>
+                
+                <canvas id="launcher-canvas" class="launcher-canvas"></canvas>
+                
+                <!-- Instructions Overlay -->
+                <div class="launcher-instructions-overlay" id="launcher-instructions-overlay">
+                    <div class="instructions-content">
+                        <h2>� Santa-Katapult! 🚀</h2>
+                        <div class="instruction-items">
+                            <div class="instruction-item">
+                                <span class="item-icon">📐</span>
+                                <span>Schritt 1: Wähle den Winkel (20°-80°)</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">⚡</span>
+                                <span>Schritt 2: Wähle die Power (⚠️ Nicht zu viel!)</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">🌟</span>
+                                <span>Im Flug: Drücke/Halte um hochzuhalten</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">⭐</span>
+                                <span>Sammle Sterne für mehr Energie!</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">🏠</span>
+                                <span>Lande auf dem Dach für Bonus!</span>
+                            </div>
+                        </div>
+                        <p class="difficulty-info">🎯 Ziel: Fliege so weit wie möglich!</p>
+                        <button class="instruction-ok-button" id="instruction-ok-button">
+                            ✓ Okay, verstanden!
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Start Button (erscheint nach OK) -->
+                <div class="start-button-overlay" id="start-button-overlay" style="display: none;">
+                    <button class="launcher-start-button pulse" id="launcher-start-button">
+                        <span class="button-icon">🎮</span>
+                        <span>Spiel starten!</span>
+                    </button>
+                </div>
             </div>
         `;
         
         this.canvas = document.getElementById('launcher-canvas');
-        this.ctx = this.canvas.getContext('2d');
+        this.ctx = this.canvas.getContext('2d', { alpha: false });
+        
+        // Anti-Aliasing und smoothes Rendering
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
         
         // Responsive Canvas
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
+        
+        // Overlay Event-Handler
+        document.getElementById('instruction-ok-button').addEventListener('click', () => {
+            document.getElementById('launcher-instructions-overlay').style.display = 'none';
+            document.getElementById('start-button-overlay').style.display = 'flex';
+        });
         
         document.getElementById('launcher-start-button').addEventListener('click', () => this.start());
     }
@@ -120,11 +191,22 @@ class SantaLauncherGame {
     
     resizeCanvas() {
         const container = this.canvas.parentElement;
-        const maxWidth = Math.min(container.clientWidth - 40, 800);
-        const scale = maxWidth / 800;
+        const header = document.querySelector('.launcher-game-header');
+        const banner = document.querySelector('.launcher-stats-banner');
         
-        this.canvas.style.width = maxWidth + 'px';
-        this.canvas.style.height = (600 * scale) + 'px';
+        // Dynamische Höhenberechnung
+        const headerHeight = header ? header.offsetHeight : 0;
+        const bannerHeight = banner ? banner.offsetHeight : 0;
+        const containerHeight = container.offsetHeight;
+        
+        // Canvas nimmt verfügbaren Platz (100% - Header - Banner)
+        const availableHeight = containerHeight - headerHeight - bannerHeight;
+        
+        // Desktop: Max 1200px breit, Mobile: 100%
+        const maxWidth = window.innerWidth > 768 ? Math.min(1200, container.offsetWidth) : container.offsetWidth;
+        
+        this.canvas.width = maxWidth;
+        this.canvas.height = Math.max(400, availableHeight);
     }
     
     async start() {
@@ -137,11 +219,15 @@ class SantaLauncherGame {
         this.power = 0;
         this.distance = 0;
         this.maxDistance = 0;
+        this.starsCollected = 0;
         this.energy = 100;
         this.stars = [];
         this.startTime = Date.now();
         this.cameraX = 0;
         this.particles = [];
+        
+        // Verstecke Start-Button Overlay
+        document.getElementById('start-button-overlay').style.display = 'none';
         
         // Regeneriere Parallax-Elemente
         this.initParallax();
@@ -156,12 +242,8 @@ class SantaLauncherGame {
             rotation: 0
         };
         
-        const instructions = this.container.querySelector('.launcher-instructions');
-        if (instructions) instructions.style.display = 'none';
-        document.getElementById('launcher-start-button').style.display = 'none';
-        
-        // Zeige Highscores
-        await this.showHighscores();
+        // Aktualisiere Banner
+        this.updateBanner();
         
         // Setup Controls
         this.setupControls();
@@ -170,14 +252,27 @@ class SantaLauncherGame {
         this.gameLoop();
     }
     
-    async showHighscores() {
-        const existingHighscore = document.querySelector('.highscore-display');
-        if (existingHighscore) existingHighscore.remove();
+    updateBanner() {
+        // Distanz
+        document.getElementById('banner-distance').textContent = Math.floor(this.maxDistance);
+        document.getElementById('launcher-distance').textContent = Math.floor(this.maxDistance);
         
-        const top3 = await statsManager.getTop3('santa-launcher');
-        const highscoreHTML = statsManager.createHighscoreDisplay(top3);
+        // Sterne
+        document.getElementById('banner-stars').textContent = this.starsCollected;
         
-        this.canvas.insertAdjacentHTML('beforebegin', highscoreHTML);
+        // Energie
+        const energyPercent = Math.max(0, Math.floor((this.energy / this.maxEnergy) * 100));
+        document.getElementById('banner-energy').textContent = energyPercent + '%';
+        
+        // Energie-Warnung
+        const energyBox = document.getElementById('banner-energy').closest('.stat-box');
+        if (energyPercent <= 20) {
+            energyBox.classList.add('energy-critical');
+        } else if (energyPercent <= 50) {
+            energyBox.classList.add('energy-warning');
+        } else {
+            energyBox.classList.remove('energy-warning', 'energy-critical');
+        }
     }
     
     setupControls() {
@@ -326,8 +421,8 @@ class SantaLauncherGame {
             this.distance = Math.floor((this.santa.x - 100) / 10);
             if (this.distance > this.maxDistance) {
                 this.maxDistance = this.distance;
+                this.updateBanner();
             }
-            document.getElementById('launcher-distance').textContent = this.maxDistance;
             
             // Sterne spawnen
             this.starSpawnTimer++;
@@ -344,6 +439,7 @@ class SantaLauncherGame {
                 
                 if (distance < 30) {
                     // Stern eingesammelt!
+                    this.starsCollected++;
                     this.energy = Math.min(this.maxEnergy, this.energy + 20);
                     
                     // Geschwindigkeits-Boost! (vorwärts)
@@ -353,6 +449,7 @@ class SantaLauncherGame {
                     this.santa.vy -= 1.5;
                     
                     this.showMessage('+20 Energie + Speed! ⭐🚀', '#f1c40f');
+                    this.updateBanner();
                     return false;
                 }
                 
@@ -807,116 +904,77 @@ class SantaLauncherGame {
         this.gameActive = false;
         
         // Cleanup
-        this.canvas.removeEventListener('click', this.clickHandler);
-        this.canvas.removeEventListener('touchstart', this.clickHandler);
-        this.canvas.removeEventListener('mousedown', this.mouseDownHandler);
-        this.canvas.removeEventListener('mouseup', this.mouseUpHandler);
+        if (this.clickHandler) {
+            this.canvas.removeEventListener('click', this.clickHandler);
+            this.canvas.removeEventListener('touchstart', this.clickHandler);
+        }
+        if (this.mouseDownHandler) {
+            this.canvas.removeEventListener('mousedown', this.mouseDownHandler);
+            this.canvas.removeEventListener('mouseup', this.mouseUpHandler);
+        }
         
         // Spielzeit
         const playTime = Math.floor((Date.now() - this.startTime) / 1000);
         
         // Speichere Statistik
-        await statsManager.saveStats('santa-launcher', this.maxDistance, playTime);
+        try {
+            await statsManager.saveStats('santa-launcher', this.maxDistance, playTime);
+        } catch (error) {
+            console.error('Fehler beim Speichern der Stats:', error);
+        }
         
-        // Lade Top 3
-        const top3 = await statsManager.getTop3('santa-launcher');
-        const highscoreHTML = statsManager.createHighscoreDisplay(top3, this.maxDistance);
-        
-        // Game Over Overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'game-over';
-        overlay.innerHTML = `
-            <div class="game-over-title">🎅 Landung! 🏠</div>
-            <div class="game-over-score">Du bist <strong>${this.maxDistance}m</strong> weit geflogen!</div>
-            <div class="game-over-message">${this.getScoreMessage()}</div>
-            ${highscoreHTML}
-            <div class="game-over-buttons">
-                <button class="game-restart-button" id="launcher-restart-button">🔄 Nochmal spielen</button>
-                <button class="game-fullhighscore-button" id="launcher-fullhighscore-button">📊 Alle Highscores</button>
-            </div>
-        `;
-        
-        this.canvas.parentElement.appendChild(overlay);
-        
-        // Event Listeners
-        document.getElementById('launcher-restart-button').addEventListener('click', () => {
-            overlay.remove();
-            const existingHighscore = document.querySelector('.highscore-display');
-            if (existingHighscore) existingHighscore.remove();
-            this.start();
-        });
-        
-        document.getElementById('launcher-fullhighscore-button').addEventListener('click', async () => {
-            await this.showFullHighscores();
-        });
+        // Game Over nach kurzer Verzögerung
+        setTimeout(() => {
+            this.showGameOver();
+        }, 1000);
     }
     
-    async showFullHighscores() {
-        const allScores = await statsManager.getAllScores('santa-launcher');
+    async showGameOver() {
+        // Bestenliste laden
+        let top3 = [];
+        try {
+            top3 = await statsManager.getTop3('santa-launcher');
+        } catch (error) {
+            console.error('Fehler beim Laden der Bestenliste:', error);
+        }
         
-        if (!allScores || allScores.length === 0) return;
-        
-        const modal = document.createElement('div');
-        modal.className = 'highscore-modal';
-        modal.innerHTML = `
-            <div class="highscore-modal-content">
-                <div class="highscore-modal-header">
-                    <h2>🏆 Alle Highscores - Santa Launcher</h2>
-                    <button class="highscore-modal-close" id="highscore-modal-close">&times;</button>
+        // Game Over Overlay erstellen
+        const overlay = document.getElementById('launcher-instructions-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            overlay.querySelector('.instructions-content').innerHTML = `
+                <h2 class="game-over-title">🎅 Landung! 🏠</h2>
+                <div class="game-over-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Distanz:</span>
+                        <span class="stat-value">${this.maxDistance}m</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Sterne:</span>
+                        <span class="stat-value">${this.starsCollected} ⭐</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Nachricht:</span>
+                        <span class="stat-message">${this.getScoreMessage()}</span>
+                    </div>
                 </div>
-                <div class="highscore-modal-body">
-                    ${this.createFullHighscoreList(allScores)}
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        document.getElementById('highscore-modal-close').addEventListener('click', () => {
-            modal.remove();
-        });
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.remove();
-        });
-    }
-    
-    createFullHighscoreList(scores) {
-        const medals = ['🥇', '🥈', '🥉'];
-        
-        const rows = scores.map((player, index) => {
-            const rank = index + 1;
-            const medal = medals[index] || `${rank}.`;
-            const isCurrentPlayer = player.username === statsManager.username;
-            const highlightClass = isCurrentPlayer ? 'current-player' : '';
-            
-            const minutes = Math.floor(player.totalPlayTime / 60);
-            const seconds = player.totalPlayTime % 60;
-            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            
-            return `
-                <div class="highscore-full-row ${highlightClass}">
-                    <span class="rank">${medal}</span>
-                    <span class="player-name">${player.username}</span>
-                    <span class="player-score">${player.highscore}m</span>
-                    <span class="player-games">${player.gamesPlayed} Spiele</span>
-                    <span class="player-time">${timeStr}</span>
-                </div>
+                ${top3.length > 0 ? `
+                    <div class="highscore-list">
+                        <h3>🏆 Top 3</h3>
+                        ${top3.map((entry, index) => `
+                            <div class="highscore-entry rank-${index + 1}">
+                                <span class="rank">${['🥇', '🥈', '🥉'][index]}</span>
+                                <span class="player-name">${entry.username}</span>
+                                <span class="player-score">${entry.score || entry.highscore || 0}m</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                <button class="instruction-ok-button" onclick="location.reload()">
+                    🔄 Nochmal spielen
+                </button>
             `;
-        }).join('');
-        
-        return `
-            <div class="highscore-full-list">
-                <div class="highscore-full-header">
-                    <span class="rank">Rang</span>
-                    <span class="player-name">Spieler</span>
-                    <span class="player-score">Distanz</span>
-                    <span class="player-games">Gespielt</span>
-                    <span class="player-time">Zeit</span>
-                </div>
-                ${rows}
-            </div>
-        `;
+        }
     }
     
     getScoreMessage() {
