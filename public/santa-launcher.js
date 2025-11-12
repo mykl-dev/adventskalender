@@ -41,8 +41,8 @@ class SantaLauncherGame {
         this.energy = 150; // Mehr Start-Energie (war 100)
         this.maxEnergy = 150; // Höheres Maximum (war 100)
         this.energyDrain = 0.18; // Noch weniger Verbrauch (war 0.22)
-        this.boost = -0.18; // Kleiner sanfter Schub (war -0.25)
-        this.boostSmoothing = 0.12; // Sehr sanfte Übergänge (war 0.15)
+        this.boost = -0.22; // Goldener Mittelweg zwischen -0.18 und -0.25
+        this.boostSmoothing = 0.14; // Gute Balance zwischen Smoothness und Reaktion
         
         // Sterne zum Einsammeln
         this.stars = [];
