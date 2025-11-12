@@ -10,11 +10,11 @@ class SantaLauncherGame {
         this.phase = 'angle'; // 'angle', 'power', 'flying', 'landed'
         
         // Katapult-Werte
-        this.angle = 40; // Start-Winkel (flacher, war 45)
+        this.angle = 30; // Start-Winkel
         this.angleDirection = 1; // Richtung des Pendelns
         this.angleSpeed = 0.8; // Geschwindigkeit des Pendelns (langsamer für Mobile)
-        this.angleMin = 25; // Flacherer Minimum-Winkel (war 20)
-        this.angleMax = 65; // Flacherer Maximum-Winkel (war 80)
+        this.angleMin = 10; // Sehr flacher Minimum-Winkel
+        this.angleMax = 50; // Moderater Maximum-Winkel
         
         this.power = 0;
         this.powerSpeed = 0.9; // Wie schnell füllt sich der Balken (langsamer für Mobile)
@@ -464,6 +464,17 @@ class SantaLauncherGame {
             // Position update
             this.santa.x += this.santa.vx;
             this.santa.y += this.santa.vy;
+            
+            // Y-Begrenzung: Wenn Santa zu hoch fliegt, dämpfe vertikale Geschwindigkeit
+            // aber NICHT die horizontale (behält Speed bei)
+            const maxHeight = 100; // Obergrenze des Canvas (100px vom oberen Rand)
+            if (this.santa.y < maxHeight) {
+                this.santa.y = maxHeight; // Setze auf Maximal-Höhe
+                // Dämpfe nur vertikale Geschwindigkeit, horizontal bleibt erhalten
+                if (this.santa.vy < 0) { // Nur wenn nach oben
+                    this.santa.vy *= 0.5; // Stark dämpfen
+                }
+            }
             
             // Kamera folgt Santa (sanft)
             const targetCameraX = this.santa.x - 200;
