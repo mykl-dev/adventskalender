@@ -10,11 +10,11 @@ class SantaLauncherGame {
         this.phase = 'angle'; // 'angle', 'power', 'flying', 'landed'
         
         // Katapult-Werte
-        this.angle = 45; // Start-Winkel
+        this.angle = 40; // Start-Winkel (flacher, war 45)
         this.angleDirection = 1; // Richtung des Pendelns
         this.angleSpeed = 0.8; // Geschwindigkeit des Pendelns (langsamer für Mobile)
-        this.angleMin = 20;
-        this.angleMax = 80;
+        this.angleMin = 25; // Flacherer Minimum-Winkel (war 20)
+        this.angleMax = 65; // Flacherer Maximum-Winkel (war 80)
         
         this.power = 0;
         this.powerSpeed = 0.9; // Wie schnell füllt sich der Balken (langsamer für Mobile)
@@ -519,10 +519,10 @@ class SantaLauncherGame {
                     this.starsCollected++;
                     this.energy = Math.min(this.maxEnergy, this.energy + 30); // Mehr Energie (war 20)
                     
-                    // Sanfter Geschwindigkeits-Boost (reduziert von 2.5)
-                    this.santa.vx += 1.2;
+                    // Moderater Geschwindigkeits-Boost (beschleunigt, aber nicht zu viel)
+                    this.santa.vx += 1.5; // Gibt Speed, aber weniger als vorher (war 2.5)
                     
-                    // Sanfter Auftrieb ähnlich wie manueller Boost (reduziert von -0.8)
+                    // Sanfter Auftrieb ähnlich wie manueller Boost
                     this.santa.vy -= 0.4;
                     
                     // Mini-Segelphase aktivieren (längeres Segeln nach Stern)
@@ -530,7 +530,7 @@ class SantaLauncherGame {
                     this.glideTime = 0;
                     this.maxGlideTime = 30; // ~0.5 Sekunden
                     
-                    this.showMessage('+30 Energie + Boost! ⭐🚀', '#f1c40f');
+                    this.showMessage('+30 Energie + Speed! ⭐🚀', '#f1c40f');
                     this.updateBanner();
                     return false;
                 }
