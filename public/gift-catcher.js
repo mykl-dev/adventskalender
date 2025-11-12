@@ -260,20 +260,25 @@ class GiftCatcherGame3D {
         // 60% Geschenke, 40% Kohle (war 30/70 - jetzt viel mehr Geschenke!)
         const isGift = Math.random() < 0.6;
         
-        const item = {
-            x: Math.random() * (this.canvas.width - 80) + 40,
-            y: -60,
-            vx: (Math.random() - 0.5) * 0.5, // Leichte Horizontalbewegung
-            vy: this.gameSpeed,
-            rotation: Math.random() * Math.PI * 2,
-            rotationSpeed: (Math.random() - 0.5) * 0.1,
-            size: 50 + Math.random() * 20,
-            type: isGift ? 'gift' : 'coal',
-            scale: 0.5, // Start klein für Spawn-Animation
-            opacity: 1
-        };
+        // Wenn Kohle, manchmal 2-3 Steine gleichzeitig für mehr Herausforderung
+        const coalCount = !isGift && Math.random() < 0.5 ? Math.floor(Math.random() * 2) + 2 : 1;
         
-        this.fallingItems.push(item);
+        for (let i = 0; i < coalCount; i++) {
+            const item = {
+                x: Math.random() * (this.canvas.width - 80) + 40,
+                y: -60 - (i * 50), // Leicht versetzt spawnen
+                vx: (Math.random() - 0.5) * 0.5, // Leichte Horizontalbewegung
+                vy: this.gameSpeed,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.1,
+                size: 50 + Math.random() * 20,
+                type: isGift ? 'gift' : 'coal',
+                scale: 0.5, // Start klein für Spawn-Animation
+                opacity: 1
+            };
+            
+            this.fallingItems.push(item);
+        }
     }
     
     gameLoop() {
