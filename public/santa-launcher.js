@@ -40,9 +40,9 @@ class SantaLauncherGame {
         // Energie zum Hochhalten
         this.energy = 100;
         this.maxEnergy = 100;
-        this.energyDrain = 0.25; // Weniger Drain = länger Energie (war 0.4)
-        this.boost = -0.2; // Noch sanfterer Auftrieb für bessere Steuerbarkeit (war -0.3)
-        this.boostSmoothing = 0.12; // Langsamere Interpolation für smoothere Kontrolle (war 0.15)
+        this.energyDrain = 0.22; // Noch weniger Drain für längeres Boosten
+        this.boost = -0.35; // Stärkerer Boost für echte Steuerbarkeit (war -0.2)
+        this.boostSmoothing = 0.18; // Schnellere Reaktion für bessere Kontrolle (war 0.12)
         
         // Sterne zum Einsammeln
         this.stars = [];
@@ -357,9 +357,9 @@ class SantaLauncherGame {
             return;
         }
         
-        // Berechne Start-Geschwindigkeit (erhöht für mehr initiale Power)
+        // Berechne Start-Geschwindigkeit (moderate Power für kontrollierte Flüge)
         const angleRad = (this.angle * Math.PI) / 180;
-        const force = this.power * 0.28; // Erhöht von 0.22 für mehr Katapult-Power
+        const force = this.power * 0.24; // Moderater Wert zwischen alt (0.22) und zu stark (0.28)
         
         this.santa.vx = Math.cos(angleRad) * force;
         this.santa.vy = -Math.sin(angleRad) * force;
@@ -367,8 +367,8 @@ class SantaLauncherGame {
         // Aktiviere Segelphase basierend auf Power (mehr Power = länger segeln)
         this.glidePhase = true;
         this.glideTime = 0;
-        // Längere Segelphase: 60-130 Frames (~1-2.2 Sekunden)
-        this.maxGlideTime = 60 + (this.power * 0.8);
+        // Moderate Segelphase: 45-110 Frames (~0.75-1.8 Sekunden)
+        this.maxGlideTime = 45 + (this.power * 0.75);
         
         this.phase = 'flying';
         this.showMessage('🚀 Los geht\'s!', '#2ecc71');
@@ -412,17 +412,21 @@ class SantaLauncherGame {
             if (this.glidePhase) {
                 this.glideTime++;
                 
-                // Während Segelphase: Stark reduzierte Schwerkraft
+                // Während Segelphase: Reduzierte Schwerkraft (moderater als vorher)
                 const glideProgress = this.glideTime / this.maxGlideTime;
                 
-                // Erste 50% der Segelphase: Fast keine Schwerkraft (nur 10%)
-                // Zweite 50%: Steigt von 10% auf 50%
+                // Erste 40% der Segelphase: Minimale Schwerkraft (20%)
+                // Mittlere 30%: Steigt auf 50%
+                // Letzte 30%: Steigt auf 70%
                 let gravityMultiplier;
-                if (glideProgress < 0.5) {
-                    gravityMultiplier = 0.1; // Segelt fast horizontal
+                if (glideProgress < 0.4) {
+                    gravityMultiplier = 0.2; // Leichtes Segeln
+                } else if (glideProgress < 0.7) {
+                    const progress = (glideProgress - 0.4) / 0.3;
+                    gravityMultiplier = 0.2 + (progress * 0.3); // 20% → 50%
                 } else {
-                    const secondHalfProgress = (glideProgress - 0.5) * 2;
-                    gravityMultiplier = 0.1 + (secondHalfProgress * 0.4); // 10% → 50%
+                    const progress = (glideProgress - 0.7) / 0.3;
+                    gravityMultiplier = 0.5 + (progress * 0.2); // 50% → 70%
                 }
                 
                 const glideGravity = this.gravity * gravityMultiplier;
