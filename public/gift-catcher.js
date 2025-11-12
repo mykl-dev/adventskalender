@@ -11,6 +11,7 @@ class GiftCatcherGame3D {
         this.touchActive = false;
         this.touchStartX = 0;
         this.lastTime = Date.now();
+        this.level = 1;
         
         this.init();
     }
@@ -20,31 +21,75 @@ class GiftCatcherGame3D {
             <div class="gift-game-container">
                 <div class="gift-game-header">
                     <div class="gift-score-display">
-                        <span class="score-label">🎁 Geschenke:</span>
+                        <span class="score-label">🎁</span>
                         <span id="gift-score" class="score-value">0</span>
                     </div>
                     <div class="gift-warning">⚠️ Kohle = Game Over!</div>
                 </div>
-                <canvas id="gift-canvas" class="gift-canvas"></canvas>
-                <div class="gift-instructions">
-                    <h2>🎅 Geschenke fangen! 🎁</h2>
-                    <p>Halte deinen Finger auf dem Weihnachtsmann<br>und bewege ihn nach links und rechts!</p>
-                    <div class="instruction-items">
-                        <div class="instruction-item">
-                            <span class="item-icon">🎁</span>
-                            <span>Geschenke = +10 Punkte</span>
-                        </div>
-                        <div class="instruction-item">
-                            <span class="item-icon">🪨</span>
-                            <span>Kohle = Game Over!</span>
+                
+                <!-- Stats Banner -->
+                <div class="gift-stats-banner">
+                    <div class="stat-box">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="banner-score">0</div>
+                            <div class="stat-label">Punkte</div>
                         </div>
                     </div>
-                    <p class="difficulty-info">Je mehr Geschenke, desto schneller wird's! 🚀</p>
+                    <div class="stat-box">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="banner-level">1</div>
+                            <div class="stat-label">Level</div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">🚀</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="banner-speed">1.0x</div>
+                            <div class="stat-label">Speed</div>
+                        </div>
+                    </div>
                 </div>
-                <button class="gift-start-button" id="gift-start-button">
-                    <span class="button-icon">🎮</span>
-                    <span>Spiel starten!</span>
-                </button>
+                
+                <canvas id="gift-canvas" class="gift-canvas"></canvas>
+                
+                <!-- Instructions Overlay -->
+                <div class="gift-instructions-overlay" id="gift-instructions-overlay">
+                    <div class="instructions-content">
+                        <h2>🎅 Geschenke fangen! 🎁</h2>
+                        <div class="instruction-items">
+                            <div class="instruction-item">
+                                <span class="item-icon">🎁</span>
+                                <span>Geschenke fangen = +10 Punkte</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">🪨</span>
+                                <span>Kohle = Sofort Game Over!</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">📱</span>
+                                <span>Finger auf 🎅 halten & bewegen</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">🖱️</span>
+                                <span>Maus oder ←→ Tasten</span>
+                            </div>
+                        </div>
+                        <p class="difficulty-info">⚡ Je mehr Geschenke, desto schneller!</p>
+                        <button class="instruction-ok-button" id="instruction-ok-button">
+                            ✓ Okay, verstanden!
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Start Button (erscheint nach OK) -->
+                <div class="start-button-overlay" id="start-button-overlay" style="display: none;">
+                    <button class="gift-start-button pulse" id="gift-start-button">
+                        <span class="button-icon">🎮</span>
+                        <span>Spiel starten!</span>
+                    </button>
+                </div>
             </div>
         `;
         
@@ -59,6 +104,13 @@ class GiftCatcherGame3D {
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
         
+        // OK Button für Instructions
+        document.getElementById('instruction-ok-button').addEventListener('click', () => {
+            document.getElementById('gift-instructions-overlay').style.display = 'none';
+            document.getElementById('start-button-overlay').style.display = 'flex';
+        });
+        
+        // Start Button
         document.getElementById('gift-start-button').addEventListener('click', () => this.start());
         
         // Touch-Events für Canvas
@@ -67,17 +119,24 @@ class GiftCatcherGame3D {
     
     resizeCanvas() {
         const container = this.canvas.parentElement;
-        const maxWidth = Math.min(600, container.offsetWidth - 40);
-        const maxHeight = Math.min(700, window.innerHeight - 250);
+        const header = document.querySelector('.gift-game-header');
+        const banner = document.querySelector('.gift-stats-banner');
         
-        this.canvas.width = maxWidth;
-        this.canvas.height = maxHeight;
+        const headerHeight = header ? header.offsetHeight : 50;
+        const bannerHeight = banner ? banner.offsetHeight : 60;
+        
+        // Canvas nimmt gesamte verfügbare Höhe minus Header und Banner
+        const availableWidth = container.offsetWidth;
+        const availableHeight = container.offsetHeight - headerHeight - bannerHeight;
+        
+        this.canvas.width = availableWidth;
+        this.canvas.height = availableHeight;
         
         // Catcher in der Mitte positionieren
         this.catcherX = this.canvas.width / 2;
         this.catcherY = this.canvas.height - 80;
-        this.catcherWidth = 80;
-        this.catcherHeight = 80;
+        this.catcherWidth = Math.min(80, this.canvas.width / 8);
+        this.catcherHeight = Math.min(80, this.canvas.width / 8);
     }
     
     setupTouchControls() {
@@ -155,6 +214,7 @@ class GiftCatcherGame3D {
         await statsManager.ensureUsername();
         
         this.score = 0;
+        this.level = 1;
         this.gameActive = true;
         this.fallingItems = [];
         this.particles = [];
@@ -163,11 +223,12 @@ class GiftCatcherGame3D {
         this.catcherX = this.canvas.width / 2;
         this.startTime = Date.now();
         
-        const instructions = this.container.querySelector('.gift-instructions');
-        if (instructions) instructions.style.display = 'none';
-        
-        document.getElementById('gift-start-button').style.display = 'none';
+        // Verstecke Start-Button Overlay
+        document.getElementById('start-button-overlay').style.display = 'none';
         document.getElementById('gift-score').textContent = '0';
+        document.getElementById('banner-score').textContent = '0';
+        document.getElementById('banner-level').textContent = '1';
+        document.getElementById('banner-speed').textContent = '1.0x';
         
         this.startSpawning();
         this.gameLoop();
@@ -178,13 +239,15 @@ class GiftCatcherGame3D {
             if (!this.gameActive) return;
             this.spawnItem();
             
-            // Schwierigkeitssteigerung
+            // Schwierigkeitssteigerung und Level-Update
             if (this.score > 0 && this.score % 150 === 0) {
                 if (this.gameSpeed < 5) {
                     this.gameSpeed += 0.3;
                     if (this.spawnDelay > 600) {
                         this.spawnDelay -= 80;
                     }
+                    this.level = Math.floor(this.score / 150) + 1;
+                    this.updateBanner();
                 }
             }
             
@@ -265,6 +328,7 @@ class GiftCatcherGame3D {
                     // Geschenk gefangen!
                     this.score += 10;
                     document.getElementById('gift-score').textContent = this.score;
+                    this.updateBanner();
                     this.createExplosion(item, '#4CAF50');
                     this.showFloatingText('+10 🎁', item.x, item.y, '#4CAF50');
                 } else {
@@ -293,6 +357,20 @@ class GiftCatcherGame3D {
             p.opacity = Math.max(0, p.life);
             return p.life > 0;
         });
+    }
+    
+    updateBanner() {
+        document.getElementById('banner-score').textContent = this.score;
+        document.getElementById('banner-level').textContent = this.level;
+        const speedMultiplier = (this.gameSpeed / 2.5).toFixed(1);
+        document.getElementById('banner-speed').textContent = speedMultiplier + 'x';
+        
+        // Level-Up Animation
+        const levelBox = document.querySelector('.stat-box:nth-child(2)');
+        if (levelBox) {
+            levelBox.classList.add('level-up');
+            setTimeout(() => levelBox.classList.remove('level-up'), 500);
+        }
     }
     
     draw() {
@@ -545,39 +623,39 @@ class GiftCatcherGame3D {
             console.error('Fehler beim Laden der Bestenliste:', error);
         }
         
-        const instructions = this.container.querySelector('.gift-instructions');
-        if (instructions) {
-            instructions.style.display = 'block';
-            instructions.innerHTML = `
-                <div class="game-over-screen">
-                    <h2 class="game-over-title">🎅 Spiel vorbei! 🎁</h2>
-                    <div class="game-over-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Punkte:</span>
-                            <span class="stat-value">${this.score}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Geschenke:</span>
-                            <span class="stat-value">${giftsCount} 🎁</span>
-                        </div>
+        // Game Over Overlay erstellen
+        const overlay = document.getElementById('gift-instructions-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            overlay.querySelector('.instructions-content').innerHTML = `
+                <h2 class="game-over-title">🎅 Spiel vorbei! 🎁</h2>
+                <div class="game-over-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Punkte:</span>
+                        <span class="stat-value">${this.score}</span>
                     </div>
-                    ${top3.length > 0 ? `
-                        <div class="highscore-list">
-                            <h3>🏆 Top 3 Spieler</h3>
-                            ${top3.map((entry, index) => `
-                                <div class="highscore-entry rank-${index + 1}">
-                                    <span class="rank">${['🥇', '🥈', '🥉'][index]}</span>
-                                    <span class="player-name">${entry.username}</span>
-                                    <span class="player-score">${entry.score || entry.highscore || 0}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
+                    <div class="stat-item">
+                        <span class="stat-label">Geschenke:</span>
+                        <span class="stat-value">${giftsCount} 🎁</span>
+                    </div>
                 </div>
+                ${top3.length > 0 ? `
+                    <div class="highscore-list">
+                        <h3>🏆 Top 3</h3>
+                        ${top3.map((entry, index) => `
+                            <div class="highscore-entry rank-${index + 1}">
+                                <span class="rank">${['🥇', '🥈', '🥉'][index]}</span>
+                                <span class="player-name">${entry.username}</span>
+                                <span class="player-score">${entry.score || entry.highscore || 0}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                <button class="instruction-ok-button" onclick="location.reload()">
+                    🔄 Nochmal spielen
+                </button>
             `;
         }
-        
-        document.getElementById('gift-start-button').style.display = 'flex';
     }
 }
 
