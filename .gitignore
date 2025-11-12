@@ -22,3 +22,7 @@ Thumbs.db
 # Ignoriere temporäre Dateien
 *.tmp
 *.temp
+
+# stats
+data/stats.json
+data/stats.json

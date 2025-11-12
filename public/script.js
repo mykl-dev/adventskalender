@@ -345,7 +345,7 @@ function initializeGame(gameName, containerId) {
     setTimeout(() => {
         switch (gameName) {
             case 'snowflake-catcher':
-                new SnowflakeCatcherGame(containerId);
+                new SnowflakeCatcherGame3D(containerId);
                 break;
             case 'christmas-memory':
                 new ChristmasMemoryGame(containerId);
