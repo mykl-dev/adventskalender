@@ -276,8 +276,13 @@ class SantaLauncherGame {
     }
     
     setupControls() {
-        // Click für Angle/Power
-        this.clickHandler = () => {
+        // Separate Touch/Click Handling mit Debounce
+        this.boostActive = false;
+        this.lastTouchTime = 0;
+        const TOUCH_DEBOUNCE = 300; // 300ms Verzögerung zwischen Touch-Events
+        
+        // Click Handler für Desktop
+        this.clickHandler = (e) => {
             if (this.phase === 'angle') {
                 this.phase = 'power';
                 this.power = 0;
@@ -286,12 +291,43 @@ class SantaLauncherGame {
             }
         };
         
+        // Touch Handler für Mobile mit Debounce
+        this.touchHandler = (e) => {
+            e.preventDefault();
+            const now = Date.now();
+            
+            // Wenn im Flug, aktiviere Boost
+            if (this.phase === 'flying') {
+                this.boostActive = true;
+                return;
+            }
+            
+            // Debounce für Angle/Power Phasen
+            if (now - this.lastTouchTime < TOUCH_DEBOUNCE) {
+                return; // Ignoriere zu schnelle Touches
+            }
+            this.lastTouchTime = now;
+            
+            if (this.phase === 'angle') {
+                this.phase = 'power';
+                this.power = 0;
+            } else if (this.phase === 'power') {
+                this.launch();
+            }
+        };
+        
+        // Desktop: Click Events
         this.canvas.addEventListener('click', this.clickHandler);
-        this.canvas.addEventListener('touchstart', this.clickHandler);
         
-        // Gedrückt halten für Boost im Flug
-        this.boostActive = false;
+        // Mobile: Touch Events (mit passive: false für preventDefault)
+        this.canvas.addEventListener('touchstart', this.touchHandler, { passive: false });
         
+        this.canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            this.boostActive = false;
+        }, { passive: false });
+        
+        // Desktop: Mouse Events für Boost
         this.mouseDownHandler = () => {
             if (this.phase === 'flying') {
                 this.boostActive = true;
@@ -304,15 +340,6 @@ class SantaLauncherGame {
         
         this.canvas.addEventListener('mousedown', this.mouseDownHandler);
         this.canvas.addEventListener('mouseup', this.mouseUpHandler);
-        this.canvas.addEventListener('touchstart', (e) => {
-            if (this.phase === 'flying') {
-                e.preventDefault();
-                this.boostActive = true;
-            }
-        }, { passive: false });
-        this.canvas.addEventListener('touchend', () => {
-            this.boostActive = false;
-        });
     }
     
     launch() {
@@ -782,24 +809,26 @@ class SantaLauncherGame {
     
     drawUI() {
         const ctx = this.ctx;
+        const centerX = this.canvas.width / 2;
         
-        // Winkel-Anzeige (deutlich sichtbar, über allem)
+        // Winkel-Anzeige (responsive, immer zentriert)
         if (this.phase === 'angle') {
-            const baseX = 400; // Zentral oben
             const baseY = 80;
             
             const angleText = `${Math.round(this.angle)}°`;
             ctx.font = 'bold 36px Arial';
             const textWidth = ctx.measureText(angleText).width;
+            const boxWidth = textWidth + 30;
+            const boxX = centerX - boxWidth / 2;
             
             // Hintergrund-Box
             ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-            ctx.fillRect(baseX - textWidth/2 - 15, baseY - 30, textWidth + 30, 50);
+            ctx.fillRect(boxX, baseY - 30, boxWidth, 50);
             
             // Rahmen
             ctx.strokeStyle = '#f1c40f';
             ctx.lineWidth = 3;
-            ctx.strokeRect(baseX - textWidth/2 - 15, baseY - 30, textWidth + 30, 50);
+            ctx.strokeRect(boxX, baseY - 30, boxWidth, 50);
             
             // Text mit Schatten
             ctx.shadowColor = '#000';
@@ -807,17 +836,19 @@ class SantaLauncherGame {
             ctx.fillStyle = '#f1c40f';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(angleText, baseX, baseY);
+            ctx.fillText(angleText, centerX, baseY);
             ctx.shadowBlur = 0;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
         }
         
         if (this.phase === 'power') {
-            // Power Bar
-            const barWidth = 300;
+            // Power Bar - responsive Breite
+            const maxBarWidth = 300;
+            const padding = 40;
+            const barWidth = Math.min(maxBarWidth, this.canvas.width - padding * 2);
             const barHeight = 30;
-            const barX = 250;
+            const barX = centerX - barWidth / 2;
             const barY = 50;
             
             // Hintergrund
@@ -844,11 +875,11 @@ class SantaLauncherGame {
             ctx.fillStyle = 'white';
             ctx.font = 'bold 20px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('⚡ POWER', 400, 40);
+            ctx.fillText('⚡ POWER', centerX, barY - 10);
             
             if (isInDanger) {
                 ctx.fillStyle = '#e74c3c';
-                ctx.fillText('⚠️ GEFAHR!', 400, 100);
+                ctx.fillText('⚠️ GEFAHR!', centerX, barY + barHeight + 30);
             }
         }
         
