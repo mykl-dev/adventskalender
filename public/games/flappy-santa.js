@@ -84,12 +84,10 @@ class FlappySanta {
     initBackground() {
         // Generate 3D buildings for background parallax
         this.buildings = [];
-        const buildingTypes = ['🏢', '🏬', '🏛️', '🏰', '⛪'];
         for (let i = 0; i < 8; i++) {
             this.buildings.push({
                 x: i * 200,
                 height: Math.random() * 150 + 100,
-                type: buildingTypes[Math.floor(Math.random() * buildingTypes.length)],
                 layer: Math.random() > 0.5 ? 1 : 2 // Parallax layers
             });
         }
@@ -214,14 +212,20 @@ class FlappySanta {
         const deltaTime = currentTime - this.lastTime;
         this.lastTime = currentTime;
         
-        this.update(deltaTime);
+        this.update(currentTime, deltaTime);
         this.draw();
         
         this.animationId = requestAnimationFrame(() => this.gameLoop());
     }
     
-    update(deltaTime) {
-        if (!this.gameStarted) return;
+    update(currentTime, deltaTime) {
+        // Always update background
+        this.updateBackground();
+        
+        if (!this.gameStarted) {
+            // Draw even when not started
+            return;
+        }
         
         // Update santa physics
         this.santa.velocity += this.gravity;
@@ -236,9 +240,6 @@ class FlappySanta {
             this.endGame();
             return;
         }
-        
-        // Update background elements
-        this.updateBackground();
         
         // Spawn obstacles
         if (currentTime - this.lastObstacleTime > this.obstacleSpawnTime) {
@@ -438,11 +439,6 @@ class FlappySanta {
             this.ctx.lineTo(building.x + 120, this.canvas.height + 20);
             this.ctx.lineTo(building.x + 100, this.canvas.height);
             this.ctx.fill();
-            
-            // Building emoji on top
-            this.ctx.globalAlpha = 1;
-            this.ctx.font = '36px Arial';
-            this.ctx.fillText(building.type, building.x + 30, y + 40);
         });
         
         this.ctx.globalAlpha = 1;
