@@ -109,6 +109,19 @@ class FlappySanta {
         
         // Adjust santa position for responsive
         this.santa.y = this.canvas.height / 2;
+        
+        // Scale game parameters based on screen size
+        const baseWidth = 1920; // Desktop reference width
+        const scale = Math.min(this.canvas.width / baseWidth, 1);
+        
+        // Adjust obstacle spawn time based on screen width (more time on mobile)
+        if (this.canvas.width < 768) {
+            this.obstacleSpawnTime = 3000; // Mobile: mehr Zeit zwischen Hindernissen
+            this.obstacleGap = 220; // Mobile: größere Lücke
+        } else {
+            this.obstacleSpawnTime = 2500; // Desktop
+            this.obstacleGap = 200; // Desktop
+        }
     }
     
     initBackground() {
@@ -226,8 +239,16 @@ class FlappySanta {
         this.santa.velocity = 0;
         this.obstacles = [];
         this.obstacleSpeed = this.baseObstacleSpeed;
-        this.obstacleGap = 200;
-        this.obstacleSpawnTime = 2500;
+        
+        // Set responsive parameters
+        if (this.canvas.width < 768) {
+            this.obstacleGap = 220;
+            this.obstacleSpawnTime = 3000;
+        } else {
+            this.obstacleGap = 200;
+            this.obstacleSpawnTime = 2500;
+        }
+        
         this.lastObstacleTime = 0;
         this.startTime = Date.now();
         
