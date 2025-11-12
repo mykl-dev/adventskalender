@@ -6,7 +6,7 @@ class GiftCatcherGame3D {
         this.catcherX = 0; // Wird in resizeCanvas gesetzt
         this.fallingItems = [];
         this.gameSpeed = 2.5;
-        this.spawnDelay = 1200;
+        this.spawnDelay = 800; // Schnelleres Initial-Spawning
         this.particles = [];
         this.touchActive = false;
         this.touchStartX = 0;
@@ -132,9 +132,9 @@ class GiftCatcherGame3D {
         this.canvas.width = availableWidth;
         this.canvas.height = availableHeight;
         
-        // Catcher in der Mitte positionieren
+        // Catcher höher positionieren für bessere Erreichbarkeit auf Mobile
         this.catcherX = this.canvas.width / 2;
-        this.catcherY = this.canvas.height - 80;
+        this.catcherY = this.canvas.height - 120; // Weiter oben (war 80)
         this.catcherWidth = Math.min(80, this.canvas.width / 8);
         this.catcherHeight = Math.min(80, this.canvas.width / 8);
     }
@@ -219,7 +219,7 @@ class GiftCatcherGame3D {
         this.fallingItems = [];
         this.particles = [];
         this.gameSpeed = 2.5;
-        this.spawnDelay = 1200;
+        this.spawnDelay = 800; // Schnelleres Spawning (war 1200ms)
         this.catcherX = this.canvas.width / 2;
         this.startTime = Date.now();
         
@@ -239,14 +239,14 @@ class GiftCatcherGame3D {
             if (!this.gameActive) return;
             this.spawnItem();
             
-            // Schwierigkeitssteigerung und Level-Update
-            if (this.score > 0 && this.score % 150 === 0) {
+            // Schwierigkeitssteigerung und Level-Update (jetzt alle 100 Punkte statt 150)
+            if (this.score > 0 && this.score % 100 === 0) {
                 if (this.gameSpeed < 5) {
                     this.gameSpeed += 0.3;
-                    if (this.spawnDelay > 600) {
-                        this.spawnDelay -= 80;
+                    if (this.spawnDelay > 400) {
+                        this.spawnDelay -= 60;
                     }
-                    this.level = Math.floor(this.score / 150) + 1;
+                    this.level = Math.floor(this.score / 100) + 1;
                     this.updateBanner();
                 }
             }
@@ -257,8 +257,8 @@ class GiftCatcherGame3D {
     }
     
     spawnItem() {
-        // 30% Geschenke, 70% Kohle
-        const isGift = Math.random() < 0.3;
+        // 60% Geschenke, 40% Kohle (war 30/70 - jetzt viel mehr Geschenke!)
+        const isGift = Math.random() < 0.6;
         
         const item = {
             x: Math.random() * (this.canvas.width - 80) + 40,
