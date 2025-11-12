@@ -45,6 +45,7 @@ class FlappySanta {
         // Game name for stats
         this.gameName = 'flappy-santa';
         this.startTime = 0;
+        this.bestScore = 0;
         
         this.init();
     }
@@ -53,13 +54,26 @@ class FlappySanta {
         const root = document.getElementById('game-root');
         
         root.innerHTML = `
-            <canvas id="game-canvas"></canvas>
-            
-            <div class="stats-banner">
-                <div class="stat-box">
-                    <div class="stat-label">Punkte</div>
-                    <div class="stat-value" id="score-value">0</div>
+            <div class="flappy-game-container">
+                <!-- Stats Banner -->
+                <div class="flappy-stats-banner">
+                    <div class="stat-box">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="score-value">0</div>
+                            <div class="stat-label">Punkte</div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">🛷</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="best-score">0</div>
+                            <div class="stat-label">Rekord</div>
+                        </div>
+                    </div>
                 </div>
+                
+                <canvas id="game-canvas" class="flappy-canvas"></canvas>
             </div>
         `;
         
@@ -71,7 +85,22 @@ class FlappySanta {
         
         this.setupControls();
         this.initBackground();
+        this.loadBestScore();
         this.showStartOverlay();
+    }
+    
+    async loadBestScore() {
+        if (typeof statsManager !== 'undefined') {
+            try {
+                const top3 = await statsManager.getTop3(this.gameName);
+                if (top3.length > 0) {
+                    this.bestScore = top3[0].score || 0;
+                    document.getElementById('best-score').textContent = this.bestScore;
+                }
+            } catch (error) {
+                console.warn('Could not load best score:', error);
+            }
+        }
     }
     
     resizeCanvas() {
@@ -337,6 +366,13 @@ class FlappySanta {
                 obstacle.scored = true;
                 this.score++;
                 document.getElementById('score-value').textContent = this.score;
+                
+                // Update best score in real-time
+                if (this.score > this.bestScore) {
+                    this.bestScore = this.score;
+                    document.getElementById('best-score').textContent = this.bestScore;
+                }
+                
                 this.increaseDifficulty();
             }
             
