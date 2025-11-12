@@ -12,12 +12,12 @@ class SantaLauncherGame {
         // Katapult-Werte
         this.angle = 45; // Start-Winkel
         this.angleDirection = 1; // Richtung des Pendelns
-        this.angleSpeed = 1.2; // Geschwindigkeit des Pendelns (schneller)
+        this.angleSpeed = 0.8; // Geschwindigkeit des Pendelns (langsamer für Mobile)
         this.angleMin = 20;
         this.angleMax = 80;
         
         this.power = 0;
-        this.powerSpeed = 1.2; // Wie schnell füllt sich der Balken (schneller)
+        this.powerSpeed = 0.9; // Wie schnell füllt sich der Balken (langsamer für Mobile)
         this.powerMax = 100;
         this.powerDanger = 85; // Ab hier rot/gefährlich
         
@@ -31,8 +31,8 @@ class SantaLauncherGame {
             rotation: 0
         };
         
-        this.gravity = 0.3;
-        this.airResistance = 0.995; // Erhöht von 0.99 - weniger Bremsung
+        this.gravity = 0.25; // Reduziert für sanfteres Fliegen
+        this.airResistance = 0.992; // Mehr Luftwiderstand = weniger schnell
         
         // Kamera-Offset für scrollenden Hintergrund
         this.cameraX = 0;
@@ -40,8 +40,9 @@ class SantaLauncherGame {
         // Energie zum Hochhalten
         this.energy = 100;
         this.maxEnergy = 100;
-        this.energyDrain = 0.4; // Pro Frame beim Drücken (reduziert von 0.8)
-        this.boost = -0.5; // Auftrieb beim Drücken
+        this.energyDrain = 0.25; // Weniger Drain = länger Energie (war 0.4)
+        this.boost = -0.3; // Sanfterer Auftrieb (war -0.5)
+        this.boostSmoothing = 0.15; // Für weiche Boost-Übergänge
         
         // Sterne zum Einsammeln
         this.stars = [];
@@ -352,9 +353,9 @@ class SantaLauncherGame {
             return;
         }
         
-        // Berechne Start-Geschwindigkeit
+        // Berechne Start-Geschwindigkeit (reduziert für kontrollierbareres Gameplay)
         const angleRad = (this.angle * Math.PI) / 180;
-        const force = this.power * 0.3;
+        const force = this.power * 0.22; // Reduziert von 0.3 für langsameres Gameplay
         
         this.santa.vx = Math.cos(angleRad) * force;
         this.santa.vy = -Math.sin(angleRad) * force;
@@ -400,11 +401,19 @@ class SantaLauncherGame {
             // Physik
             this.santa.vy += this.gravity;
             
-            // Boost wenn gedrückt und Energie vorhanden
+            // Smooth Boost - statt hartem On/Off
+            if (!this.currentBoost) this.currentBoost = 0;
+            
             if (this.boostActive && this.energy > 0) {
-                this.santa.vy += this.boost;
+                // Sanft zum Ziel-Boost interpolieren
+                this.currentBoost += (this.boost - this.currentBoost) * this.boostSmoothing;
+                this.santa.vy += this.currentBoost;
                 this.energy -= this.energyDrain;
                 if (this.energy < 0) this.energy = 0;
+            } else {
+                // Sanft zurück zu 0 wenn nicht mehr geboostet
+                this.currentBoost *= 0.85;
+                if (Math.abs(this.currentBoost) < 0.01) this.currentBoost = 0;
             }
             
             // Luftwiderstand
