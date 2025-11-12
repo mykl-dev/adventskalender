@@ -104,24 +104,27 @@ class FlappySanta {
     }
     
     resizeCanvas() {
+        // Check screen size BEFORE setting canvas dimensions
+        const isMobile = window.innerWidth < 768;
+        
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         
         // Adjust santa position for responsive
         this.santa.y = this.canvas.height / 2;
         
-        // Scale game parameters based on screen size
-        const baseWidth = 1920; // Desktop reference width
-        const scale = Math.min(this.canvas.width / baseWidth, 1);
-        
-        // Adjust obstacle spawn time based on screen width (more time on mobile)
-        if (this.canvas.width < 768) {
-            this.obstacleSpawnTime = 3000; // Mobile: mehr Zeit zwischen Hindernissen
-            this.obstacleGap = 220; // Mobile: größere Lücke
+        // Adjust obstacle parameters based on screen width
+        if (isMobile) {
+            this.obstacleSpawnTime = 3500; // Mobile: deutlich mehr Zeit zwischen Hindernissen
+            this.obstacleGap = 250; // Mobile: deutlich größere Lücke
+            this.obstacleSpeed = 1.5; // Mobile: langsamer
         } else {
             this.obstacleSpawnTime = 2500; // Desktop
             this.obstacleGap = 200; // Desktop
+            this.obstacleSpeed = 2; // Desktop
         }
+        
+        console.log(`Screen: ${isMobile ? 'Mobile' : 'Desktop'} - Width: ${window.innerWidth}px - Gap: ${this.obstacleGap}px - Spawn: ${this.obstacleSpawnTime}ms`);
     }
     
     initBackground() {
@@ -238,15 +241,17 @@ class FlappySanta {
         this.santa.y = this.canvas.height / 2;
         this.santa.velocity = 0;
         this.obstacles = [];
-        this.obstacleSpeed = this.baseObstacleSpeed;
         
-        // Set responsive parameters
-        if (this.canvas.width < 768) {
-            this.obstacleGap = 220;
-            this.obstacleSpawnTime = 3000;
+        // Set responsive parameters based on window width
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            this.obstacleGap = 250; // Mobile: deutlich größere Lücke
+            this.obstacleSpawnTime = 3500; // Mobile: mehr Zeit
+            this.obstacleSpeed = 1.5; // Mobile: langsamer
         } else {
-            this.obstacleGap = 200;
-            this.obstacleSpawnTime = 2500;
+            this.obstacleGap = 200; // Desktop
+            this.obstacleSpawnTime = 2500; // Desktop
+            this.obstacleSpeed = 2; // Desktop
         }
         
         this.lastObstacleTime = 0;
