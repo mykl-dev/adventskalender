@@ -164,23 +164,42 @@ class FlappySanta {
     
     showStartOverlay() {
         const overlay = document.createElement('div');
-        overlay.className = 'overlay';
-        overlay.id = 'start-overlay';
+        overlay.className = 'flappy-instructions-overlay';
+        overlay.id = 'flappy-instructions-overlay';
         overlay.innerHTML = `
-            <div class="overlay-content">
-                <div class="overlay-title">🎅🛷</div>
-                <div class="overlay-subtitle">Flappy Santa</div>
-                <div class="overlay-text">
-                    Fliege mit dem Weihnachtsmann durch die Stadt und weiche den Hindernissen aus!
+            <div class="instructions-content">
+                <h2>🎅 Flappy Santa 🛷</h2>
+                <div class="instruction-items">
+                    <div class="instruction-item">
+                        <span class="item-icon">🛷</span>
+                        <span>Fliege mit Santa durch den Himmel!</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="item-icon">☁️</span>
+                        <span>Weiche den Hindernissen aus!</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="item-icon">🖱️</span>
+                        <span>Klicken zum Fliegen</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="item-icon">⌨️</span>
+                        <span>Leertaste zum Fliegen</span>
+                    </div>
                 </div>
-                <div class="overlay-instructions">
-                    <p><strong>🖱️ Klicken</strong> oder <strong>⌨️ Leertaste</strong></p>
-                    <p>zum Fliegen!</p>
-                </div>
-                <button class="game-button" onclick="game.start()">Start 🎮</button>
+                <p class="difficulty-info">⚡ Je mehr Punkte, desto schneller wird es!</p>
+                <button class="instruction-ok-button" id="instruction-ok-button">
+                    ✓ Okay, verstanden!
+                </button>
             </div>
         `;
         document.body.appendChild(overlay);
+        
+        // Button Event Listener
+        document.getElementById('instruction-ok-button').addEventListener('click', () => {
+            overlay.remove();
+            this.start();
+        });
     }
     
     async start() {
@@ -194,8 +213,8 @@ class FlappySanta {
         }
         
         // Remove overlays
-        const startOverlay = document.getElementById('start-overlay');
-        if (startOverlay) startOverlay.remove();
+        const instructionsOverlay = document.getElementById('flappy-instructions-overlay');
+        if (instructionsOverlay) instructionsOverlay.remove();
         const gameOverOverlay = document.querySelector('.overlay');
         if (gameOverOverlay) gameOverOverlay.remove();
         
