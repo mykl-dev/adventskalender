@@ -115,16 +115,16 @@ class FlappySanta {
         
         // Adjust obstacle parameters based on device type
         if (isMobile) {
-            this.obstacleSpawnTime = 3500; // Mobile: deutlich mehr Zeit zwischen Hindernissen
-            this.obstacleGap = 250; // Mobile: deutlich größere Lücke
-            this.obstacleSpeed = 1.5; // Mobile: langsamer
+            this.obstacleSpawnTime = 2200; // Mobile: dichter als vorher
+            this.obstacleGap = 200; // Mobile: normale Lücke
+            this.obstacleSpeed = 1.8; // Mobile: etwas langsamer als Desktop
         } else {
             this.obstacleSpawnTime = 2500; // Desktop
             this.obstacleGap = 200; // Desktop
             this.obstacleSpeed = 2; // Desktop
         }
         
-        console.log(`Device: ${isMobile ? 'Mobile' : 'Desktop'} - Width: ${window.innerWidth}px - Touch: ${('ontouchstart' in window)} - Gap: ${this.obstacleGap}px - Spawn: ${this.obstacleSpawnTime}ms`);
+        console.log(`Device: ${isMobile ? 'Mobile' : 'Desktop'} - Width: ${window.innerWidth}px - Touch: ${('ontouchstart' in window)} - Gap: ${this.obstacleGap}px - Spawn: ${this.obstacleSpawnTime}ms - Speed: ${this.obstacleSpeed}`);
     }
     
     isMobileDevice() {
@@ -259,9 +259,9 @@ class FlappySanta {
         // Set responsive parameters using mobile detection
         const isMobile = this.isMobileDevice();
         if (isMobile) {
-            this.obstacleGap = 250; // Mobile: deutlich größere Lücke
-            this.obstacleSpawnTime = 3500; // Mobile: mehr Zeit
-            this.obstacleSpeed = 1.5; // Mobile: langsamer
+            this.obstacleGap = 200; // Mobile: normale Lücke
+            this.obstacleSpawnTime = 2200; // Mobile: dichter
+            this.obstacleSpeed = 1.8; // Mobile: etwas langsamer
         } else {
             this.obstacleGap = 200; // Desktop
             this.obstacleSpawnTime = 2500; // Desktop
