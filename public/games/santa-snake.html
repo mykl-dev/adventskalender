@@ -711,13 +711,16 @@
                     this.score++;
                     document.getElementById('snake-score').textContent = this.score;
 
-                    if (this.score % 3 === 0 && this.speed > 60) {
-                        this.speed -= 8;
+                    // Geschwindigkeit erhöhen: Alle 2 Geschenke schneller werden
+                    if (this.score % 2 === 0 && this.speed > 50) {
+                        this.speed -= 10; // Stärkere Beschleunigung (war 8)
                         clearInterval(this.gameLoop);
                         this.gameLoop = setInterval(() => this.update(), this.speed);
+                        console.log(`Speed erhöht! Geschenke: ${this.score}, Neue Speed: ${this.speed}ms`);
                     }
 
-                    const speedLevel = Math.max(1, Math.floor((200 - this.speed) / 8) + 1);
+                    // Speed Level berechnen und anzeigen (1-15)
+                    const speedLevel = Math.max(1, Math.ceil((200 - this.speed) / 10));
                     document.getElementById('snake-speed').textContent = speedLevel;
 
                     this.spawnGift();
