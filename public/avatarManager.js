@@ -96,6 +96,44 @@ class AvatarManager {
     }
 
     /**
+     * Rendert Avatar basierend auf Profil (Charakter-Bild oder Custom)
+     */
+    renderAvatarDisplay(profile = null, size = 100) {
+        const currentProfile = profile || this.currentAvatar;
+        
+        if (!currentProfile) {
+            return this.renderAvatarSVG(this.getDefaultAvatar(), size);
+        }
+        
+        // Wenn Charakter-Bild vorhanden (neue Charaktere)
+        if (currentProfile.character && currentProfile.character.imageUrl) {
+            return `
+                <img 
+                    src="${currentProfile.character.imageUrl}" 
+                    alt="${currentProfile.username}"
+                    style="width: ${size}px; height: ${size}px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.2);"
+                    onerror="this.style.display='none'"
+                />
+            `;
+        }
+        
+        // Wenn Avatar-URL vorhanden
+        if (currentProfile.avatar && currentProfile.avatar.imageUrl) {
+            return `
+                <img 
+                    src="${currentProfile.avatar.imageUrl}" 
+                    alt="${currentProfile.username}"
+                    style="width: ${size}px; height: ${size}px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.2);"
+                    onerror="this.style.display='none'"
+                />
+            `;
+        }
+        
+        // Fallback auf Custom SVG Avatar
+        return this.renderAvatarSVG(currentProfile.avatar, size);
+    }
+    
+    /**
      * Hole komplettes Profil
      */
     getProfile() {
@@ -143,8 +181,8 @@ class AvatarManager {
                         <span>Öffne jeden Tag ein neues Türchen</span>
                     </div>
                 </div>
-                <button class="avatar-create-button" onclick="avatarManager.goToAvatarEditor()">
-                    ✨ Jetzt Avatar erstellen!
+                <button class="avatar-create-button" onclick="avatarManager.goToAvatarOptions()">
+                    ✨ Avatar wählen!
                 </button>
             </div>
         `;
@@ -158,7 +196,21 @@ class AvatarManager {
     }
 
     /**
-     * Zur Avatar-Editor-Seite navigieren
+     * Zur Avatar-Optionen-Seite navigieren
+     */
+    goToAvatarOptions() {
+        window.location.href = 'avatar-options.html';
+    }
+    
+    /**
+     * Zur Character-Select-Seite navigieren
+     */
+    goToCharacterSelect() {
+        window.location.href = 'character-select.html';
+    }
+
+    /**
+     * Zur Avatar-Editor-Seite navigieren (Custom Avatar)
      */
     goToAvatarEditor() {
         window.location.href = 'avatar-editor.html';

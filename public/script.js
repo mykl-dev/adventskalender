@@ -504,7 +504,7 @@ function initPlayerAvatarDisplay() {
     const profile = avatarManager.getProfile();
     if (profile) {
         display.innerHTML = `
-            ${avatarManager.renderAvatarSVG(profile.avatar, 40)}
+            ${avatarManager.renderAvatarDisplay(profile, 40)}
             <span class="player-name">${profile.username}</span>
         `;
         display.style.display = 'inline-flex';

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Optionen - Adventskalender 2024</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .subtitle {
+            font-size: 1.5em;
+            margin-bottom: 60px;
+            opacity: 0.9;
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out both;
+        }
+
+        .option-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .option-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border-color: #ffd700;
+        }
+
+        .option-icon {
+            font-size: 5em;
+            margin-bottom: 25px;
+            animation: bounce 2s infinite;
+        }
+
+        .option-card:hover .option-icon {
+            animation: spin 0.6s ease-out;
+        }
+
+        .option-title {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .option-description {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .option-features {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        .feature-icon {
+            font-size: 1.5em;
+        }
+
+        .option-button {
+            background: linear-gradient(135deg, #ffd700 0%, #ff6347 100%);
+            color: #1a1a1a;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            width: 100%;
+        }
+
+        .option-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .recommended {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ffd700;
+            color: #1a1a1a;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .comparison {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 40px;
+            margin-top: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.6s ease-out 0.4s both;
+        }
+
+        .comparison h2 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+
+        .comparison-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .comparison-header {
+            font-weight: bold;
+            font-size: 1.3em;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .comparison-cell {
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Wähle deine Avatar-Option</h1>
+        <p class="subtitle">Zwei Wege, deine Persönlichkeit zu zeigen!</p>
+
+        <div class="options-grid">
+            <!-- Character Select -->
+            <div class="option-card" onclick="window.location.href='character-select.html'">
+                <div class="recommended">⭐ Empfohlen</div>
+                <div class="option-icon">🎭</div>
+                <div class="option-title">Vorgefertigte Charaktere</div>
+                <div class="option-description">
+                    Wähle aus 12 professionell gestalteten Anime/Comic-Charakteren
+                </div>
+                <div class="option-features">
+                    <div class="feature">
+                        <span class="feature-icon">✨</span>
+                        <span>Hochwertige Grafiken</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">⚡</span>
+                        <span>Schnelle Auswahl</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🎨</span>
+                        <span>3 Kategorien (Babo, Cutie, Special)</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🎅</span>
+                        <span>Weihnachts-Charaktere inklusive</span>
+                    </div>
+                </div>
+                <button class="option-button">Charaktere ansehen</button>
+            </div>
+
+            <!-- Custom Avatar Editor -->
+            <div class="option-card" onclick="window.location.href='avatar-editor.html'">
+                <div class="option-icon">🎨</div>
+                <div class="option-title">Custom Avatar Editor</div>
+                <div class="option-description">
+                    Erstelle deinen eigenen einzigartigen Avatar von Grund auf
+                </div>
+                <div class="option-features">
+                    <div class="feature">
+                        <span class="feature-icon">🎭</span>
+                        <span>64+ Kombinationen</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🎨</span>
+                        <span>Vollständige Anpassung</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💪</span>
+                        <span>Babo & Cutie Styles</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🎲</span>
+                        <span>Zufallsgenerator</span>
+                    </div>
+                </div>
+                <button class="option-button">Avatar erstellen</button>
+            </div>
+        </div>
+
+        <div class="comparison">
+            <h2>📊 Vergleich im Detail</h2>
+            <div class="comparison-table">
+                <div class="comparison-header">Feature</div>
+                <div class="comparison-header">Vorgefertigte Charaktere</div>
+                <div class="comparison-header">Custom Editor</div>
+
+                <div class="comparison-cell" style="font-weight: bold;">Grafik-Qualität</div>
+                <div class="comparison-cell">⭐⭐⭐⭐⭐</div>
+                <div class="comparison-cell">⭐⭐⭐</div>
+
+                <div class="comparison-cell" style="font-weight: bold;">Auswahl-Geschwindigkeit</div>
+                <div class="comparison-cell">⚡ Sehr schnell</div>
+                <div class="comparison-cell">⏱️ Braucht Zeit</div>
+
+                <div class="comparison-cell" style="font-weight: bold;">Einzigartigkeit</div>
+                <div class="comparison-cell">12 Optionen</div>
+                <div class="comparison-cell">64+ Kombinationen</div>
+
+                <div class="comparison-cell" style="font-weight: bold;">Für Anfänger</div>
+                <div class="comparison-cell">✅ Perfekt</div>
+                <div class="comparison-cell">⚠️ Komplex</div>
+
+                <div class="comparison-cell" style="font-weight: bold;">Weihnachts-Thema</div>
+                <div class="comparison-cell">🎅 Santa, Elf, Rudolf</div>
+                <div class="comparison-cell">🎄 Santa-Hut</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

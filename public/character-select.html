@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wähle deinen Charakter - Adventskalender 2024</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        .username-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+
+        .username-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .username-input-group {
+            display: flex;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .username-input-group input {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 25px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .username-input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .username-input-group input:focus {
+            outline: none;
+            border-color: #ffd700;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .char-counter {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .categories {
+            margin-bottom: 40px;
+            animation: fadeIn 0.6s ease-out 0.4s both;
+        }
+
+        .category {
+            margin-bottom: 50px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .category-icon {
+            font-size: 3em;
+        }
+
+        .category-info h2 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .category-info p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .character-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease-out both;
+        }
+
+        .character-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .character-card.selected {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+        }
+
+        .character-card.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ffd700;
+            color: #1a1a1a;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 10;
+            animation: checkmark 0.3s ease-out;
+        }
+
+        .character-avatar {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 15px;
+            position: relative;
+        }
+
+        .character-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .character-card:hover .character-avatar img {
+            transform: scale(1.1);
+        }
+
+        .character-name {
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .character-description {
+            text-align: center;
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+
+        .action-section {
+            position: sticky;
+            bottom: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.6s ease-out 0.6s both;
+        }
+
+        .action-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .selected-preview {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .selected-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #ffd700;
+            object-fit: cover;
+        }
+
+        .selected-info h3 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .selected-info p {
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd700 0%, #ff6347 100%);
+            color: #1a1a1a;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes checkmark {
+            from {
+                transform: scale(0) rotate(-180deg);
+            }
+            to {
+                transform: scale(1) rotate(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .character-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 15px;
+            }
+
+            .action-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .action-buttons {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .action-buttons button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎄 Wähle deinen Charakter</h1>
+            <p>Wer möchtest du in diesem Adventskalender sein?</p>
+        </div>
+
+        <!-- Username Section -->
+        <div class="username-section">
+            <h2>🎮 Wie möchtest du heißen?</h2>
+            <div class="username-input-group">
+                <input 
+                    type="text" 
+                    id="usernameInput" 
+                    placeholder="Dein Name..." 
+                    maxlength="20"
+                    autocomplete="off"
+                />
+            </div>
+            <div class="char-counter">
+                <span id="charCounter">0</span>/20 Zeichen
+            </div>
+        </div>
+
+        <!-- Character Categories -->
+        <div class="categories" id="categoriesContainer"></div>
+
+        <!-- Action Section -->
+        <div class="action-section">
+            <div class="action-content">
+                <div class="selected-preview" id="selectedPreview" style="display: none;">
+                    <img src="" alt="" class="selected-avatar" id="selectedAvatar">
+                    <div class="selected-info">
+                        <h3 id="selectedName">Kein Charakter gewählt</h3>
+                        <p id="selectedDescription"></p>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-secondary" onclick="randomize()">🎲 Zufällig</button>
+                    <button class="btn-primary" id="saveButton" onclick="saveCharacter()" disabled>
+                        ✨ Los geht's!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="avatarCharacters.js"></script>
+    <script src="avatarManager.js"></script>
+    <script>
+        let selectedCharacter = null;
+        let username = '';
+
+        // Initialisierung
+        function init() {
+            renderCategories();
+            setupEventListeners();
+            loadExistingProfile();
+        }
+
+        // Rendere Kategorien und Charaktere
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            const categories = AvatarCharacters.getCategories();
+
+            categories.forEach((category, index) => {
+                const characters = AvatarCharacters.getCharactersByGender(category.id);
+                
+                const categoryHtml = `
+                    <div class="category" style="animation-delay: ${0.6 + index * 0.1}s">
+                        <div class="category-header">
+                            <div class="category-icon">${category.icon}</div>
+                            <div class="category-info">
+                                <h2>${category.name}</h2>
+                                <p>${category.description}</p>
+                            </div>
+                        </div>
+                        <div class="character-grid">
+                            ${characters.map((char, charIndex) => `
+                                <div class="character-card" 
+                                     data-character-id="${char.id}"
+                                     style="animation-delay: ${0.7 + index * 0.1 + charIndex * 0.05}s"
+                                     onclick="selectCharacter('${char.id}')">
+                                    <div class="character-avatar">
+                                        <img src="${char.imageUrl}" alt="${char.name}">
+                                    </div>
+                                    <div class="character-name">${char.name}</div>
+                                    <div class="character-description">${char.description}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML += categoryHtml;
+            });
+        }
+
+        // Charakter auswählen
+        function selectCharacter(characterId) {
+            selectedCharacter = AvatarCharacters.getCharacterById(characterId);
+            
+            // Entferne selected von allen Karten
+            document.querySelectorAll('.character-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Setze selected auf gewählte Karte
+            const selectedCard = document.querySelector(`[data-character-id="${characterId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // Update Preview
+            updateSelectedPreview();
+            updateSaveButton();
+        }
+
+        // Update Selected Preview
+        function updateSelectedPreview() {
+            const preview = document.getElementById('selectedPreview');
+            const avatar = document.getElementById('selectedAvatar');
+            const name = document.getElementById('selectedName');
+            const description = document.getElementById('selectedDescription');
+            
+            if (selectedCharacter) {
+                preview.style.display = 'flex';
+                avatar.src = selectedCharacter.imageUrl;
+                avatar.alt = selectedCharacter.name;
+                name.textContent = selectedCharacter.name;
+                description.textContent = selectedCharacter.description;
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        // Update Save Button
+        function updateSaveButton() {
+            const saveBtn = document.getElementById('saveButton');
+            const isValid = selectedCharacter && username.length >= 2;
+            saveBtn.disabled = !isValid;
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            const usernameInput = document.getElementById('usernameInput');
+            const charCounter = document.getElementById('charCounter');
+            
+            usernameInput.addEventListener('input', (e) => {
+                username = e.target.value;
+                charCounter.textContent = username.length;
+                updateSaveButton();
+            });
+        }
+
+        // Randomize
+        function randomize() {
+            const randomChar = AvatarCharacters.getRandomCharacter();
+            selectCharacter(randomChar.id);
+            
+            // Scroll to selected character
+            const selectedCard = document.querySelector(`[data-character-id="${randomChar.id}"]`);
+            if (selectedCard) {
+                selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Save Character
+        function saveCharacter() {
+            if (!selectedCharacter || !username) return;
+            
+            // Speichere Profil
+            const profile = {
+                username: username,
+                character: selectedCharacter,
+                avatar: {
+                    id: selectedCharacter.id,
+                    gender: selectedCharacter.gender,
+                    imageUrl: selectedCharacter.imageUrl,
+                    style: selectedCharacter.style
+                },
+                createdAt: new Date().toISOString()
+            };
+            
+            // Cookie speichern (365 Tage)
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 365);
+            document.cookie = `advent_player_profile=${JSON.stringify(profile)}; expires=${expiryDate.toUTCString()}; path=/`;
+            
+            // Konfetti-Effekt
+            showConfetti();
+            
+            // Nach Adventskalender weiterleiten
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+
+        // Load Existing Profile
+        function loadExistingProfile() {
+            const cookies = document.cookie.split(';');
+            const profileCookie = cookies.find(c => c.trim().startsWith('advent_player_profile='));
+            
+            if (profileCookie) {
+                try {
+                    const profile = JSON.parse(profileCookie.split('=')[1]);
+                    if (profile.character) {
+                        document.getElementById('usernameInput').value = profile.username || '';
+                        username = profile.username || '';
+                        selectCharacter(profile.character.id);
+                        
+                        // Scroll to selected
+                        setTimeout(() => {
+                            const selectedCard = document.querySelector(`[data-character-id="${profile.character.id}"]`);
+                            if (selectedCard) {
+                                selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }, 500);
+                    }
+                } catch (e) {
+                    console.error('Could not load profile:', e);
+                }
+            }
+        }
+
+        // Konfetti-Effekt
+        function showConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * 100}vw;
+                    top: -10px;
+                    width: 10px;
+                    height: 10px;
+                    background: ${['#ffd700', '#ff6347', '#4169e1', '#ff69b4', '#00ff00'][Math.floor(Math.random() * 5)]};
+                    animation: confettiFall ${2 + Math.random() * 3}s linear forwards;
+                    transform: rotate(${Math.random() * 360}deg);
+                    z-index: 10000;
+                `;
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 5000);
+            }
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes confettiFall {
+                    to {
+                        transform: translateY(100vh) rotate(${Math.random() * 720}deg);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Initialisiere bei Seitenladung
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
