@@ -164,8 +164,8 @@ class AvatarManager {
                 <div class="welcome-icon">🎄</div>
                 <h1>Willkommen beim Adventskalender 2024!</h1>
                 <p class="welcome-text">
-                    Schön, dass du hier bist! Bevor wir starten, erstelle deinen persönlichen Avatar
-                    und gib dir einen Namen. Dein Avatar wird bei allen Spielen angezeigt.
+                    Schön, dass du hier bist! Bevor wir starten, erstelle deinen persönlichen Avatar.
+                    Du kannst ihn individuell gestalten oder einfach einen zufälligen Avatar generieren lassen.
                 </p>
                 <div class="welcome-features">
                     <div class="feature-item">
@@ -174,15 +174,15 @@ class AvatarManager {
                     </div>
                     <div class="feature-item">
                         <span class="feature-icon">🏆</span>
-                        <span>Sammle Punkte und erreiche die Bestenliste</span>
+                        <span>Sammle Punkte und schalte neue Avatar-Features frei</span>
                     </div>
                     <div class="feature-item">
                         <span class="feature-icon">🎁</span>
                         <span>Öffne jeden Tag ein neues Türchen</span>
                     </div>
                 </div>
-                <button class="avatar-create-button" onclick="avatarManager.goToAvatarOptions()">
-                    ✨ Avatar wählen!
+                <button class="avatar-create-button" onclick="avatarManager.goToAvatarEditor()">
+                    🎨 Avatar erstellen!
                 </button>
             </div>
         `;
@@ -193,13 +193,6 @@ class AvatarManager {
         setTimeout(() => {
             overlay.classList.add('show');
         }, 100);
-    }
-
-    /**
-     * Zur Avatar-Optionen-Seite navigieren
-     */
-    goToAvatarOptions() {
-        window.location.href = 'avatar-options.html';
     }
     
     /**
