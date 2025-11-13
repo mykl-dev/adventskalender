@@ -1,579 +1,1258 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
+
 <html lang="de">
-<head>
+
+<head><html lang="de"><html lang="de">
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><head>
+
     <title>Avatar Editor - Adventskalender 2024</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+
+    <style>    <meta charset="UTF-8">    <meta charset="UTF-8">
+
+        * {
+
+            margin: 0;    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
             padding: 0;
+
+            box-sizing: border-box;    <title>Avatar Editor - Adventskalender</title>    <title>Avatar Editor - Adventskalender 2024</title>
+
+        }
+
+    <link rel="stylesheet" href="styles.css">    <link rel="stylesheet" href="avatar-editor.css">
+
+        body {
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);    <style>    <style>
+
+            min-height: 100vh;
+
+            padding: 0;        .editor-container {        .avatar-3d-canvas {
+
             margin: 0;
-            font-family: 'Arial', sans-serif;
-        }
 
-        .editor-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;            max-width: 1200px;            border-radius: 15px;
+
+            padding-bottom: 100px; /* Platz für sticky Buttons */
+
+        }            margin: 40px auto;            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+
+
+
+        .editor-container {            padding: 20px;        }
+
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
 
-        /* Sticky Avatar Preview Header */
+            margin: 0 auto;        }        
+
+            padding: 20px;
+
+        }        .render-mode-toggle {
+
+
+
+        /* Sticky Avatar Preview Header */        .editor-header {            position: absolute;
+
         .avatar-header {
-            position: sticky;
+
+            position: sticky;            text-align: center;            top: 10px;
+
             top: 0;
-            z-index: 100;
+
+            z-index: 100;            margin-bottom: 30px;            right: 10px;
+
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+
+            backdrop-filter: blur(10px);        }            background: rgba(255, 255, 255, 0.1);
+
             border-radius: 0 0 20px 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);            border: 1px solid rgba(255, 255, 255, 0.2);
+
             padding: 20px;
-            margin-bottom: 30px;
+
+            margin-bottom: 30px;        .editor-header h1 {            padding: 8px 16px;
+
             transition: all 0.3s ease;
-        }
 
-        .avatar-header.scrolled {
+        }            font-size: 2.5rem;            border-radius: 20px;
+
+
+
+        .avatar-header.scrolled {            margin-bottom: 10px;            cursor: pointer;
+
             padding: 10px 20px;
+
+        }            color: var(--primary-color, #c41e3a);            color: white;
+
+
+
+        .avatar-header.scrolled .avatar-preview {        }            font-size: 12px;
+
+            width: 60px;
+
+            height: 60px;            transition: all 0.3s;
+
         }
 
-        .avatar-header.scrolled .avatar-preview {
-            width: 80px;
-            height: 80px;
-        }
+        .score-display {            backdrop-filter: blur(10px);
 
         .avatar-header.scrolled h1 {
-            font-size: 1.2rem;
-            margin-bottom: 0;
+
+            font-size: 1.2rem;            display: inline-flex;        }
+
         }
+
+            align-items: center;        
 
         .avatar-header-content {
-            display: flex;
+
+            display: flex;            gap: 10px;        .render-mode-toggle:hover {
+
             align-items: center;
-            justify-content: space-between;
-            gap: 20px;
+
+            gap: 20px;            padding: 10px 20px;            background: rgba(255, 255, 255, 0.2);
+
+            max-width: 1200px;
+
+            margin: 0 auto;            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            transform: scale(1.05);
+
         }
+
+            border-radius: 25px;        }
 
         .avatar-info {
-            flex: 1;
+
+            flex: 1;            color: white;    </style>
+
         }
+
+            font-weight: bold;</head>
 
         .avatar-header h1 {
-            font-size: 2rem;
-            margin: 0 0 10px 0;
-            color: #333;
-            transition: all 0.3s ease;
-        }
 
-        .score-display {
+            font-size: 1.8rem;            font-size: 1.2rem;<body>
+
+            margin: 0 0 5px 0;
+
+            color: #333;        }    <div class="editor-container">
+
+            transition: all 0.3s ease;
+
+        }        <div class="editor-header">
+
+
+
+        .score-display {        .editor-layout {            <h1>✨ Erstelle deinen Avatar</h1>
+
             display: inline-flex;
-            align-items: center;
+
+            align-items: center;            display: grid;            <p class="editor-subtitle">Gestalte deine persönliche Weihnachtsfigur</p>
+
             gap: 8px;
-            padding: 8px 16px;
+
+            padding: 6px 14px;            grid-template-columns: 1fr 400px;        </div>
+
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
+
+            border-radius: 20px;            gap: 30px;
+
             color: white;
-            font-weight: bold;
-            font-size: 1.1rem;
+
+            font-weight: bold;            margin-top: 30px;        <div class="editor-content">
+
+            font-size: 1rem;
+
+        }        }            <!-- Avatar Vorschau -->
+
+
+
+        .avatar-preview {            <div class="avatar-preview-section" id="avatarPreviewSection">
+
+            width: 100px;
+
+            height: 100px;        @media (max-width: 768px) {                <div class="avatar-preview-card">
+
+            border-radius: 50%;
+
+            overflow: hidden;            .editor-layout {                    <h2>Dein Avatar</h2>
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+            transition: all 0.3s ease;                grid-template-columns: 1fr;                    <div id="avatarPreview" class="avatar-preview"></div>
+
+            background: white;
+
+            flex-shrink: 0;            }                </div>
+
         }
 
-        .avatar-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            background: white;
-        }
+        }            </div>
 
         .avatar-preview img {
+
             width: 100%;
+
             height: 100%;
-            object-fit: cover;
+
+            object-fit: cover;        .preview-panel {            <!-- Customization Options -->
+
         }
 
-        .avatar-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
+            background: white;            <div class="customization-section">
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
+        /* Sticky Action Buttons am unteren Rand */
+
+        .action-buttons {            border-radius: 20px;                <!-- Gender Selection -->
+
+            position: fixed;
+
+            bottom: 0;            padding: 30px;                <div class="gender-selection">
+
+            left: 0;
+
+            right: 0;            box-shadow: 0 10px 30px rgba(0,0,0,0.1);                    <h3>
+
+            z-index: 99;
+
+            background: rgba(255, 255, 255, 0.98);            position: sticky;                        <span class="category-icon">🎭</span>
+
+            backdrop-filter: blur(10px);
+
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);            top: 20px;                        Wähle deinen Style
+
+            padding: 15px 20px;
+
+            display: flex;            height: fit-content;                    </h3>
+
+            gap: 15px;
+
+            justify-content: center;        }                    <div class="gender-buttons">
+
+            align-items: center;
+
+        }                        <button class="gender-button active" data-gender="babo">
+
+
+
+        .btn {        .preview-avatar {                            <span class="gender-icon">💪</span>
+
+            padding: 12px 30px;
+
+            border: none;            width: 100%;                            <span class="gender-label">Babo</span>
+
+            border-radius: 12px;
+
+            cursor: pointer;            aspect-ratio: 1;                            <span class="gender-desc">Cool & Fresh</span>
+
             font-size: 1rem;
-            font-weight: bold;
+
+            font-weight: bold;            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);                        </button>
+
             transition: all 0.3s;
+
+            display: flex;            border-radius: 20px;                        <button class="gender-button" data-gender="cutie">
+
+            align-items: center;
+
+            gap: 8px;            display: flex;                            <span class="gender-icon">✨</span>
+
         }
+
+            align-items: center;                            <span class="gender-label">Cutie</span>
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            justify-content: center;                            <span class="gender-desc">Cute & Sweet</span>
+
             color: white;
-        }
 
-        .btn-secondary {
+        }            margin-bottom: 20px;                        </button>
+
+
+
+        .btn-secondary {            overflow: hidden;                    </div>
+
             background: white;
-            color: #667eea;
+
+            color: #667eea;        }                </div>
+
             border: 2px solid #667eea;
+
+        }                
+
+
+
+        .btn:hover {        .preview-avatar img {                <!-- Username Input -->
+
+            transform: translateY(-2px);
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);            width: 90%;                <div class="input-section">
+
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            height: 90%;                    <label for="usernameInput">
+
+        .btn:active {
+
+            transform: translateY(0);            object-fit: contain;                        <span class="label-icon">👤</span>
+
         }
+
+        }                        <span class="label-text">Dein Name</span>
 
         /* Style Selector */
-        .style-selector {
+
+        .style-selector {                    </label>
+
             background: white;
-            border-radius: 20px;
+
+            border-radius: 20px;        .save-button {                    <input 
+
             padding: 25px;
-            margin-bottom: 25px;
+
+            margin-bottom: 25px;            width: 100%;                        type="text" 
+
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+
+        }            padding: 15px;                        id="usernameInput" 
+
+
+
+        .style-selector h2 {            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);                        placeholder="Gib deinen Namen ein..." 
+
+            margin: 0 0 20px 0;
+
+            color: #333;            color: white;                        maxlength="20"
+
         }
 
-        .style-selector h2 {
-            margin: 0 0 20px 0;
-            color: #333;
-        }
+            border: none;                        autocomplete="off"
 
         .style-grid {
-            display: grid;
+
+            display: grid;            border-radius: 10px;                    >
+
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+
+            gap: 15px;            font-size: 1.1rem;                    <span class="char-counter">0/20</span>
+
         }
+
+            font-weight: bold;                </div>
 
         .style-card {
-            background: #f8f9fa;
+
+            background: #f8f9fa;            cursor: pointer;
+
             border: 3px solid transparent;
-            border-radius: 15px;
+
+            border-radius: 15px;            transition: transform 0.2s;                <!-- Kopfbedeckung -->
+
             padding: 20px;
-            text-align: center;
+
+            text-align: center;        }                <div class="customization-category">
+
             cursor: pointer;
-            transition: all 0.3s;
+
+            transition: all 0.3s;                    <h3>
+
             position: relative;
+
+        }        .save-button:hover {                        <span class="category-icon">🎩</span>
+
+
+
+        .style-card:hover:not(.locked) {            transform: scale(1.05);                        Kopfbedeckung
+
+            transform: translateY(-5px);
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);        }                    </h3>
+
         }
 
-        .style-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
+                    <div id="headOptions" class="option-grid"></div>
 
         .style-card.active {
-            border-color: #667eea;
+
+            border-color: #667eea;        .options-panel {                </div>
+
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+
+        }            background: white;
+
+
+
+        .style-card.locked {            border-radius: 20px;                <!-- Gesicht -->
+
+            opacity: 0.5;
+
+            cursor: not-allowed;            padding: 30px;                <div class="customization-category">
+
         }
 
-        .style-card.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);                    <h3>
 
         .lock-badge {
-            position: absolute;
+
+            position: absolute;        }                        <span class="category-icon">😊</span>
+
             top: 10px;
-            right: 10px;
+
+            right: 10px;                        Gesicht
+
             background: #ff6b6b;
-            color: white;
+
+            color: white;        .style-grid {                    </h3>
+
             padding: 5px 10px;
-            border-radius: 10px;
+
+            border-radius: 10px;            display: grid;                    <div id="faceOptions" class="option-grid"></div>
+
             font-size: 0.8rem;
-        }
 
-        /* Customization Options */
+        }            grid-template-columns: repeat(2, 1fr);                </div>
+
+
+
+        /* Customization Options */            gap: 15px;
+
         .customization-panel {
-            background: white;
+
+            background: white;            margin-top: 15px;                <!-- Körper -->
+
             border-radius: 20px;
-            padding: 25px;
+
+            padding: 25px;        }                <div class="customization-category">
+
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
 
-        .option-group {
+        }                    <h3>
+
+
+
+        .option-group {        .style-card {                        <span class="category-icon">👕</span>
+
             margin-bottom: 25px;
-            padding-bottom: 25px;
+
+            padding-bottom: 25px;            padding: 20px;                        Kleidung
+
             border-bottom: 1px solid #e0e0e0;
-        }
 
-        .option-group:last-child {
+        }            border: 3px solid #e0e0e0;                    </h3>
+
+
+
+        .option-group:last-child {            border-radius: 15px;                    <div id="bodyOptions" class="option-grid"></div>
+
             border-bottom: none;
-            margin-bottom: 0;
+
+            margin-bottom: 0;            cursor: pointer;                </div>
+
             padding-bottom: 0;
+
+        }            transition: all 0.3s;
+
+
+
+        .option-header {            text-align: center;                <!-- Füße -->
+
+            display: flex;
+
+            align-items: center;            position: relative;                <div class="customization-category">
+
+            justify-content: space-between;
+
+            margin-bottom: 15px;        }                    <h3>
+
         }
 
-        .option-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
+                        <span class="category-icon">👢</span>
 
         .option-header h3 {
-            margin: 0;
+
+            margin: 0;        .style-card:hover {                        Schuhe
+
             color: #333;
-            font-size: 1.2rem;
+
+            font-size: 1.2rem;            border-color: #667eea;                    </h3>
+
         }
+
+            transform: translateY(-5px);                    <div id="feetOptions" class="option-grid"></div>
 
         .unlock-badge {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);        }                </div>
+
             color: #333;
-            padding: 5px 12px;
+
+            padding: 5px 12px;            </div>
+
             border-radius: 15px;
-            font-size: 0.85rem;
-            font-weight: bold;
-        }
 
-        .options-grid {
+            font-size: 0.85rem;        .style-card.active {        </div>
+
+            font-weight: bold;
+
+        }            border-color: #667eea;
+
+
+
+        .options-grid {            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);        <!-- Action Buttons -->
+
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));        }        <div class="editor-actions">
+
             gap: 10px;
-        }
 
-        .option-item {
+        }            <button id="randomizeButton" class="btn-secondary">
+
+
+
+        .option-item {        .style-card.locked {                🎲 Zufällig generieren
+
             aspect-ratio: 1;
-            border: 3px solid #e0e0e0;
+
+            border: 3px solid #e0e0e0;            opacity: 0.5;            </button>
+
             border-radius: 12px;
-            cursor: pointer;
+
+            cursor: pointer;            cursor: not-allowed;            <button id="saveButton" class="btn-primary">
+
             transition: all 0.3s;
-            display: flex;
+
+            display: flex;        }                ✅ Speichern & Loslegen!
+
             align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            font-weight: bold;
+
+            justify-content: center;            </button>
+
+            font-size: 0.8rem;
+
+            font-weight: bold;        .unlock-badge {        </div>
+
             color: #666;
-            background: #f8f9fa;
+
+            background: #f8f9fa;            position: absolute;    </div>
+
             position: relative;
-            overflow: hidden;
+
+            overflow: hidden;            top: 10px;
+
         }
 
-        .option-item:hover {
-            border-color: #667eea;
+            right: 10px;    <!-- Success Modal -->
+
+        .option-item:hover:not(.locked) {
+
+            border-color: #667eea;            background: #ff9800;    <div id="successModal" class="modal">
+
             transform: scale(1.05);
-        }
 
-        .option-item.active {
+        }            color: white;        <div class="modal-content">
+
+
+
+        .option-item.active {            padding: 4px 8px;            <div class="success-icon">🎉</div>
+
             border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);            border-radius: 10px;            <h2>Avatar erstellt!</h2>
+
             color: #667eea;
+
+        }            font-size: 0.8rem;            <p>Dein Avatar wurde erfolgreich gespeichert.</p>
+
+
+
+        .option-item.locked {            font-weight: bold;            <div id="finalAvatarPreview" class="final-avatar-preview"></div>
+
+            opacity: 0.4;
+
+            cursor: not-allowed;        }            <button id="continueButton" class="btn-primary">
+
         }
 
-        .option-item.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+                Zum Adventskalender
 
         .option-item.locked::after {
-            content: '🔒';
+
+            content: '🔒';        .option-group {            </button>
+
             position: absolute;
-            font-size: 1.5rem;
+
+            font-size: 1.5rem;            margin-bottom: 30px;        </div>
+
         }
+
+        }    </div>
 
         /* Color Options */
+
         .option-item.color-option {
+
             border-radius: 50%;
-        }
 
-        /* Next Unlocks */
+        }        .option-group h3 {    <script src="avatarManager.js"></script>
+
+
+
+        /* Next Unlocks */            color: #333;    <script src="avatar3DRenderer.js"></script>
+
         .next-unlocks {
-            background: linear-gradient(135deg, #fff7e6 0%, #ffe6f0 100%);
+
+            background: linear-gradient(135deg, #fff7e6 0%, #ffe6f0 100%);            margin-bottom: 15px;    <script src="avatar-editor.js"></script>
+
             border-radius: 15px;
-            padding: 20px;
+
+            padding: 20px;            display: flex;    
+
             margin-top: 25px;
+
+        }            align-items: center;    <script>
+
+
+
+        .next-unlocks h3 {            gap: 10px;        // Toggle zwischen 2D und 3D Rendering
+
+            margin: 0 0 15px 0;
+
+            color: #333;        }        const previewCard = document.querySelector('.avatar-preview-card');
+
         }
 
-        .next-unlocks h3 {
-            margin: 0 0 15px 0;
-            color: #333;
-        }
+        if (previewCard) {
 
         .unlock-item {
-            background: white;
+
+            background: white;        .locked-badge {            const toggleButton = document.createElement('button');
+
             padding: 12px;
-            border-radius: 10px;
+
+            border-radius: 10px;            background: #ff9800;            toggleButton.className = 'render-mode-toggle';
+
             margin-bottom: 10px;
-            display: flex;
+
+            display: flex;            color: white;            toggleButton.innerHTML = '🎨 3D-Modus';
+
             align-items: center;
-            justify-content: space-between;
+
+            justify-content: space-between;            padding: 4px 12px;            previewCard.style.position = 'relative';
+
         }
+
+            border-radius: 15px;            previewCard.appendChild(toggleButton);
 
         .unlock-item:last-child {
-            margin-bottom: 0;
+
+            margin-bottom: 0;            font-size: 0.8rem;            
+
         }
+
+            font-weight: bold;            toggleButton.addEventListener('click', () => {
 
         .unlock-item-name {
-            font-weight: bold;
+
+            font-weight: bold;        }                const editor = window.avatarEditor;
+
             color: #667eea;
+
+        }                if (editor) {
+
+
+
+        .unlock-item-points {        .option-grid {                    editor.use3DRenderer = !editor.use3DRenderer;
+
+            color: #ff6b6b;
+
+            font-weight: bold;            display: grid;                    toggleButton.innerHTML = editor.use3DRenderer ? '🎨 3D-Modus' : '📐 2D-Modus';
+
         }
 
-        .unlock-item-points {
-            color: #ff6b6b;
-            font-weight: bold;
-        }
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));                    editor.updatePreview();
 
         /* Loading State */
-        .loading {
+
+        .loading {            gap: 10px;                }
+
             display: flex;
-            align-items: center;
+
+            align-items: center;        }            });
+
             justify-content: center;
-            padding: 40px;
+
+            padding: 40px;        }
+
             color: #667eea;
-            font-size: 1.2rem;
+
+            font-size: 1.2rem;        .option-button {    </script>
+
         }
+
+            padding: 12px;</body>
 
         @media (max-width: 768px) {
-            .avatar-header-content {
-                flex-direction: column;
-                text-align: center;
-            }
+
+            .avatar-header-content {            border: 2px solid #e0e0e0;</html>
+
+                gap: 15px;
+
+            }            border-radius: 10px;
+
+            background: white;
+
+            .avatar-preview {            cursor: pointer;
+
+                width: 70px;            transition: all 0.2s;
+
+                height: 70px;            text-align: center;
+
+            }            font-size: 0.9rem;
+
+        }
+
+            .avatar-header.scrolled .avatar-preview {
+
+                width: 50px;        .option-button:hover {
+
+                height: 50px;            border-color: #667eea;
+
+            }            transform: scale(1.05);
+
+        }
 
             .style-grid {
-                grid-template-columns: 1fr;
-            }
 
-            .options-grid {
+                grid-template-columns: 1fr;        .option-button.active {
+
+            }            border-color: #667eea;
+
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+
+            .options-grid {        }
+
                 grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            }
-        }
-    </style>
+
+            }        .option-button.disabled {
+
+            opacity: 0.4;
+
+            .action-buttons {            cursor: not-allowed;
+
+                flex-direction: column;        }
+
+                gap: 10px;
+
+            }        .color-swatch {
+
+            width: 40px;
+
+            .btn {            height: 40px;
+
+                width: 100%;            border-radius: 50%;
+
+                justify-content: center;            margin: 5px auto;
+
+            }            border: 3px solid white;
+
+        }            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+
+    </style>        }
+
 </head>
-<body>
-    <!-- Sticky Avatar Header -->
-    <div class="avatar-header" id="avatarHeader">
-        <div class="avatar-header-content">
-            <div class="avatar-preview" id="avatarPreviewHeader">
-                <img id="avatarPreviewImage" src="" alt="Avatar Preview">
+
+<body>        .next-unlocks {
+
+    <!-- Sticky Avatar Header -->            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+
+    <div class="avatar-header" id="avatarHeader">            border-radius: 15px;
+
+        <div class="avatar-header-content">            padding: 20px;
+
+            <div class="avatar-preview" id="avatarPreviewHeader">            margin-top: 30px;
+
+                <img id="avatarPreviewImage" src="/api/avatar-custom/adventurer?seed=default" alt="Avatar Preview">        }
+
             </div>
-            <div class="avatar-info">
-                <h1>✨ Erstelle deinen Avatar</h1>
-                <div class="score-display">
-                    ⭐ <span id="userScore">0</span> Punkte
-                </div>
-                <div class="avatar-actions">
-                    <button class="btn btn-secondary" onclick="randomizeAvatar()">🎲 Zufällig</button>
-                    <button class="btn btn-primary" onclick="saveAvatar()">💾 Speichern</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
+            <div class="avatar-info">        .unlock-item {
+
+                <h1>✨ Erstelle deinen Avatar</h1>            background: white;
+
+                <div class="score-display">            padding: 12px;
+
+                    ⭐ <span id="userScore">0</span> Punkte            border-radius: 10px;
+
+                </div>            margin-bottom: 10px;
+
+            </div>            display: flex;
+
+        </div>            justify-content: space-between;
+
+    </div>            align-items: center;
+
+        }
 
     <div class="editor-container">
-        <!-- Style Selector -->
-        <div class="style-selector">
-            <h2>🎨 Wähle deinen Avatar-Stil</h2>
-            <div class="style-grid" id="styleGrid">
-                <!-- Wird dynamisch gefüllt -->
-            </div>
-        </div>
 
-        <!-- Customization Panel -->
-        <div class="customization-panel">
-            <h2>⚙️ Anpassungen</h2>
-            <div id="customizationOptions">
-                <div class="loading">Lade Optionen...</div>
-            </div>
+        <!-- Style Selector -->        .points-needed {
 
-            <!-- Next Unlocks -->
-            <div class="next-unlocks" id="nextUnlocks" style="display: none;">
-                <h3>🎁 Nächste Freischaltungen</h3>
-                <div id="nextUnlocksList"></div>
-            </div>
-        </div>
-    </div>
+        <div class="style-selector">            background: #ff9800;
 
-    <script>
-        // Globale Variablen
-        let styleSchemas = {};
-        let currentStyle = 'adventurer';
-        let currentOptions = {};
-        let userScore = 150; // Demo-Wert, später aus Stats laden
+            <h2>🎨 Wähle deinen Avatar-Stil</h2>            color: white;
 
-        // Initialisierung
-        async function init() {
-            // Scroll-Handler für Sticky Header
-            window.addEventListener('scroll', () => {
-                const header = document.getElementById('avatarHeader');
-                if (window.scrollY > 50) {
-                    header.classList.add('scrolled');
-                } else {
-                    header.classList.remove('scrolled');
-                }
-            });
+            <div class="style-grid" id="styleGrid">            padding: 4px 12px;
 
-            // Lade Style-Schemas
-            await loadStyleSchemas();
-            
-            // Setze initialen Score
-            document.getElementById('userScore').textContent = userScore;
-            
-            // Rendere Style-Auswahl
-            renderStyleSelector();
-            
-            // Lade ersten Style
-            selectStyle('adventurer');
+                <!-- Wird dynamisch gefüllt -->            border-radius: 15px;
+
+            </div>            font-weight: bold;
+
+        </div>            font-size: 0.9rem;
+
         }
 
-        // Lade Style-Schemas aus JSON
-        async function loadStyleSchemas() {
-            try {
-                const response = await fetch('avatarStyleSchemas.json');
+        <!-- Customization Panel -->    </style>
+
+        <div class="customization-panel"></head>
+
+            <h2>⚙️ Anpassungen</h2><body>
+
+            <div id="customizationOptions">    <div class="editor-container">
+
+                <div class="loading">Lade Optionen...</div>        <div class="editor-header">
+
+            </div>            <h1>🎨 Avatar Editor</h1>
+
+            <div class="score-display">
+
+            <!-- Next Unlocks -->                <span>⭐</span>
+
+            <div class="next-unlocks" id="nextUnlocks" style="display: none;">                <span id="userScore">0</span>
+
+                <h3>🎁 Nächste Freischaltungen</h3>                <span>Punkte</span>
+
+                <div id="nextUnlocksList"></div>            </div>
+
+            </div>        </div>
+
+        </div>
+
+    </div>        <div class="editor-layout">
+
+            <div class="options-panel">
+
+    <!-- Sticky Action Buttons -->                <div class="style-selector">
+
+    <div class="action-buttons">                    <h2>Wähle deinen Style</h2>
+
+        <button class="btn btn-secondary" onclick="randomizeAvatar()">                    <div class="style-grid" id="styleGrid"></div>
+
+            🎲 Zufällig                </div>
+
+        </button>
+
+        <button class="btn btn-primary" onclick="saveAvatar()">                <div id="customizationOptions"></div>
+
+            💾 Speichern
+
+        </button>                <div class="next-unlocks" id="nextUnlocks" style="display: none;">
+
+    </div>                    <h3>🔓 Nächste Freischaltungen</h3>
+
+                    <div id="unlocksList"></div>
+
+    <script>                </div>
+
+        // Globale Variablen            </div>
+
+        let styleSchemas = {};
+
+        let currentStyle = 'adventurer';            <div class="preview-panel">
+
+        let currentOptions = {};                <div class="preview-avatar">
+
+        let userScore = 150; // Demo-Wert, später aus Stats laden                    <img src="" alt="Avatar Preview" id="avatarImage">
+
+                </div>
+
+        // Initialisierung                <div class="preview-info">
+
+        async function init() {                    <h3 id="previewTitle">Dein Avatar</h3>
+
+            // Scroll-Handler für Sticky Header                    <p id="previewStyle">Adventurer Style</p>
+
+            window.addEventListener('scroll', () => {                </div>
+
+                const header = document.getElementById('avatarHeader');                <button class="save-button" onclick="saveAvatar()">💾 Avatar Speichern</button>
+
+                if (window.scrollY > 50) {                <button class="save-button" onclick="randomize()" style="margin-top: 10px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">🎲 Zufällig</button>
+
+                    header.classList.add('scrolled');            </div>
+
+                } else {        </div>
+
+                    header.classList.remove('scrolled');    </div>
+
+                }
+
+            });    <script src="avatarEditorConfig.js"></script>
+
+    <script>
+
+            // Lade Style-Schemas        let currentStyle = 'adventurer';
+
+            await loadStyleSchemas();        let currentOptions = {
+
+                        seed: 'User-' + Date.now(),
+
+            // Setze initialen Score            eyes: 'variant01',
+
+            document.getElementById('userScore').textContent = userScore;            mouth: 'variant01',
+
+                        hair: 'short01',
+
+            // Rendere Style-Auswahl            hairColor: '6a4e35',
+
+            renderStyleSelector();            skinColor: 'f2d3b1',
+
+                        eyebrows: 'variant01'
+
+            // Lade ersten Style        };
+
+            selectStyle('adventurer');        let userScore = 0;
+
+        }
+
+        function loadUserScore() {
+
+        // Lade Style-Schemas aus JSON            // TODO: Integration mit Stats-System - Für Demo: 150 Punkte
+
+        async function loadStyleSchemas() {            userScore = 150;
+
+            try {            document.getElementById('userScore').textContent = userScore;
+
+                const response = await fetch('avatarStyleSchemas.json');        }
+
                 styleSchemas = await response.json();
-                console.log('Style-Schemas geladen:', styleSchemas);
-            } catch (error) {
-                console.error('Fehler beim Laden der Style-Schemas:', error);
-                alert('Fehler beim Laden der Avatar-Konfiguration');
-            }
+
+                console.log('Style-Schemas geladen:', styleSchemas);        function init() {
+
+            } catch (error) {            loadUserScore();
+
+                console.error('Fehler beim Laden der Style-Schemas:', error);            renderStyleSelector();
+
+                alert('Fehler beim Laden der Avatar-Konfiguration');            renderCustomizationOptions();
+
+            }            updatePreview();
+
+        }            updateNextUnlocks();
+
         }
 
         // Rendere Style-Auswahl
-        function renderStyleSelector() {
-            const grid = document.getElementById('styleGrid');
-            grid.innerHTML = '';
+
+        function renderStyleSelector() {        function renderStyleSelector() {
+
+            const grid = document.getElementById('styleGrid');            const grid = document.getElementById('styleGrid');
+
+            grid.innerHTML = '';            const availableStyles = AvatarEditorConfig.getAvailableStyles(userScore);
+
+            const allStyles = Object.values(AvatarEditorConfig.styles);
 
             Object.keys(styleSchemas).forEach(styleId => {
-                const style = styleSchemas[styleId];
-                const isLocked = userScore < style.unlockScore;
+
+                const style = styleSchemas[styleId];            grid.innerHTML = allStyles.map(style => {
+
+                const isLocked = userScore < style.unlockScore;                const isUnlocked = availableStyles.find(s => s.id === style.id);
+
+                const isActive = style.id === currentStyle;
 
                 const card = document.createElement('div');
-                card.className = `style-card ${styleId === currentStyle ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
-                
-                if (isLocked) {
-                    card.innerHTML = `
-                        <div class="lock-badge">🔒 ${style.unlockScore}★</div>
+
+                card.className = `style-card ${styleId === currentStyle ? 'active' : ''} ${isLocked ? 'locked' : ''}`;                return `
+
+                                    <div class="style-card ${isActive ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}" 
+
+                if (isLocked) {                         onclick="${isUnlocked ? `selectStyle('${style.id}')` : ''}">
+
+                    card.innerHTML = `                        ${!isUnlocked ? `<div class="unlock-badge">🔒 ${style.unlockScore}★</div>` : ''}
+
+                        <div class="lock-badge">🔒 ${style.unlockScore}★</div>                        <h4>${style.name}</h4>
+
+                        <h3>${style.displayName}</h3>                        <p style="font-size: 0.9rem; color: #666;">${style.description}</p>
+
+                        <p>Benötigt ${style.unlockScore} Punkte</p>                    </div>
+
+                    `;                `;
+
+                } else {            }).join('');
+
+                    card.innerHTML = `        }
+
                         <h3>${style.displayName}</h3>
-                        <p>Benötigt ${style.unlockScore} Punkte</p>
-                    `;
-                } else {
-                    card.innerHTML = `
-                        <h3>${style.displayName}</h3>
-                        <p>Verfügbar ✓</p>
-                    `;
-                    card.onclick = () => selectStyle(styleId);
-                }
 
-                grid.appendChild(card);
-            });
-        }
+                        <p>Verfügbar ✓</p>        function selectStyle(styleId) {
 
-        // Wähle einen Style
-        function selectStyle(styleId) {
-            const style = styleSchemas[styleId];
-            if (!style || userScore < style.unlockScore) {
-                return;
-            }
+                    `;            currentStyle = styleId;
 
-            currentStyle = styleId;
-            currentOptions = {
-                seed: `User-${Date.now()}`
-            };
+                    card.onclick = () => selectStyle(styleId);            renderStyleSelector();
 
-            // Setze Default-Werte für alle verfügbaren Optionen
-            Object.keys(style.options).forEach(optionKey => {
-                const option = style.options[optionKey];
-                if (userScore >= option.unlockScore && option.values.length > 0) {
-                    currentOptions[optionKey] = option.values[0];
-                }
-            });
+                }            renderCustomizationOptions();
 
-            renderStyleSelector();
-            renderCustomizationOptions();
             updatePreview();
+
+                grid.appendChild(card);            updateNextUnlocks();
+
+            });        }
+
         }
 
-        // Rendere Anpassungsoptionen
         function renderCustomizationOptions() {
-            const container = document.getElementById('customizationOptions');
-            const style = styleSchemas[currentStyle];
-            
-            if (!style) {
-                container.innerHTML = '<p>Kein Style ausgewählt</p>';
+
+        // Wähle einen Style            const container = document.getElementById('customizationOptions');
+
+        function selectStyle(styleId) {            const available = AvatarEditorConfig.getAvailableOptions(currentStyle, userScore);
+
+            const style = styleSchemas[styleId];            
+
+            if (!style || userScore < style.unlockScore) {            let html = '<h2>Anpassungen</h2>';
+
                 return;
-            }
 
-            container.innerHTML = '';
+            }            for (const [key, option] of Object.entries(available.basic)) {
 
-            // Gruppiere Optionen nach Unlock-Score
-            const basicOptions = [];
-            const advancedOptions = [];
+                html += renderOptionGroup(key, option, false);
 
-            Object.keys(style.options).forEach(optionKey => {
-                const option = style.options[optionKey];
-                if (option.unlockScore === 0 || option.unlockScore === 50) {
-                    basicOptions.push([optionKey, option]);
+            currentStyle = styleId;            }
+
+            currentOptions = {
+
+                seed: `User-${Date.now()}`            if (Object.keys(available.advanced).length > 0) {
+
+            };                html += '<h2 style="margin-top: 30px;">🌟 Fortgeschritten</h2>';
+
+                for (const [key, option] of Object.entries(available.advanced)) {
+
+            // Setze Default-Werte für alle verfügbaren Optionen                    html += renderOptionGroup(key, option, false);
+
+            Object.keys(style.options).forEach(optionKey => {                }
+
+                const option = style.options[optionKey];            }
+
+                if (userScore >= option.unlockScore && option.values.length > 0) {
+
+                    currentOptions[optionKey] = option.values[0];            container.innerHTML = html;
+
+                }        }
+
+            });
+
+        function renderOptionGroup(key, option, isLocked) {
+
+            renderStyleSelector();            let html = `
+
+            renderCustomizationOptions();                <div class="option-group">
+
+            updatePreview();                    <h3>
+
+        }                        ${option.label}
+
+                        ${isLocked ? `<span class="locked-badge">🔒 ${option.unlockScore}★</span>` : ''}
+
+        // Rendere Anpassungsoptionen                    </h3>
+
+        function renderCustomizationOptions() {                    <div class="option-grid">
+
+            const container = document.getElementById('customizationOptions');            `;
+
+            const style = styleSchemas[currentStyle];
+
+                        option.options.forEach(opt => {
+
+            if (!style) {                const isActive = currentOptions[key] === opt.value;
+
+                container.innerHTML = '<p>Kein Style ausgewählt</p>';                const disabled = isLocked ? 'disabled' : '';
+
+                return;
+
+            }                if (opt.color) {
+
+                    html += `
+
+            container.innerHTML = '';                        <div class="option-button ${isActive ? 'active' : ''} ${disabled}" 
+
+                             onclick="${!isLocked ? `selectOption('${key}', '${opt.value}')` : ''}">
+
+            // Sortiere Optionen nach Unlock-Score                            <div class="color-swatch" style="background: ${opt.color};"></div>
+
+            const sortedOptions = Object.entries(style.options).sort((a, b) =>                             <div style="font-size: 0.8rem; margin-top: 5px;">${opt.label}</div>
+
+                a[1].unlockScore - b[1].unlockScore                        </div>
+
+            );                    `;
+
                 } else {
-                    advancedOptions.push([optionKey, option]);
-                }
-            });
 
-            // Rendere Basic Options
-            basicOptions.forEach(([key, option]) => {
-                renderOptionGroup(key, option, container);
-            });
+            // Rendere jede Option                    html += `
 
-            // Rendere Advanced Options
-            advancedOptions.forEach(([key, option]) => {
-                renderOptionGroup(key, option, container);
-            });
+            sortedOptions.forEach(([key, option]) => {                        <div class="option-button ${isActive ? 'active' : ''} ${disabled}" 
 
-            // Zeige Next Unlocks
-            updateNextUnlocks();
-        }
+                renderOptionGroup(key, option, container);                             onclick="${!isLocked ? `selectOption('${key}', '${opt.value}')` : ''}">
+
+            });                            ${opt.preview || ''}
+
+                            <div style="font-size: 0.8rem; margin-top: 5px;">${opt.label}</div>
+
+            // Zeige Next Unlocks                        </div>
+
+            updateNextUnlocks();                    `;
+
+        }                }
+
+            });
 
         // Rendere eine Option-Gruppe
-        function renderOptionGroup(key, option, container) {
-            const isLocked = userScore < option.unlockScore;
-            
+
+        function renderOptionGroup(key, option, container) {            html += `</div></div>`;
+
+            const isLocked = userScore < option.unlockScore;            return html;
+
+                    }
+
             const group = document.createElement('div');
-            group.className = 'option-group';
-            
-            const header = document.createElement('div');
-            header.className = 'option-header';
-            header.innerHTML = `
+
+            group.className = 'option-group';        function selectOption(key, value) {
+
+                        currentOptions[key] = value;
+
+            const header = document.createElement('div');            renderCustomizationOptions();
+
+            header.className = 'option-header';            updatePreview();
+
+            header.innerHTML = `        }
+
                 <h3>${option.displayName}</h3>
-                ${isLocked ? `<span class="unlock-badge">🔒 ${option.unlockScore}★</span>` : ''}
-            `;
-            group.appendChild(header);
 
-            const grid = document.createElement('div');
-            grid.className = 'options-grid';
+                ${isLocked ? `<span class="unlock-badge">🔒 ${option.unlockScore}★</span>` : ''}        function updatePreview() {
 
-            option.values.forEach(value => {
-                const item = document.createElement('div');
+            `;            const params = new URLSearchParams();
+
+            group.appendChild(header);            params.append('seed', currentOptions.seed);
+
+            
+
+            const grid = document.createElement('div');            for (const [key, value] of Object.entries(currentOptions)) {
+
+            grid.className = 'options-grid';                if (key !== 'seed' && value) {
+
+                    params.append(key, value);
+
+            option.values.forEach(value => {                }
+
+                const item = document.createElement('div');            }
+
                 item.className = `option-item ${option.type === 'color' ? 'color-option' : ''} ${currentOptions[key] === value ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
-                
-                if (option.type === 'color') {
-                    item.style.background = `#${value}`;
-                    item.title = `#${value}`;
-                } else {
-                    // Zeige die Varianten-Nummer
-                    const displayText = value.replace('variant', '').replace(/^0+/, '');
-                    item.textContent = displayText || value;
-                    item.title = value;
-                }
 
-                if (!isLocked) {
-                    item.onclick = () => selectOption(key, value);
-                }
+                            const avatarUrl = `/api/avatar-custom/${currentStyle}?${params.toString()}`;
 
-                grid.appendChild(item);
-            });
+                if (option.type === 'color') {            document.getElementById('avatarImage').src = avatarUrl;
 
-            group.appendChild(grid);
+                    item.style.background = `#${value}`;            document.getElementById('previewStyle').textContent = 
+
+                    item.title = `#${value}`;                AvatarEditorConfig.styles[currentStyle].name;
+
+                } else {        }
+
+                    // Zeige die Varianten-Nummer oder den Namen
+
+                    let displayText = value;        function updateNextUnlocks() {
+
+                    if (value.startsWith('variant')) {            const nextUnlocks = AvatarEditorConfig.getNextUnlocks(currentStyle, userScore);
+
+                        displayText = value.replace('variant', '').replace(/^0+/, '');            const container = document.getElementById('nextUnlocks');
+
+                    } else if (value.length > 12) {            const list = document.getElementById('unlocksList');
+
+                        displayText = value.substring(0, 10) + '...';
+
+                    }            if (nextUnlocks.length === 0) {
+
+                    item.textContent = displayText;                container.style.display = 'none';
+
+                    item.title = value;                return;
+
+                }            }
+
+
+
+                if (!isLocked) {            container.style.display = 'block';
+
+                    item.onclick = () => selectOption(key, value);            list.innerHTML = nextUnlocks.slice(0, 3).map(unlock => `
+
+                }                <div class="unlock-item">
+
+                    <span>${unlock.label}</span>
+
+                grid.appendChild(item);                    <span class="points-needed">+${unlock.pointsNeeded}★</span>
+
+            });                </div>
+
+            `).join('');
+
+            group.appendChild(grid);        }
+
             container.appendChild(group);
-        }
 
-        // Wähle eine Option
-        function selectOption(key, value) {
-            currentOptions[key] = value;
-            renderCustomizationOptions();
-            updatePreview();
-        }
+        }        function randomize() {
 
-        // Update Avatar Preview
-        function updatePreview() {
-            const params = new URLSearchParams(currentOptions);
-            const url = `/api/avatar-custom/${currentStyle}?${params.toString()}`;
+            const available = AvatarEditorConfig.getAvailableOptions(currentStyle, userScore);
+
+        // Wähle eine Option            
+
+        function selectOption(key, value) {            for (const [key, option] of Object.entries({...available.basic, ...available.advanced})) {
+
+            console.log(`Option gewählt: ${key} = ${value}`);                if (option.options.length > 0) {
+
+            currentOptions[key] = value;                    const randomIndex = Math.floor(Math.random() * option.options.length);
+
+            renderCustomizationOptions();                    currentOptions[key] = option.options[randomIndex].value;
+
+            updatePreview();                }
+
+        }            }
+
+
+
+        // Update Avatar Preview            renderCustomizationOptions();
+
+        function updatePreview() {            updatePreview();
+
+            const params = new URLSearchParams();        }
+
+            
+
+            // Füge alle aktuellen Optionen hinzu        function saveAvatar() {
+
+            Object.keys(currentOptions).forEach(key => {            alert('Avatar gespeichert!');
+
+                if (currentOptions[key]) {        }
+
+                    params.append(key, currentOptions[key]);
+
+                }        init();
+
+            });    </script>
+
+            </body>
+
+            const url = `/api/avatar-custom/${currentStyle}?${params.toString()}`;</html>
+
+            console.log('Preview URL:', url);
             
             const img = document.getElementById('avatarPreviewImage');
             img.src = url;
@@ -585,6 +1264,12 @@
             const style = styleSchemas[currentStyle];
             if (!style) return;
 
+            console.log('Randomizing avatar...');
+
+            // Generiere neue Seed
+            currentOptions.seed = `User-${Date.now()}`;
+
+            // Randomisiere alle freigeschalteten Optionen
             Object.keys(style.options).forEach(optionKey => {
                 const option = style.options[optionKey];
                 if (userScore >= option.unlockScore && option.values.length > 0) {
@@ -593,7 +1278,6 @@
                 }
             });
 
-            currentOptions.seed = `User-${Date.now()}`;
             renderCustomizationOptions();
             updatePreview();
         }
@@ -607,7 +1291,9 @@
             };
 
             localStorage.setItem('customAvatar', JSON.stringify(avatarData));
-            alert('✅ Avatar gespeichert!');
+            console.log('Avatar gespeichert:', avatarData);
+            
+            alert('✅ Avatar erfolgreich gespeichert!');
             
             // Optional: Zurück zur Hauptseite
             // window.location.href = 'index.html';
@@ -643,7 +1329,7 @@
                     item.className = 'unlock-item';
                     item.innerHTML = `
                         <span class="unlock-item-name">${unlock.name}</span>
-                        <span class="unlock-item-points">${unlock.unlockScore}★ (${unlock.unlockScore - userScore} fehlen)</span>
+                        <span class="unlock-item-points">${unlock.unlockScore}★ (noch ${unlock.unlockScore - userScore})</span>
                     `;
                     listDiv.appendChild(item);
                 });
