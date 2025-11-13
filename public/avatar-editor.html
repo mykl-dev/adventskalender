@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Editor - Adventskalender 2024</title>
+    <link rel="stylesheet" href="avatar-editor.css">
+</head>
+<body>
+    <div class="editor-container">
+        <div class="editor-header">
+            <h1>✨ Erstelle deinen Avatar</h1>
+            <p class="editor-subtitle">Gestalte deine persönliche Weihnachtsfigur</p>
+        </div>
+
+        <div class="editor-content">
+            <!-- Avatar Vorschau -->
+            <div class="avatar-preview-section">
+                <div class="avatar-preview-card">
+                    <h2>Dein Avatar</h2>
+                    <div id="avatarPreview" class="avatar-preview"></div>
+                </div>
+            </div>
+
+            <!-- Customization Options -->
+            <div class="customization-section">
+                <!-- Username Input -->
+                <div class="input-section">
+                    <label for="usernameInput">
+                        <span class="label-icon">👤</span>
+                        <span class="label-text">Dein Name</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="usernameInput" 
+                        placeholder="Gib deinen Namen ein..." 
+                        maxlength="20"
+                        autocomplete="off"
+                    >
+                    <span class="char-counter">0/20</span>
+                </div>
+
+                <!-- Kopfbedeckung -->
+                <div class="customization-category">
+                    <h3>
+                        <span class="category-icon">🎩</span>
+                        Kopfbedeckung
+                    </h3>
+                    <div id="headOptions" class="option-grid"></div>
+                </div>
+
+                <!-- Gesicht -->
+                <div class="customization-category">
+                    <h3>
+                        <span class="category-icon">😊</span>
+                        Gesicht
+                    </h3>
+                    <div id="faceOptions" class="option-grid"></div>
+                </div>
+
+                <!-- Körper -->
+                <div class="customization-category">
+                    <h3>
+                        <span class="category-icon">👕</span>
+                        Kleidung
+                    </h3>
+                    <div id="bodyOptions" class="option-grid"></div>
+                </div>
+
+                <!-- Füße -->
+                <div class="customization-category">
+                    <h3>
+                        <span class="category-icon">👢</span>
+                        Schuhe
+                    </h3>
+                    <div id="feetOptions" class="option-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="editor-actions">
+            <button id="randomizeButton" class="btn-secondary">
+                🎲 Zufällig generieren
+            </button>
+            <button id="saveButton" class="btn-primary">
+                ✅ Speichern & Loslegen!
+            </button>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">🎉</div>
+            <h2>Avatar erstellt!</h2>
+            <p>Dein Avatar wurde erfolgreich gespeichert.</p>
+            <div id="finalAvatarPreview" class="final-avatar-preview"></div>
+            <button id="continueButton" class="btn-primary">
+                Zum Adventskalender
+            </button>
+        </div>
+    </div>
+
+    <script src="avatarManager.js"></script>
+    <script src="avatar-editor.js"></script>
+</body>
+</html>

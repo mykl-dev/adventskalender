@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="santa-launcher.css">
     <link rel="stylesheet" href="snowflake-catcher.css">
     <link rel="stylesheet" href="stats.css">
+    <link rel="stylesheet" href="avatar-welcome.css">
 </head>
 <body>
     <!-- Schneefall Canvas -->
@@ -20,11 +21,18 @@
         <h1 class="title">🎄 Adventskalender 2025 🎅</h1>
         <p class="subtitle">Öffne jeden Tag ein neues Türchen!</p>
         
-        <!-- Dashboard Link -->
-        <a href="dashboard.html" class="dashboard-link" title="Zur Gesamtübersicht">
-            <span class="dashboard-icon">🏆</span>
-            <span class="dashboard-text">Dashboard</span>
-        </a>
+        <div class="header-actions">
+            <!-- Player Avatar Display -->
+            <div id="playerAvatarDisplay" class="player-avatar-display" onclick="window.location.href='avatar-editor.html'" title="Avatar bearbeiten">
+                <!-- Wird dynamisch gefüllt -->
+            </div>
+            
+            <!-- Dashboard Link -->
+            <a href="dashboard.html" class="dashboard-link" title="Zur Gesamtübersicht">
+                <span class="dashboard-icon">🏆</span>
+                <span class="dashboard-text">Dashboard</span>
+            </a>
+        </div>
         
         <!-- Theme Switcher -->
         <div class="theme-switcher">
@@ -57,6 +65,7 @@
         <p>🎁 Frohe Weihnachten! 🎁</p>
     </footer>
 
+    <script src="avatarManager.js"></script>
     <script src="stats-manager.js"></script>
     <script src="minigames.js"></script>
     <script src="christmas-match3.js"></script>

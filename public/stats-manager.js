@@ -38,6 +38,16 @@ class StatsManager {
     
     // Spielername abfragen (falls noch nicht vorhanden)
     async ensureUsername() {
+        // Prüfe zuerst ob Avatar-System einen Namen hat
+        if (typeof avatarManager !== 'undefined') {
+            const profile = avatarManager.getProfile();
+            if (profile && profile.username) {
+                this.username = profile.username;
+                this.setCookie('playerName', this.username);
+                return this.username;
+            }
+        }
+        
         if (this.username) {
             return this.username;
         }

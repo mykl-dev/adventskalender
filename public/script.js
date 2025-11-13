@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initSnowfall();
     loadCalendarData();
     setupEventListeners();
+    initPlayerAvatarDisplay(); // Zeige Avatar im Header
 });
 
 // ========================================
@@ -491,4 +492,23 @@ function setupEventListeners() {
             closeModal();
         }
     });
+}
+
+// ========================================
+// PLAYER AVATAR DISPLAY
+// ========================================
+function initPlayerAvatarDisplay() {
+    const display = document.getElementById('playerAvatarDisplay');
+    if (!display) return;
+    
+    const profile = avatarManager.getProfile();
+    if (profile) {
+        display.innerHTML = `
+            ${avatarManager.renderAvatarSVG(profile.avatar, 40)}
+            <span class="player-name">${profile.username}</span>
+        `;
+        display.style.display = 'inline-flex';
+    } else {
+        display.style.display = 'none';
+    }
 }
