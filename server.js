@@ -59,6 +59,19 @@ app.get('/api/avatar-custom/:style', async (req, res) => {
     const style = req.params.style;
     const options = req.query;
     
+    // Stelle sicher, dass mindestens ein seed vorhanden ist
+    if (!options.seed) {
+      options.seed = 'default-' + Date.now();
+    }
+    
+    // DiceBear erwartet ALLE Optionen als Arrays (außer seed)
+    // Konvertiere alle Parameter zu Arrays
+    for (const [key, value] of Object.entries(options)) {
+      if (key !== 'seed' && !Array.isArray(value)) {
+        options[key] = [value];
+      }
+    }
+    
     // Dynamischer Import des gewünschten Styles
     const { createAvatar } = await import('@dicebear/core');
     let styleModule;
@@ -80,6 +93,7 @@ app.get('/api/avatar-custom/:style', async (req, res) => {
         return res.status(400).json({ error: 'Unknown style' });
     }
     
+    // Erstelle Avatar mit allen Optionen
     const avatar = createAvatar(styleModule, options);
     const svg = avatar.toString();
     
@@ -87,6 +101,7 @@ app.get('/api/avatar-custom/:style', async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=3600'); // 1h Cache
     res.send(svg);
   } catch (error) {
+    console.error('Avatar generation error:', error);
     res.status(500).json({ error: error.message });
   }
 });
