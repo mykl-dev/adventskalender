@@ -5,6 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avatar Editor - Adventskalender 2024</title>
     <link rel="stylesheet" href="avatar-editor.css">
+    <style>
+        .avatar-3d-canvas {
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .render-mode-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .render-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body>
     <div class="editor-container">
@@ -123,6 +149,28 @@
     </div>
 
     <script src="avatarManager.js"></script>
+    <script src="avatar3DRenderer.js"></script>
     <script src="avatar-editor.js"></script>
+    
+    <script>
+        // Toggle zwischen 2D und 3D Rendering
+        const previewCard = document.querySelector('.avatar-preview-card');
+        if (previewCard) {
+            const toggleButton = document.createElement('button');
+            toggleButton.className = 'render-mode-toggle';
+            toggleButton.innerHTML = '🎨 3D-Modus';
+            previewCard.style.position = 'relative';
+            previewCard.appendChild(toggleButton);
+            
+            toggleButton.addEventListener('click', () => {
+                const editor = window.avatarEditor;
+                if (editor) {
+                    editor.use3DRenderer = !editor.use3DRenderer;
+                    toggleButton.innerHTML = editor.use3DRenderer ? '🎨 3D-Modus' : '📐 2D-Modus';
+                    editor.updatePreview();
+                }
+            });
+        }
+    </script>
 </body>
 </html>

@@ -165,7 +165,7 @@ class AvatarManager {
     }
 
     /**
-     * Avatar-SVG rendern
+     * Avatar-SVG rendern (Legacy)
      */
     renderAvatarSVG(avatar, size = 100) {
         const parts = avatar || this.getDefaultAvatar();
@@ -185,6 +185,36 @@ class AvatarManager {
                 ${this.getSVGHead(parts.head)}
             </svg>
         `;
+    }
+    
+    /**
+     * Rendert den Avatar mit 3D Canvas Renderer
+     */
+    renderAvatar3D(containerId, avatar, size = 200, autoAnimate = true) {
+        const container = document.getElementById(containerId);
+        if (!container || typeof Avatar3DRenderer === 'undefined') {
+            console.warn('3D Renderer not available, falling back to SVG');
+            return null;
+        }
+        
+        const parts = avatar || this.getDefaultAvatar();
+        
+        // Erstelle Canvas
+        const canvas = document.createElement('canvas');
+        canvas.id = `avatar-3d-${containerId}`;
+        canvas.className = 'avatar-3d-canvas';
+        container.innerHTML = '';
+        container.appendChild(canvas);
+        
+        // Initialisiere 3D Renderer
+        const renderer = new Avatar3DRenderer(canvas.id, parts, size);
+        renderer.render();
+        
+        if (autoAnimate) {
+            renderer.startIdleAnimation();
+        }
+        
+        return renderer;
     }
 
     /**

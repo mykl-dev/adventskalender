@@ -8,6 +8,8 @@ class AvatarEditor {
         this.currentUsername = '';
         this.currentGender = 'babo';
         this.avatarOptions = avatarManager.getAvatarOptions(this.currentGender);
+        this.use3DRenderer = true; // Standard: 3D-Rendering aktiviert
+        this.renderer3D = null;
         
         // Lade existierendes Profil falls vorhanden
         const existingProfile = avatarManager.getProfile();
@@ -151,7 +153,16 @@ class AvatarEditor {
      */
     updatePreview() {
         const preview = document.getElementById('avatarPreview');
-        preview.innerHTML = avatarManager.renderAvatarSVG(this.currentAvatar, 200);
+        
+        // Versuche 3D-Rendering, fallback auf SVG
+        if (typeof Avatar3DRenderer !== 'undefined' && this.use3DRenderer) {
+            if (this.renderer3D) {
+                this.renderer3D.stopAnimation();
+            }
+            this.renderer3D = avatarManager.renderAvatar3D('avatarPreview', this.currentAvatar, 200, true);
+        } else {
+            preview.innerHTML = avatarManager.renderAvatarSVG(this.currentAvatar, 200);
+        }
         
         // Animation
         preview.classList.add('update-animation');
@@ -402,5 +413,5 @@ class AvatarEditor {
 
 // Initialisiere Editor wenn DOM geladen ist
 document.addEventListener('DOMContentLoaded', () => {
-    const editor = new AvatarEditor();
+    window.avatarEditor = new AvatarEditor();
 });
