@@ -28,13 +28,6 @@
         .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
         .editor-content { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .section-title { color: white; font-size: 1.5rem; margin: 30px 0 15px 0; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
-        .style-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .style-card { background: white; border-radius: 15px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; position: relative; }
-        .style-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
-        .style-card.active { border: 3px solid #667eea; box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
-        .style-card.locked { opacity: 0.5; cursor: not-allowed; }
-        .lock-badge { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; }
         .options-panel { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); }
         .option-group { margin-bottom: 10px; border-radius: 12px; overflow: hidden; background: #f8f9fa; transition: all 0.3s; }
         .option-group.active { background: white; box-shadow: 0 2px 10px rgba(102, 126, 234, 0.15); }
@@ -66,8 +59,7 @@
         .empty-item { background: repeating-linear-gradient(45deg, #f8f9fa, #f8f9fa 10px, #e9ecef 10px, #e9ecef 20px); }
         .empty-item::after { content: '✕'; font-size: 1.5rem; color: #e74c3c; }
     </style>
-</head>
-<body>
+</head><body>
     <div class="sticky-avatar" id="stickyAvatar">
         <div class="sticky-avatar-preview">
             <img id="stickyAvatarPreview" src="/api/avatar-custom/adventurer?seed=default" alt="Avatar">
@@ -89,21 +81,193 @@
         <button class="btn-primary" onclick="save()">💾 Speichern</button>
     </div>
     <div class="editor-content">
-        <h2 class="section-title">🎭 Wähle deinen Stil</h2>
-        <div class="style-selector" id="styleSelector"></div>
-        <h2 class="section-title">✨ Anpassungen</h2>
+        <div class="options-panel">
+            <div class="option-group active" id="styleGroup">
+                <div class="option-header" onclick="toggleStylePanel()">
+                    <h3>🎭 Avatar Stil</h3>
+                    <span class="chevron">▼</span>
+                </div>
+                <div class="option-content">
+                    <div class="option-scroll-wrapper">
+                        <div class="option-items" id="styleSelector"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="options-panel" id="optionsPanel"></div>
-    </div>
-    <script type="module">
-        let schemas={},currentStyle='adventurer',currentOptions={},userScore=150,openOptionKey=null;
-        async function init(){const r=await fetch('/avatarStyleSchemas.json');schemas=await r.json();userScore=parseInt(localStorage.getItem('totalScore')||'150');document.getElementById('scoreDisplay').textContent=userScore;renderStyles();selectStyle('adventurer');window.addEventListener('scroll',()=>{const h=document.getElementById('header'),s=document.getElementById('stickyAvatar'),sc=window.scrollY>50;h.classList.toggle('scrolled',sc);s.classList.toggle('visible',sc);})}
-        function renderStyles(){const c=document.getElementById('styleSelector');c.innerHTML='';for(const[id,style]of Object.entries(schemas)){const isLocked=userScore<style.unlockScore,card=document.createElement('div');card.className='style-card '+(currentStyle===id?'active ':'')+(isLocked?'locked':'');card.innerHTML='<h3>'+style.displayName+'</h3><p>'+style.unlockScore+'★ erforderlich</p>'+(isLocked?'<div class="lock-badge">🔒 '+style.unlockScore+'★</div>':'');if(!isLocked)card.onclick=()=>selectStyle(id);c.appendChild(card)}}
-        function selectStyle(id){if(userScore<schemas[id].unlockScore)return;currentStyle=id;currentOptions={seed:'user-'+Date.now()};const style=schemas[id];for(const[key,opt]of Object.entries(style.options)){if(userScore>=opt.unlockScore&&opt.values.length>0)currentOptions[key]=opt.values[0]}openOptionKey=null;renderStyles();renderOptions();updatePreview()}
-        function toggleOption(key){openOptionKey=openOptionKey===key?null:key;renderOptions()}
-        function renderOptions(){const p=document.getElementById('optionsPanel');p.innerHTML='';const style=schemas[currentStyle],sorted=Object.entries(style.options).sort((a,b)=>a[1].unlockScore-b[1].unlockScore);for(const[key,opt]of sorted){const isLocked=userScore<opt.unlockScore,isOpen=openOptionKey===key,g=document.createElement('div');g.className='option-group '+(isOpen?'active':'');const h=document.createElement('div');h.className='option-header';h.innerHTML='<h3>'+opt.displayName+' '+(isLocked?'🔒 '+opt.unlockScore+'★':'')+'</h3><span class="chevron">▼</span>';h.onclick=()=>!isLocked&&toggleOption(key);const c=document.createElement('div');c.className='option-content';if(isOpen){const w=document.createElement('div');w.className='option-scroll-wrapper';const ic=document.createElement('div');ic.className='option-items';ic.id='items-'+key;for(const v of opt.values){const it=document.createElement('div'),isEmpty=v==='';it.className='option-item '+(isEmpty?'empty-item ':(opt.type==='color'?'color-item ':'variant-item '))+(currentOptions[key]===v?'active':'');if(isEmpty)it.title='Keine';else if(opt.type==='color'){it.style.backgroundColor='#'+v;it.title='#'+v}else{const n=v.match(/\d+/);it.textContent=n?n[0]:'?';it.title=v}it.onclick=()=>{currentOptions[key]=v;renderOptions();updatePreview()};ic.appendChild(it)}if(opt.values.length>10){const bl=document.createElement('div');bl.className='scroll-btn scroll-btn-left';bl.innerHTML='‹';bl.onclick=e=>{e.stopPropagation();ic.scrollBy({left:-200,behavior:'smooth'})};const br=document.createElement('div');br.className='scroll-btn scroll-btn-right';br.innerHTML='›';br.onclick=e=>{e.stopPropagation();ic.scrollBy({left:200,behavior:'smooth'})};w.appendChild(bl);w.appendChild(br)}w.appendChild(ic);c.appendChild(w)}g.appendChild(h);g.appendChild(c);p.appendChild(g)}}
-        function updatePreview(){const p=new URLSearchParams();for(const[k,v]of Object.entries(currentOptions)){if(v!=='')p.append(k+'[]',v)}const url='/api/avatar-custom/'+currentStyle+'?'+p.toString(),img=document.getElementById('avatarPreview'),simg=document.getElementById('stickyAvatarPreview');console.log('Loading avatar:',url);img.style.display='block';img.src=url;simg.src=url}
-        window.randomize=function(){const style=schemas[currentStyle];currentOptions={seed:'random-'+Math.random()};for(const[k,opt]of Object.entries(style.options)){if(userScore>=opt.unlockScore&&opt.values.length>0)currentOptions[k]=opt.values[Math.floor(Math.random()*opt.values.length)]}renderOptions();updatePreview()};
-        window.save=function(){localStorage.setItem('customAvatar',JSON.stringify({style:currentStyle,options:currentOptions}));alert('✅ Avatar gespeichert!');setTimeout(()=>window.location.href='/',500)};
+    </div>    <script type="module">
+        let schemas = {};
+        let currentStyle = 'adventurer';
+        let currentOptions = {};
+        let userScore = 150;
+        let openOptionKey = null;
+        async function init() {
+            const response = await fetch('/avatarStyleSchemas.json');
+            schemas = await response.json();
+            userScore = parseInt(localStorage.getItem('totalScore') || '150');
+            document.getElementById('scoreDisplay').textContent = userScore;
+            renderStyles();
+            selectStyle('adventurer');
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('header');
+                const stickyAvatar = document.getElementById('stickyAvatar');
+                const scrolled = window.scrollY > 50;
+                header.classList.toggle('scrolled', scrolled);
+                stickyAvatar.classList.toggle('visible', scrolled);
+            });
+        }
+        function toggleStylePanel() {
+            const group = document.getElementById('styleGroup');
+            group.classList.toggle('active');
+        }
+        function renderStyles() {
+            const container = document.getElementById('styleSelector');
+            container.innerHTML = '';
+            for (const [styleId, style] of Object.entries(schemas)) {
+                const isLocked = userScore < style.unlockScore;
+                const item = document.createElement('div');
+                item.className = 'option-item' + (currentStyle === styleId ? ' active' : '') + (isLocked ? ' locked' : '');
+                item.title = style.displayName + (isLocked ? ' (🔒 ' + style.unlockScore + '★)' : '');
+                const img = document.createElement('img');
+                img.src = '/style-previews/' + styleId + '.svg';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+                item.appendChild(img);
+                if (!isLocked) item.onclick = () => selectStyle(styleId);
+                container.appendChild(item);
+            }
+        }
+        function selectStyle(styleId) {
+            if (userScore < schemas[styleId].unlockScore) return;
+            currentStyle = styleId;
+            currentOptions = { seed: 'user-' + Date.now() };
+            const style = schemas[styleId];
+            for (const [key, option] of Object.entries(style.options)) {
+                if (userScore >= option.unlockScore && option.values.length > 0) {
+                    currentOptions[key] = option.values[0];
+                }
+            }
+            openOptionKey = null;
+            renderStyles();
+            renderOptions();
+            updatePreview();
+        }
+        function toggleOption(key) {
+            openOptionKey = openOptionKey === key ? null : key;
+            renderOptions();
+        }        function renderOptions() {
+            const panel = document.getElementById('optionsPanel');
+            // Speichere Scroll-Positionen vor dem Neurendern
+            const scrollPositions = {};
+            document.querySelectorAll('.option-items').forEach(el => {
+                const key = el.id.replace('items-', '');
+                scrollPositions[key] = el.scrollLeft;
+            });
+            panel.innerHTML = '';
+            const style = schemas[currentStyle];
+            const sortedOptions = Object.entries(style.options).sort((a, b) => a[1].unlockScore - b[1].unlockScore);
+            for (const [key, option] of sortedOptions) {
+                const isLocked = userScore < option.unlockScore;
+                const isOpen = openOptionKey === key;
+                const group = document.createElement('div');
+                group.className = 'option-group' + (isOpen ? ' active' : '');
+                const header = document.createElement('div');
+                header.className = 'option-header';
+                header.innerHTML = '<h3>' + option.displayName + ' ' + (isLocked ? '🔒 ' + option.unlockScore + '★' : '') + '</h3><span class="chevron">▼</span>';
+                header.onclick = () => !isLocked && toggleOption(key);
+                const content = document.createElement('div');
+                content.className = 'option-content';
+                if (isOpen) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'option-scroll-wrapper';
+                    const itemsContainer = document.createElement('div');
+                    itemsContainer.className = 'option-items';
+                    itemsContainer.id = 'items-' + key;
+                    for (const value of option.values) {
+                        const item = document.createElement('div');
+                        const isEmpty = value === '';
+                        item.className = 'option-item ' + (isEmpty ? 'empty-item ' : (option.type === 'color' ? 'color-item ' : 'variant-item ')) + (currentOptions[key] === value ? 'active' : '');
+                        if (isEmpty) {
+                            item.title = 'Keine';
+                        } else if (option.type === 'color') {
+                            item.style.backgroundColor = '#' + value;
+                            item.title = '#' + value;
+                        } else {
+                            const num = value.match(/\d+/);
+                            item.textContent = num ? num[0] : '?';
+                            item.title = value;
+                        }
+                        item.onclick = () => {
+                            currentOptions[key] = value;
+                            renderOptions();
+                            updatePreview();
+                        };
+                        itemsContainer.appendChild(item);
+                    }
+                    if (option.values.length > 10) {
+                        const btnLeft = document.createElement('div');
+                        btnLeft.className = 'scroll-btn scroll-btn-left';
+                        btnLeft.innerHTML = '‹';
+                        btnLeft.onclick = (e) => {
+                            e.stopPropagation();
+                            itemsContainer.scrollBy({ left: -200, behavior: 'smooth' });
+                        };
+                        const btnRight = document.createElement('div');
+                        btnRight.className = 'scroll-btn scroll-btn-right';
+                        btnRight.innerHTML = '›';
+                        btnRight.onclick = (e) => {
+                            e.stopPropagation();
+                            itemsContainer.scrollBy({ left: 200, behavior: 'smooth' });
+                        };
+                        wrapper.appendChild(btnLeft);
+                        wrapper.appendChild(btnRight);
+                    }
+                    wrapper.appendChild(itemsContainer);
+                    content.appendChild(wrapper);
+                }
+                group.appendChild(header);
+                group.appendChild(content);
+                panel.appendChild(group);
+            }
+            // Stelle Scroll-Positionen nach dem Rendern wieder her
+            setTimeout(() => {
+                for (const [key, scrollLeft] of Object.entries(scrollPositions)) {
+                    const el = document.getElementById('items-' + key);
+                    if (el) el.scrollLeft = scrollLeft;
+                }
+            }, 0);
+        }        function updatePreview() {
+            const params = new URLSearchParams();
+            for (const [key, value] of Object.entries(currentOptions)) {
+                if (value !== '') {
+                    params.append(key, value);
+                }
+            }
+            const url = '/api/avatar-custom/' + currentStyle + '?' + params.toString();
+            const img = document.getElementById('avatarPreview');
+            const stickyImg = document.getElementById('stickyAvatarPreview');
+            console.log('Loading avatar:', url);
+            img.style.display = 'block';
+            img.src = url;
+            stickyImg.src = url;
+        }
+        window.randomize = function() {
+            const style = schemas[currentStyle];
+            currentOptions = { seed: 'random-' + Math.random() };
+            for (const [key, option] of Object.entries(style.options)) {
+                if (userScore >= option.unlockScore && option.values.length > 0) {
+                    currentOptions[key] = option.values[Math.floor(Math.random() * option.values.length)];
+                }
+            }
+            renderOptions();
+            updatePreview();
+        };
+        window.save = function() {
+            localStorage.setItem('customAvatar', JSON.stringify({ style: currentStyle, options: currentOptions }));
+            alert('✅ Avatar gespeichert!');
+            setTimeout(() => window.location.href = '/', 500);
+        };
         init();
     </script>
 </body>

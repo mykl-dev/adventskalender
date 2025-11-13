@@ -64,13 +64,30 @@ app.get('/api/avatar-custom/:style', async (req, res) => {
       options.seed = 'default-' + Date.now();
     }
     
-    // DiceBear erwartet ALLE Optionen als Arrays (außer seed)
-    // Konvertiere alle Parameter zu Arrays
+    // DiceBear erwartet alle Optionen als Arrays
+    // Konvertiere alle Parameter zu Arrays (außer seed bleibt String)
     for (const [key, value] of Object.entries(options)) {
       if (key !== 'seed' && !Array.isArray(value)) {
         options[key] = [value];
       }
     }
+    
+    // Setze Wahrscheinlichkeiten für optionale Accessoires auf 100%
+    // wenn sie ausgewählt wurden (nicht leer)
+    if (options.glasses && options.glasses[0] !== '') {
+      options.glassesProbability = 100;
+    }
+    if (options.earrings && options.earrings[0] !== '') {
+      options.earringsProbability = 100;
+    }
+    if (options.features && options.features[0] !== '') {
+      options.featuresProbability = 100;
+    }
+    if (options.hair && options.hair[0] !== '') {
+      options.hairProbability = 100;
+    }
+    
+    console.log('Avatar options:', JSON.stringify(options, null, 2));
     
     // Dynamischer Import des gewünschten Styles
     const { createAvatar } = await import('@dicebear/core');
