@@ -433,6 +433,13 @@
             categories.forEach((category, index) => {
                 const characters = AvatarCharacters.getCharactersByGender(category.id);
                 
+                // Stelle sicher dass alle Charaktere ihre SVGs haben
+                characters.forEach(char => {
+                    if (!char.imageUrl) {
+                        char.imageUrl = AvatarCharacters.generateAvatarSVG(char);
+                    }
+                });
+                
                 const categoryHtml = `
                     <div class="category" style="animation-delay: ${0.6 + index * 0.1}s">
                         <div class="category-header">
@@ -466,6 +473,11 @@
         // Charakter auswählen
         function selectCharacter(characterId) {
             selectedCharacter = AvatarCharacters.getCharacterById(characterId);
+            
+            // Stelle sicher dass imageUrl vorhanden ist
+            if (selectedCharacter && !selectedCharacter.imageUrl) {
+                selectedCharacter.imageUrl = AvatarCharacters.generateAvatarSVG(selectedCharacter);
+            }
             
             // Entferne selected von allen Karten
             document.querySelectorAll('.character-card').forEach(card => {
@@ -523,6 +535,12 @@
         // Randomize
         function randomize() {
             const randomChar = AvatarCharacters.getRandomCharacter();
+            
+            // Stelle sicher dass imageUrl vorhanden ist
+            if (!randomChar.imageUrl) {
+                randomChar.imageUrl = AvatarCharacters.generateAvatarSVG(randomChar);
+            }
+            
             selectCharacter(randomChar.id);
             
             // Scroll to selected character

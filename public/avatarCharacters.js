@@ -5,6 +5,219 @@
 
 const AvatarCharacters = {
     /**
+     * Generiere SVG Avatar
+     */
+    generateAvatarSVG(character) {
+        const styles = {
+            'babo-cool': {
+                skin: '#ffdbac',
+                hair: '#3d2817',
+                eyes: '#2c1810',
+                clothes: '#4169e1',
+                accent: '#1a1a1a',
+                hat: '#000000'
+            },
+            'babo-sporty': {
+                skin: '#f4c2a0',
+                hair: '#1a1a1a',
+                eyes: '#2c1810',
+                clothes: '#c41e3a',
+                accent: '#ffffff',
+                hat: '#c41e3a'
+            },
+            'babo-street': {
+                skin: '#ffdbac',
+                hair: '#1a1a1a',
+                eyes: '#2c1810',
+                clothes: '#1a1a1a',
+                accent: '#ffd700',
+                hat: '#1a1a1a'
+            },
+            'babo-gamer': {
+                skin: '#ffe0bd',
+                hair: '#4169e1',
+                eyes: '#2c1810',
+                clothes: '#1a1a1a',
+                accent: '#00ff00',
+                hat: '#4169e1'
+            },
+            'cutie-sweet': {
+                skin: '#ffe6f0',
+                hair: '#ffd700',
+                eyes: '#8b4513',
+                clothes: '#ff69b4',
+                accent: '#ffb6c1',
+                hat: '#ff69b4'
+            },
+            'cutie-kawaii': {
+                skin: '#ffe6f0',
+                hair: '#8b4513',
+                eyes: '#4169e1',
+                clothes: '#ff69b4',
+                accent: '#da70d6',
+                hat: '#ff69b4'
+            },
+            'cutie-princess': {
+                skin: '#ffe6f0',
+                hair: '#ffd700',
+                eyes: '#4169e1',
+                clothes: '#ff69b4',
+                accent: '#ffd700',
+                hat: '#ffd700'
+            },
+            'cutie-sporty': {
+                skin: '#ffe6f0',
+                hair: '#ff6347',
+                eyes: '#2e8b57',
+                clothes: '#da70d6',
+                accent: '#ffffff',
+                hat: '#da70d6'
+            },
+            'santa': {
+                skin: '#ffdbac',
+                hair: '#f0f0f0',
+                eyes: '#4169e1',
+                clothes: '#c41e3a',
+                accent: '#ffffff',
+                hat: '#c41e3a'
+            },
+            'elf': {
+                skin: '#90ee90',
+                hair: '#228b22',
+                eyes: '#2c1810',
+                clothes: '#00ff00',
+                accent: '#c41e3a',
+                hat: '#00ff00'
+            },
+            'snowman': {
+                skin: '#ffffff',
+                hair: '#ffffff',
+                eyes: '#000000',
+                clothes: '#4169e1',
+                accent: '#ff6347',
+                hat: '#1a1a1a'
+            },
+            'reindeer': {
+                skin: '#8b4513',
+                hair: '#654321',
+                eyes: '#2c1810',
+                clothes: '#8b4513',
+                accent: '#c41e3a',
+                hat: '#8b4513'
+            }
+        };
+
+        const style = styles[character.id] || styles['babo-cool'];
+        
+        return `data:image/svg+xml,${encodeURIComponent(`
+            <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="bg-${character.id}" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:${character.style.primary};stop-opacity:0.3" />
+                        <stop offset="100%" style="stop-color:${character.style.secondary};stop-opacity:0.3" />
+                    </linearGradient>
+                </defs>
+                
+                <!-- Background Circle -->
+                <circle cx="100" cy="100" r="95" fill="url(#bg-${character.id})" />
+                <circle cx="100" cy="100" r="95" fill="none" stroke="${character.style.accent}" stroke-width="3" opacity="0.5"/>
+                
+                <!-- Shadow -->
+                <ellipse cx="100" cy="170" rx="40" ry="8" fill="rgba(0,0,0,0.2)" />
+                
+                <!-- Body -->
+                <ellipse cx="100" cy="140" rx="35" ry="45" fill="${style.clothes}" />
+                <path d="M 70 130 Q 100 145 130 130" stroke="${style.accent}" stroke-width="3" fill="none" />
+                
+                <!-- Arms -->
+                <ellipse cx="65" cy="130" rx="12" ry="30" fill="${style.clothes}" transform="rotate(-20 65 130)" />
+                <ellipse cx="135" cy="130" rx="12" ry="30" fill="${style.clothes}" transform="rotate(20 135 130)" />
+                
+                <!-- Head -->
+                <circle cx="100" cy="90" r="35" fill="${style.skin}" />
+                
+                <!-- Hair/Hat -->
+                ${this.getHatSVG(character.id, style)}
+                
+                <!-- Face -->
+                ${this.getFaceSVG(character.id, style)}
+                
+                <!-- Neck -->
+                <rect x="92" y="118" width="16" height="15" fill="${style.skin}" rx="3" />
+            </svg>
+        `)}`;
+    },
+
+    getHatSVG(id, style) {
+        if (id === 'santa') {
+            return `
+                <path d="M 65 70 Q 100 55 135 70" fill="${style.hat}" />
+                <ellipse cx="100" cy="70" rx="40" ry="8" fill="white" />
+                <circle cx="135" cy="60" r="8" fill="white" />
+            `;
+        } else if (id.includes('cutie')) {
+            return `
+                <ellipse cx="80" cy="65" rx="12" ry="18" fill="${style.hat}" transform="rotate(-30 80 65)" />
+                <ellipse cx="120" cy="65" rx="12" ry="18" fill="${style.hat}" transform="rotate(30 120 65)" />
+                <circle cx="100" cy="68" r="8" fill="${style.accent}" />
+            `;
+        } else if (id === 'elf') {
+            return `
+                <path d="M 65 70 L 80 45 L 95 70 Z" fill="${style.hat}" />
+                <path d="M 105 70 L 120 45 L 135 70 Z" fill="${style.hat}" />
+                <circle cx="80" cy="45" r="5" fill="white" />
+                <circle cx="120" cy="45" r="5" fill="white" />
+            `;
+        } else if (id === 'snowman') {
+            return `
+                <rect x="85" y="60" width="30" height="15" fill="${style.hat}" rx="2" />
+                <rect x="75" y="72" width="50" height="5" fill="${style.hat}" />
+            `;
+        } else {
+            return `
+                <ellipse cx="100" cy="68" rx="38" ry="15" fill="${style.hat}" />
+                <path d="M 100 68 Q 130 70 135 80" fill="${style.hat}" />
+            `;
+        }
+    },
+
+    getFaceSVG(id, style) {
+        if (id === 'snowman') {
+            return `
+                <circle cx="88" cy="88" r="4" fill="${style.eyes}" />
+                <circle cx="112" cy="88" r="4" fill="${style.eyes}" />
+                <circle cx="100" cy="98" r="3" fill="${style.accent}" />
+                <path d="M 85 105 Q 100 110 115 105" stroke="${style.eyes}" stroke-width="2" fill="none" stroke-linecap="round" />
+            `;
+        } else if (id.includes('cutie')) {
+            return `
+                <circle cx="88" cy="90" r="6" fill="${style.eyes}" />
+                <circle cx="112" cy="90" r="6" fill="${style.eyes}" />
+                <circle cx="85" cy="88" r="2" fill="white" />
+                <circle cx="109" cy="88" r="2" fill="white" />
+                <ellipse cx="78" cy="98" rx="8" ry="6" fill="#ffb6c1" opacity="0.5" />
+                <ellipse cx="122" cy="98" rx="8" ry="6" fill="#ffb6c1" opacity="0.5" />
+                <path d="M 90 105 Q 100 110 110 105" stroke="${style.clothes}" stroke-width="2" fill="none" stroke-linecap="round" />
+            `;
+        } else if (id.includes('babo') && (id.includes('cool') || id.includes('gamer'))) {
+            return `
+                <rect x="82" y="86" width="16" height="10" fill="${style.eyes}" rx="2" />
+                <rect x="102" y="86" width="16" height="10" fill="${style.eyes}" rx="2" />
+                <line x1="98" y1="91" x2="102" y2="91" stroke="${style.eyes}" stroke-width="2" />
+                <path d="M 88 105 Q 95 107 100 107" stroke="${style.eyes}" stroke-width="2" fill="none" stroke-linecap="round" />
+            `;
+        } else {
+            return `
+                <circle cx="88" cy="90" r="4" fill="${style.eyes}" />
+                <circle cx="112" cy="90" r="4" fill="${style.eyes}" />
+                <circle cx="86" cy="88" r="2" fill="white" />
+                <circle cx="110" cy="88" r="2" fill="white" />
+                <path d="M 90 105 Q 100 110 110 105" stroke="${style.eyes}" stroke-width="2" fill="none" stroke-linecap="round" />
+            `;
+        }
+    },
+
+    /**
      * Verfügbare Charakter-Presets
      */
     characters: [
@@ -14,7 +227,7 @@ const AvatarCharacters = {
             name: 'Max der Coole',
             gender: 'babo',
             description: 'Cooler Typ mit Snapback und Style',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Max&style=circle&backgroundColor=b6e3f4&accessories=prescription02&top=shortHair&hairColor=brown&facialHair=blank&clothingGraphic=skull',
+            imageUrl: null, // Wird dynamisch generiert
             style: {
                 primary: '#4169e1',
                 secondary: '#1a1a1a',
@@ -26,7 +239,7 @@ const AvatarCharacters = {
             name: 'Leon der Sportliche',
             gender: 'babo',
             description: 'Sportlicher Typ mit Energie',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Leon&style=circle&backgroundColor=ffdfbf&accessories=sunglasses&top=shortCurly&hairColor=black&clothingType=hoodie&clothingColor=red',
+            imageUrl: null,
             style: {
                 primary: '#c41e3a',
                 secondary: '#1a1a1a',
@@ -38,7 +251,7 @@ const AvatarCharacters = {
             name: 'Jay der Streetstyle King',
             gender: 'babo',
             description: 'Urban Style mit Attitude',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jay&style=circle&backgroundColor=c0aede&accessories=wayfarers&top=winterHat&hairColor=black&clothingType=graphicShirt&clothingGraphic=bear',
+            imageUrl: null,
             style: {
                 primary: '#1a1a1a',
                 secondary: '#ffd700',
@@ -50,7 +263,7 @@ const AvatarCharacters = {
             name: 'Noah der Gamer',
             gender: 'babo',
             description: 'Gaming Pro mit Headset',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Noah&style=circle&backgroundColor=d1d4f9&accessories=prescription01&top=shortFlat&hairColor=blue&clothingType=collarSweater&clothingColor=black',
+            imageUrl: null,
             style: {
                 primary: '#667eea',
                 secondary: '#1a1a1a',
@@ -64,7 +277,7 @@ const AvatarCharacters = {
             name: 'Mia die Süße',
             gender: 'cutie',
             description: 'Niedlich mit rosa Schleife',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mia&style=circle&backgroundColor=ffd5dc&accessories=blank&top=longHair&hairColor=blonde&clothingType=overall&clothingColor=pink',
+            imageUrl: null,
             style: {
                 primary: '#ff69b4',
                 secondary: '#ffb6c1',
@@ -76,7 +289,7 @@ const AvatarCharacters = {
             name: 'Emma die Kawaii',
             gender: 'cutie',
             description: 'Kawaii-Style mit großen Augen',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma&style=circle&backgroundColor=ffdfbf&accessories=blank&top=longHairStraight&hairColor=brown&clothingType=graphicShirt&clothingGraphic=pizza',
+            imageUrl: null,
             style: {
                 primary: '#ff69b4',
                 secondary: '#da70d6',
@@ -88,7 +301,7 @@ const AvatarCharacters = {
             name: 'Sophie die Prinzessin',
             gender: 'cutie',
             description: 'Elegante Prinzessin',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sophie&style=circle&backgroundColor=ffd5dc&accessories=blank&top=longHairCurly&hairColor=blonde&clothingType=blazer&clothingColor=pink',
+            imageUrl: null,
             style: {
                 primary: '#ff69b4',
                 secondary: '#ffd700',
@@ -100,7 +313,7 @@ const AvatarCharacters = {
             name: 'Lena die Aktive',
             gender: 'cutie',
             description: 'Sportlich und energiegeladen',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lena&style=circle&backgroundColor=b6e3f4&accessories=blank&top=longHairStraight2&hairColor=auburn&clothingType=hoodie&clothingColor=heather',
+            imageUrl: null,
             style: {
                 primary: '#da70d6',
                 secondary: '#ffffff',
@@ -114,7 +327,7 @@ const AvatarCharacters = {
             name: 'Santa Claus',
             gender: 'special',
             description: 'Der Weihnachtsmann himself',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Santa&style=circle&backgroundColor=c41e3a&accessories=blank&top=winterHat4&hairColor=gray&facialHair=beardMedium&facialHairColor=gray&clothingType=overall&clothingColor=red',
+            imageUrl: null,
             style: {
                 primary: '#c41e3a',
                 secondary: '#ffffff',
@@ -126,7 +339,7 @@ const AvatarCharacters = {
             name: 'Elfie der Helfer',
             gender: 'special',
             description: 'Weihnachtself mit Elfenohren',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elfie&style=circle&backgroundColor=00ff00&accessories=blank&top=shortHairShaggy&hairColor=green&clothingType=hoodie&clothingColor=green',
+            imageUrl: null,
             style: {
                 primary: '#00ff00',
                 secondary: '#c41e3a',
@@ -138,7 +351,7 @@ const AvatarCharacters = {
             name: 'Frosty der Schneemann',
             gender: 'special',
             description: 'Freundlicher Schneemann',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Frosty&style=circle&backgroundColor=ffffff&accessories=blank&top=winterHat1&hairColor=white&clothingType=overall&clothingColor=blue',
+            imageUrl: null,
             style: {
                 primary: '#ffffff',
                 secondary: '#4169e1',
@@ -150,7 +363,7 @@ const AvatarCharacters = {
             name: 'Rudolf das Rentier',
             gender: 'special',
             description: 'Rudolf mit der roten Nase',
-            imageUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rudolf&style=circle&backgroundColor=8b4513&accessories=blank&top=winterHat3&hairColor=brown&clothingType=graphicShirt&clothingGraphic=bear',
+            imageUrl: null,
             style: {
                 primary: '#8b4513',
                 secondary: '#c41e3a',
@@ -163,21 +376,35 @@ const AvatarCharacters = {
      * Hole Charakter nach ID
      */
     getCharacterById(id) {
-        return this.characters.find(char => char.id === id);
+        const char = this.characters.find(char => char.id === id);
+        if (char && !char.imageUrl) {
+            char.imageUrl = this.generateAvatarSVG(char);
+        }
+        return char;
     },
 
     /**
      * Hole alle Charaktere nach Gender
      */
     getCharactersByGender(gender) {
-        return this.characters.filter(char => char.gender === gender);
+        return this.characters.filter(char => char.gender === gender).map(char => {
+            if (!char.imageUrl) {
+                char.imageUrl = this.generateAvatarSVG(char);
+            }
+            return char;
+        });
     },
 
     /**
      * Hole alle verfügbaren Charaktere
      */
     getAllCharacters() {
-        return this.characters;
+        return this.characters.map(char => {
+            if (!char.imageUrl) {
+                char.imageUrl = this.generateAvatarSVG(char);
+            }
+            return char;
+        });
     },
 
     /**
@@ -222,6 +449,11 @@ const AvatarCharacters = {
      */
     renderCharacterAvatar(character, size = 200) {
         if (!character) return '';
+        
+        // Generiere Avatar wenn noch nicht vorhanden
+        if (!character.imageUrl) {
+            character.imageUrl = this.generateAvatarSVG(character);
+        }
 
         return `
             <div class="character-avatar" style="width: ${size}px; height: ${size}px; position: relative;">
@@ -229,7 +461,6 @@ const AvatarCharacters = {
                     src="${character.imageUrl}" 
                     alt="${character.name}"
                     style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,0.2);"
-                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Ccircle cx=%22100%22 cy=%22100%22 r=%2280%22 fill=%22%23${character.style.primary.replace('#', '')}%22/%3E%3Ctext x=%22100%22 y=%22120%22 text-anchor=%22middle%22 font-size=%2260%22 fill=%22white%22%3E${character.name[0]}%3C/text%3E%3C/svg%3E'"
                 />
                 <div class="character-badge" style="
                     position: absolute;
