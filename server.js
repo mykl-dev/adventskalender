@@ -182,6 +182,50 @@ app.post('/api/stats', (req, res) => {
   }
 });
 
+// API Endpoint zum Aktualisieren des Benutzernamens in stats.json
+app.post('/api/update-username', (req, res) => {
+  const { oldUsername, newUsername } = req.body;
+  
+  if (!oldUsername || !newUsername) {
+    return res.status(400).json({ error: 'Fehlende Daten (oldUsername, newUsername erforderlich)' });
+  }
+  
+  try {
+    const statsPath = path.join(__dirname, 'data', 'stats.json');
+    let stats = { games: {} };
+    
+    // Lade bestehende Stats
+    if (fs.existsSync(statsPath)) {
+      const data = fs.readFileSync(statsPath, 'utf8');
+      stats = JSON.parse(data);
+    }
+    
+    // Aktualisiere alle Vorkommen des alten Usernamens
+    let updated = false;
+    for (const gameName in stats.games) {
+      if (stats.games[gameName]) {
+        stats.games[gameName].forEach(entry => {
+          if (entry.username === oldUsername) {
+            entry.username = newUsername;
+            updated = true;
+          }
+        });
+      }
+    }
+    
+    // Speichere aktualisierte Stats
+    if (updated) {
+      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2));
+      res.json({ success: true, message: 'Benutzername aktualisiert' });
+    } else {
+      res.json({ success: true, message: 'Kein Eintrag gefunden' });
+    }
+  } catch (error) {
+    console.error('Fehler beim Aktualisieren des Benutzernamens:', error);
+    res.status(500).json({ error: 'Fehler beim Aktualisieren' });
+  }
+});
+
 app.get('/api/door/:day', (req, res) => {
   const day = parseInt(req.params.day);
   const content = loadCalendarContent();

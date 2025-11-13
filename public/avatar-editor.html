@@ -24,7 +24,8 @@
         .username-input-wrapper label { display: block; font-size: 0.9rem; color: #666; margin-bottom: 5px; font-weight: 600; }
         .username-input-wrapper input { width: 100%; max-width: 300px; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s; }
         .username-input-wrapper input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .score-badge { display: inline-block; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; margin-top: 10px; }
+        .score-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        .score-badge { display: inline-block; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
         .action-buttons { position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1); padding: 15px; display: flex; gap: 10px; justify-content: center; z-index: 99; }
         .action-buttons button { padding: 12px 30px; font-size: 1rem; border: none; border-radius: 25px; cursor: pointer; transition: all 0.3s; font-weight: 600; }
         .btn-back { background: #95a5a6; color: white; }
@@ -63,6 +64,8 @@
         .scroll-btn-left { left: 0; }
         .scroll-btn-right { right: 0; }
         .scroll-btn.hidden { opacity: 0; pointer-events: none; }
+        .btn-new-name { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; white-space: nowrap; transition: all 0.2s; }
+        .btn-new-name:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
         .option-item { width: 50px; height: 50px; min-width: 50px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; background: white; position: relative; }
         .option-item:hover { transform: scale(1.15); border-color: #667eea; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
         .option-item.active { border-color: #667eea; border-width: 3px; box-shadow: 0 0 15px rgba(102, 126, 234, 0.6); transform: scale(1.1); }
@@ -109,7 +112,10 @@
                     <label for="usernameInput">👤 Spielername:</label>
                     <input type="text" id="usernameInput" placeholder="Dein Name" maxlength="20" value="Spieler">
                 </div>
-                <div class="score-badge">⭐ <span id="scoreDisplay">0</span> Punkte</div>
+                <div class="score-row">
+                    <div class="score-badge">⭐ <span id="scoreDisplay">0</span> Punkte</div>
+                    <button class="btn-new-name" onclick="generateNewName()">🎲 Neuer Name</button>
+                </div>
             </div>
         </div>
     </div>
@@ -140,6 +146,12 @@
             const noun = nouns[Math.floor(Math.random() * nouns.length)];
             return adj + ' ' + noun;
         }
+        
+        window.generateNewName = function() {
+            const newName = generateRandomName();
+            document.getElementById('usernameInput').value = newName;
+        };
+        
         async function init() {
             const response = await fetch('/avatarStyleSchemas.json');
             schemas = await response.json();
@@ -350,13 +362,30 @@
             renderOptions();
             updatePreview();
         };
-        window.save = function() {
+        window.save = async function() {
             try {
+                // Hole alten Namen aus localStorage für Vergleich
+                const oldProfile = localStorage.getItem('customAvatar');
+                const oldUsername = oldProfile ? JSON.parse(oldProfile).username : null;
+                
                 // Hole Benutzernamen aus Input oder generiere zufälligen Namen
                 let username = document.getElementById('usernameInput').value.trim();
                 if (!username) {
                     username = generateRandomName();
                     document.getElementById('usernameInput').value = username;
+                }
+                
+                // Wenn Name geändert wurde, aktualisiere stats.json auf Server
+                if (oldUsername && oldUsername !== username) {
+                    try {
+                        await fetch('/api/update-username', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ oldUsername, newUsername: username })
+                        });
+                    } catch (error) {
+                        console.error('Fehler beim Aktualisieren des Namens in Stats:', error);
+                    }
                 }
                 
                 // Speichere in localStorage für Avatar-Anzeige
@@ -378,6 +407,9 @@
                 expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000)); // 1 Jahr
                 document.cookie = `advent_player_profile=${cookieValue};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
                 
+                // Aktualisiere auch playerName Cookie für Stats
+                document.cookie = `playerName=${encodeURIComponent(username)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+                
                 // Aktualisiere Modal-Avatar und Namen
                 const params = new URLSearchParams();
                 for (const [key, value] of Object.entries(currentOptions)) {
@@ -387,7 +419,13 @@
                 }
                 const url = '/api/avatar-custom/' + currentStyle + '?' + params.toString();
                 document.getElementById('modalAvatarPreview').src = url;
-                document.querySelector('.modal-message').textContent = `Herzlich willkommen, ${username}! Dein Avatar wurde erfolgreich gespeichert.`;
+                
+                // Unterschiedliche Nachricht für neue vs. bestehende Nutzer
+                const isNewUser = !oldProfile;
+                const message = isNewUser 
+                    ? `Herzlich willkommen, ${username}! Dein Avatar wurde erfolgreich gespeichert.`
+                    : `Erfolgreich geändert, ${username}! Deine Avatar-Einstellungen wurden aktualisiert.`;
+                document.querySelector('.modal-message').textContent = message;
                 
                 // Zeige Modal
                 const modal = document.getElementById('saveModal');
