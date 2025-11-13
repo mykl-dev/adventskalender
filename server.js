@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const dataService = require('./services/dataService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -46,61 +47,44 @@ app.get('/api/config', (req, res) => {
   res.json({ testMode: config.testMode });
 });
 
-// === Statistik-Endpunkte ===
+// === GAMES API ===
 
-// Lade Statistiken
-const loadStats = () => {
-  try {
-    const data = fs.readFileSync('./data/stats.json', 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    // Wenn Datei nicht existiert, erstelle leere Struktur
-    return { games: {} };
-  }
-};
+// GET: Alle Spiele abrufen
+app.get('/api/games', (req, res) => {
+  const activeOnly = req.query.active === 'true';
+  const games = activeOnly ? dataService.getActiveGames() : dataService.getAllGames();
+  res.json({ games });
+});
 
-// Speichere Statistiken
-const saveStats = (stats) => {
-  try {
-    fs.writeFileSync('./data/stats.json', JSON.stringify(stats, null, 2), 'utf8');
-    return true;
-  } catch (error) {
-    console.error('Fehler beim Speichern der Statistiken:', error);
-    return false;
+// GET: Ein spezifisches Spiel abrufen
+app.get('/api/games/:gameId', (req, res) => {
+  const game = dataService.getGameById(req.params.gameId);
+  if (!game) {
+    return res.status(404).json({ error: 'Game not found' });
   }
-};
+  res.json({ game });
+});
+
+// === STATS API ===
 
 // GET: Top 3 für ein bestimmtes Spiel abrufen
 app.get('/api/stats/:gameName', (req, res) => {
   const gameName = req.params.gameName;
-  const stats = loadStats();
-  
-  if (!stats.games[gameName]) {
-    return res.json({ top3: [] });
-  }
-  
-  // Sortiere nach Highscore und nimm Top 3
-  const top3 = stats.games[gameName]
-    .sort((a, b) => b.highscore - a.highscore)
-    .slice(0, 3);
-  
+  const top3 = dataService.getTopPlayers(gameName, 3);
   res.json({ top3 });
 });
 
 // GET: ALLE Scores für ein Spiel abrufen
 app.get('/api/stats/:gameName/all', (req, res) => {
   const gameName = req.params.gameName;
-  const stats = loadStats();
-  
-  if (!stats.games[gameName]) {
-    return res.json({ allScores: [] });
-  }
-  
-  // Sortiere nach Highscore (alle Spieler)
-  const allScores = stats.games[gameName]
-    .sort((a, b) => b.highscore - a.highscore);
-  
+  const allScores = dataService.getGameStats(gameName);
   res.json({ allScores });
+});
+
+// GET: Globale Rangliste über alle Spiele
+app.get('/api/leaderboard/global', (req, res) => {
+  const leaderboard = dataService.getGlobalLeaderboard();
+  res.json({ leaderboard });
 });
 
 // POST: Statistik speichern/aktualisieren
@@ -112,39 +96,10 @@ app.post('/api/stats', (req, res) => {
     return res.status(400).json({ error: 'Fehlende Daten (gameName, username, score erforderlich)' });
   }
   
-  const stats = loadStats();
+  // Use data service to save score
+  const success = dataService.savePlayerScore(gameName, username, score, playTime);
   
-  // Initialisiere Spiel-Array falls nicht vorhanden
-  if (!stats.games[gameName]) {
-    stats.games[gameName] = [];
-  }
-  
-  // Suche existierenden Spieler
-  let player = stats.games[gameName].find(p => p.username === username);
-  
-  if (player) {
-    // Aktualisiere existierenden Spieler
-    player.gamesPlayed++;
-    player.totalPlayTime = (player.totalPlayTime || 0) + (playTime || 0);
-    
-    // Update Highscore falls neuer Score besser
-    if (score > player.highscore) {
-      player.highscore = score;
-      player.lastPlayed = new Date().toISOString();
-    }
-  } else {
-    // Neuer Spieler
-    stats.games[gameName].push({
-      username,
-      highscore: score,
-      gamesPlayed: 1,
-      totalPlayTime: playTime || 0,
-      lastPlayed: new Date().toISOString()
-    });
-  }
-  
-  // Speichern
-  if (saveStats(stats)) {
+  if (success) {
     res.json({ success: true, message: 'Statistik gespeichert' });
   } else {
     res.status(500).json({ error: 'Fehler beim Speichern' });

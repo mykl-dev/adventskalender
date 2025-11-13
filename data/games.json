@@ -1,0 +1,45 @@
+{
+  "games": [
+    {
+      "id": "gift-catcher",
+      "name": "Geschenke Fangen",
+      "icon": "🎁",
+      "description": "Fange so viele Geschenke wie möglich!",
+      "category": "arcade",
+      "difficulty": "easy",
+      "scoreType": "points",
+      "active": true
+    },
+    {
+      "id": "snowflake-catcher",
+      "name": "Schneeflocken Fangen",
+      "icon": "❄️",
+      "description": "Sammle Schneeflocken und vermeide Eiszapfen!",
+      "category": "arcade",
+      "difficulty": "medium",
+      "scoreType": "points",
+      "active": true
+    },
+    {
+      "id": "santa-launcher",
+      "name": "Santa Launcher",
+      "icon": "🎯",
+      "description": "Schieße Santa so weit wie möglich!",
+      "category": "physics",
+      "difficulty": "medium",
+      "scoreType": "distance",
+      "scoreUnit": "m",
+      "active": true
+    },
+    {
+      "id": "flappy-santa",
+      "name": "Flappy Santa",
+      "icon": "🛷",
+      "description": "Fliege mit Santa durch den Himmel!",
+      "category": "arcade",
+      "difficulty": "hard",
+      "scoreType": "points",
+      "active": true
+    }
+  ]
+}
