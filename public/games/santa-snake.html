@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>🎅 Santa Snake - Adventskalender</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../game-overlay.css">
     <style>
         * {
             margin: 0;
@@ -194,53 +195,6 @@
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.2); }
-        }
-
-        /* Game Over Overlay */
-        .game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.98);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            z-index: 200;
-            animation: fadeIn 0.3s ease-out;
-            max-width: 90%;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
-        }
-
-        .game-over-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #d32f2f;
-            margin-bottom: 15px;
-        }
-
-        .game-over-score {
-            font-size: 1.2rem;
-            color: #333;
-            margin: 10px 0;
-        }
-
-        .game-over-message {
-            font-size: 1.5rem;
-            color: #667eea;
-            font-weight: bold;
-            margin-top: 15px;
         }
 
         /* Buttons */
@@ -780,17 +734,48 @@
                     ? '💥 Du bist gegen die Wand gefahren!'
                     : '💥 Du hast dich selbst gebissen!';
 
+                // Highscores laden
+                const highscores = await statsManager.getHighscores(GAME_NAME, 10);
+                const highscoresHTML = highscores && highscores.length > 0
+                    ? highscores.map((entry, index) => `
+                        <li class="highscore-item">
+                            <span class="highscore-rank">${index + 1}.</span>
+                            <span class="highscore-name">${entry.username}</span>
+                            <span class="highscore-score">${entry.highscore} 🎁</span>
+                        </li>
+                    `).join('')
+                    : '<div class="no-highscores">Noch keine Highscores vorhanden</div>';
+
+                // Globales Overlay erstellen
                 const overlay = document.createElement('div');
-                overlay.className = 'game-over';
+                overlay.className = 'game-over-overlay';
                 overlay.innerHTML = `
-                    <div class="game-over-title">🎅 Spiel vorbei! 🎁</div>
-                    <div class="game-over-score">${reasonText}</div>
-                    <div class="game-over-score">Du hast <strong>${this.score}</strong> Geschenke gesammelt!</div>
-                    <div class="game-over-message">${this.getScoreMessage()}</div>
+                    <div class="game-over-content">
+                        <h2>🎅 Spiel vorbei! 🎁</h2>
+                        <div class="game-over-stats">
+                            <div class="game-over-stat-item">
+                                <div class="game-over-stat-label">${reasonText}</div>
+                            </div>
+                            <div class="game-over-stat-item">
+                                <div class="game-over-stat-label">Geschenke gesammelt</div>
+                                <div class="game-over-stat-value">${this.score}</div>
+                            </div>
+                            <div class="game-over-message">${this.getScoreMessage()}</div>
+                        </div>
+                        <div class="game-over-highscores">
+                            <h3>🏆 Top 10 Highscores</h3>
+                            <ul class="highscore-list">
+                                ${highscoresHTML}
+                            </ul>
+                        </div>
+                        <div class="game-over-buttons">
+                            <button class="game-over-button button-primary" onclick="location.reload()">🔄 Nochmal spielen</button>
+                            <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
+                        </div>
+                    </div>
                 `;
 
-                this.canvas.appendChild(overlay);
-                document.getElementById('snake-start-button').style.display = 'block';
+                document.body.appendChild(overlay);
             }
 
             getScoreMessage() {

@@ -1,0 +1,301 @@
+/* ========================================
+   GLOBALE GAME OVERLAY STYLES
+   Für einheitliches Design über alle Spiele
+   ======================================== */
+
+/* Game Over Overlay */
+.game-over-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.game-over-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.5);
+    animation: slideIn 0.5s ease-out;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.game-over-content h2 {
+    font-size: 2.5rem;
+    margin: 0 0 20px 0;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.game-over-stats {
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.game-over-stat-item {
+    margin: 15px 0;
+}
+
+.game-over-stat-label {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    opacity: 0.9;
+}
+
+.game-over-stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+    animation: scoreReveal 0.8s ease-out;
+}
+
+@keyframes scoreReveal {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.game-over-message {
+    font-size: 1.3rem;
+    margin: 20px 0;
+    font-weight: 500;
+    opacity: 0.95;
+}
+
+/* Highscore Section */
+.game-over-highscores {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+}
+
+.game-over-highscores h3 {
+    font-size: 1.8rem;
+    margin: 0 0 15px 0;
+}
+
+.highscore-list {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+.highscore-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    margin: 8px 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.highscore-item:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateX(5px);
+}
+
+.highscore-item:nth-child(1) {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 193, 7, 0.4));
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.highscore-item:nth-child(2) {
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.4), rgba(169, 169, 169, 0.4));
+    font-weight: bold;
+}
+
+.highscore-item:nth-child(3) {
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.4), rgba(184, 115, 51, 0.4));
+    font-weight: bold;
+}
+
+.highscore-rank {
+    min-width: 40px;
+    font-size: 1.3rem;
+}
+
+.highscore-name {
+    flex: 1;
+    margin: 0 15px;
+    text-align: left;
+}
+
+.highscore-score {
+    font-weight: bold;
+    min-width: 60px;
+    text-align: right;
+}
+
+/* Buttons */
+.game-over-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.game-over-button {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.game-over-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.game-over-button:active {
+    transform: translateY(0);
+}
+
+.button-primary {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+}
+
+.button-primary:hover {
+    background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+}
+
+.button-secondary {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.button-secondary:hover {
+    background: rgba(255, 255, 255, 0.4);
+    border-color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .game-over-content {
+        padding: 30px 20px;
+    }
+
+    .game-over-content h2 {
+        font-size: 2rem;
+    }
+
+    .game-over-stat-value {
+        font-size: 2rem;
+    }
+
+    .game-over-stat-label {
+        font-size: 1rem;
+    }
+
+    .highscore-item {
+        font-size: 1rem;
+        padding: 8px 12px;
+    }
+
+    .game-over-button {
+        padding: 10px 25px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-over-content {
+        padding: 25px 15px;
+    }
+
+    .game-over-content h2 {
+        font-size: 1.6rem;
+    }
+
+    .game-over-stat-value {
+        font-size: 1.8rem;
+    }
+
+    .game-over-stat-label {
+        font-size: 0.95rem;
+    }
+
+    .game-over-message {
+        font-size: 1.1rem;
+    }
+
+    .highscore-item {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+
+    .highscore-rank {
+        min-width: 30px;
+        font-size: 1.1rem;
+    }
+
+    .game-over-button {
+        padding: 8px 20px;
+        font-size: 0.95rem;
+    }
+
+    .game-over-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .game-over-button {
+        width: 100%;
+    }
+}
+
+/* No Scores Message */
+.no-highscores {
+    padding: 20px;
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
