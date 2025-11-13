@@ -233,33 +233,42 @@ class AvatarManager {
     }
     
     /**
-     * Rendert den Avatar mit 3D Canvas Renderer
+     * Rendert den Avatar mit DiceBear
      */
     renderAvatar3D(containerId, avatar, size = 200, autoAnimate = true) {
         const container = document.getElementById(containerId);
-        if (!container || typeof Avatar3DRenderer === 'undefined') {
-            console.warn('3D Renderer not available, falling back to SVG');
+        if (!container) {
+            console.warn('Container not found:', containerId);
             return null;
         }
         
-        const parts = avatar || this.getDefaultAvatar();
+        // Lade Avatar aus localStorage oder verwende Default
+        const savedAvatar = localStorage.getItem('customAvatar');
+        let avatarUrl = '/api/avatar-custom/adventurer?seed=default';
         
-        // Erstelle Canvas
-        const canvas = document.createElement('canvas');
-        canvas.id = `avatar-3d-${containerId}`;
-        canvas.className = 'avatar-3d-canvas';
-        container.innerHTML = '';
-        container.appendChild(canvas);
-        
-        // Initialisiere 3D Renderer
-        const renderer = new Avatar3DRenderer(canvas.id, parts, size);
-        renderer.render();
-        
-        if (autoAnimate) {
-            renderer.startIdleAnimation();
+        if (savedAvatar) {
+            try {
+                const avatarData = JSON.parse(savedAvatar);
+                const params = new URLSearchParams(avatarData.options);
+                avatarUrl = `/api/avatar-custom/${avatarData.style}?${params.toString()}`;
+            } catch (error) {
+                console.error('Error parsing saved avatar:', error);
+            }
         }
         
-        return renderer;
+        // Erstelle IMG Element für SVG Avatar
+        const img = document.createElement('img');
+        img.src = avatarUrl;
+        img.className = 'avatar-image';
+        img.style.width = `${size}px`;
+        img.style.height = `${size}px`;
+        img.style.borderRadius = '50%';
+        img.alt = 'Avatar';
+        
+        container.innerHTML = '';
+        container.appendChild(img);
+        
+        return img;
     }
 
     /**

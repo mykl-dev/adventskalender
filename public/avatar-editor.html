@@ -1,669 +1,1336 @@
-<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
 
 <html lang="de">
 
-<head><html lang="de"><html lang="de">
+<head><html lang="de">
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><html lang="de"><html lang="de">
 
     <title>Avatar Editor - Adventskalender 2024</title>
 
-    <style>    <meta charset="UTF-8">    <meta charset="UTF-8">
+    <style>    <meta charset="UTF-8">
 
         * {
 
-            margin: 0;    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            margin: 0;    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><head>
 
             padding: 0;
 
-            box-sizing: border-box;    <title>Avatar Editor - Adventskalender</title>    <title>Avatar Editor - Adventskalender 2024</title>
+            box-sizing: border-box;    <title>Avatar Editor - Adventskalender 2024</title>
 
         }
 
-    <link rel="stylesheet" href="styles.css">    <link rel="stylesheet" href="avatar-editor.css">
+    <style>    <meta charset="UTF-8">    <meta charset="UTF-8">
 
         body {
 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);    <style>    <style>
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);        * {
 
             min-height: 100vh;
 
-            padding: 0;        .editor-container {        .avatar-3d-canvas {
+            padding: 0 0 100px 0;            margin: 0;    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
             margin: 0;
 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;            max-width: 1200px;            border-radius: 15px;
-
-            padding-bottom: 100px; /* Platz für sticky Buttons */
-
-        }            margin: 40px auto;            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-
-
-
-        .editor-container {            padding: 20px;        }
-
-            max-width: 1200px;
-
-            margin: 0 auto;        }        
-
-            padding: 20px;
-
-        }        .render-mode-toggle {
-
-
-
-        /* Sticky Avatar Preview Header */        .editor-header {            position: absolute;
-
-        .avatar-header {
-
-            position: sticky;            text-align: center;            top: 10px;
-
-            top: 0;
-
-            z-index: 100;            margin-bottom: 30px;            right: 10px;
-
-            background: rgba(255, 255, 255, 0.95);
-
-            backdrop-filter: blur(10px);        }            background: rgba(255, 255, 255, 0.1);
-
-            border-radius: 0 0 20px 20px;
-
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);            border: 1px solid rgba(255, 255, 255, 0.2);
-
-            padding: 20px;
-
-            margin-bottom: 30px;        .editor-header h1 {            padding: 8px 16px;
-
-            transition: all 0.3s ease;
-
-        }            font-size: 2.5rem;            border-radius: 20px;
-
-
-
-        .avatar-header.scrolled {            margin-bottom: 10px;            cursor: pointer;
-
-            padding: 10px 20px;
-
-        }            color: var(--primary-color, #c41e3a);            color: white;
-
-
-
-        .avatar-header.scrolled .avatar-preview {        }            font-size: 12px;
-
-            width: 60px;
-
-            height: 60px;            transition: all 0.3s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;            padding: 0;
 
         }
 
-        .score-display {            backdrop-filter: blur(10px);
+            box-sizing: border-box;    <title>Avatar Editor - Adventskalender</title>    <title>Avatar Editor - Adventskalender 2024</title>
 
-        .avatar-header.scrolled h1 {
+        .editor-container {
 
-            font-size: 1.2rem;            display: inline-flex;        }
+            max-width: 1200px;        }
 
-        }
+            margin: 0 auto;
 
-            align-items: center;        
-
-        .avatar-header-content {
-
-            display: flex;            gap: 10px;        .render-mode-toggle:hover {
-
-            align-items: center;
-
-            gap: 20px;            padding: 10px 20px;            background: rgba(255, 255, 255, 0.2);
-
-            max-width: 1200px;
-
-            margin: 0 auto;            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            transform: scale(1.05);
+            padding: 20px;    <link rel="stylesheet" href="styles.css">    <link rel="stylesheet" href="avatar-editor.css">
 
         }
 
-            border-radius: 25px;        }
+        body {
 
-        .avatar-info {
+        /* Sticky Avatar Preview Header */
 
-            flex: 1;            color: white;    </style>
+        .avatar-header {            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);    <style>    <style>
 
-        }
+            position: sticky;
 
-            font-weight: bold;</head>
+            top: 0;            min-height: 100vh;
 
-        .avatar-header h1 {
+            z-index: 100;
 
-            font-size: 1.8rem;            font-size: 1.2rem;<body>
-
-            margin: 0 0 5px 0;
-
-            color: #333;        }    <div class="editor-container">
-
-            transition: all 0.3s ease;
-
-        }        <div class="editor-header">
-
-
-
-        .score-display {        .editor-layout {            <h1>✨ Erstelle deinen Avatar</h1>
-
-            display: inline-flex;
-
-            align-items: center;            display: grid;            <p class="editor-subtitle">Gestalte deine persönliche Weihnachtsfigur</p>
-
-            gap: 8px;
-
-            padding: 6px 14px;            grid-template-columns: 1fr 400px;        </div>
-
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-            border-radius: 20px;            gap: 30px;
-
-            color: white;
-
-            font-weight: bold;            margin-top: 30px;        <div class="editor-content">
-
-            font-size: 1rem;
-
-        }        }            <!-- Avatar Vorschau -->
-
-
-
-        .avatar-preview {            <div class="avatar-preview-section" id="avatarPreviewSection">
-
-            width: 100px;
-
-            height: 100px;        @media (max-width: 768px) {                <div class="avatar-preview-card">
-
-            border-radius: 50%;
-
-            overflow: hidden;            .editor-layout {                    <h2>Dein Avatar</h2>
-
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-
-            transition: all 0.3s ease;                grid-template-columns: 1fr;                    <div id="avatarPreview" class="avatar-preview"></div>
-
-            background: white;
-
-            flex-shrink: 0;            }                </div>
-
-        }
-
-        }            </div>
-
-        .avatar-preview img {
-
-            width: 100%;
-
-            height: 100%;
-
-            object-fit: cover;        .preview-panel {            <!-- Customization Options -->
-
-        }
-
-            background: white;            <div class="customization-section">
-
-        /* Sticky Action Buttons am unteren Rand */
-
-        .action-buttons {            border-radius: 20px;                <!-- Gender Selection -->
-
-            position: fixed;
-
-            bottom: 0;            padding: 30px;                <div class="gender-selection">
-
-            left: 0;
-
-            right: 0;            box-shadow: 0 10px 30px rgba(0,0,0,0.1);                    <h3>
-
-            z-index: 99;
-
-            background: rgba(255, 255, 255, 0.98);            position: sticky;                        <span class="category-icon">🎭</span>
+            background: rgba(255, 255, 255, 0.95);            padding: 0;        .editor-container {        .avatar-3d-canvas {
 
             backdrop-filter: blur(10px);
 
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);            top: 20px;                        Wähle deinen Style
+            border-radius: 0 0 20px 20px;            margin: 0;
 
-            padding: 15px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 
-            display: flex;            height: fit-content;                    </h3>
+            padding: 20px;            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;            max-width: 1200px;            border-radius: 15px;
 
-            gap: 15px;
+            margin-bottom: 30px;
 
-            justify-content: center;        }                    <div class="gender-buttons">
+            transition: all 0.3s ease;            padding-bottom: 100px; /* Platz für sticky Buttons */
+
+        }
+
+        }            margin: 40px auto;            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+
+        .avatar-header.scrolled {
+
+            padding: 10px 20px;
+
+        }
+
+        .editor-container {            padding: 20px;        }
+
+        .avatar-header.scrolled .avatar-preview {
+
+            width: 60px;            max-width: 1200px;
+
+            height: 60px;
+
+        }            margin: 0 auto;        }        
+
+
+
+        .avatar-header.scrolled h1 {            padding: 20px;
+
+            font-size: 1.2rem;
+
+        }        }        .render-mode-toggle {
+
+
+
+        .avatar-header-content {
+
+            display: flex;
+
+            align-items: center;        /* Sticky Avatar Preview Header */        .editor-header {            position: absolute;
+
+            gap: 20px;
+
+            max-width: 1200px;        .avatar-header {
+
+            margin: 0 auto;
+
+        }            position: sticky;            text-align: center;            top: 10px;
+
+
+
+        .avatar-info {            top: 0;
+
+            flex: 1;
+
+        }            z-index: 100;            margin-bottom: 30px;            right: 10px;
+
+
+
+        .avatar-header h1 {            background: rgba(255, 255, 255, 0.95);
+
+            font-size: 1.8rem;
+
+            margin: 0 0 5px 0;            backdrop-filter: blur(10px);        }            background: rgba(255, 255, 255, 0.1);
+
+            color: #333;
+
+            transition: all 0.3s ease;            border-radius: 0 0 20px 20px;
+
+        }
+
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .score-display {
+
+            display: inline-flex;            padding: 20px;
 
             align-items: center;
 
-        }                        <button class="gender-button active" data-gender="babo">
+            gap: 8px;            margin-bottom: 30px;        .editor-header h1 {            padding: 8px 16px;
 
+            padding: 6px 14px;
 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            transition: all 0.3s ease;
 
-        .btn {        .preview-avatar {                            <span class="gender-icon">💪</span>
+            border-radius: 20px;
 
-            padding: 12px 30px;
+            color: white;        }            font-size: 2.5rem;            border-radius: 20px;
 
-            border: none;            width: 100%;                            <span class="gender-label">Babo</span>
-
-            border-radius: 12px;
-
-            cursor: pointer;            aspect-ratio: 1;                            <span class="gender-desc">Cool & Fresh</span>
+            font-weight: bold;
 
             font-size: 1rem;
 
-            font-weight: bold;            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);                        </button>
+        }
 
-            transition: all 0.3s;
+        .avatar-header.scrolled {            margin-bottom: 10px;            cursor: pointer;
 
-            display: flex;            border-radius: 20px;                        <button class="gender-button" data-gender="cutie">
+        .avatar-preview {
 
-            align-items: center;
+            width: 100px;            padding: 10px 20px;
 
-            gap: 8px;            display: flex;                            <span class="gender-icon">✨</span>
+            height: 100px;
+
+            border-radius: 50%;        }            color: var(--primary-color, #c41e3a);            color: white;
+
+            overflow: hidden;
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+            transition: all 0.3s ease;
+
+            background: white;        .avatar-header.scrolled .avatar-preview {        }            font-size: 12px;
+
+            flex-shrink: 0;
+
+        }            width: 60px;
+
+
+
+        .avatar-preview img {            height: 60px;            transition: all 0.3s;
+
+            width: 100%;
+
+            height: 100%;        }
+
+            object-fit: cover;
+
+        }        .score-display {            backdrop-filter: blur(10px);
+
+
+
+        /* Sticky Action Buttons am unteren Rand */        .avatar-header.scrolled h1 {
+
+        .action-buttons {
+
+            position: fixed;            font-size: 1.2rem;            display: inline-flex;        }
+
+            bottom: 0;
+
+            left: 0;        }
+
+            right: 0;
+
+            z-index: 99;            align-items: center;        
+
+            background: rgba(255, 255, 255, 0.98);
+
+            backdrop-filter: blur(10px);        .avatar-header-content {
+
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+
+            padding: 15px 20px;            display: flex;            gap: 10px;        .render-mode-toggle:hover {
+
+            display: flex;
+
+            gap: 15px;            align-items: center;
+
+            justify-content: center;
+
+            align-items: center;            gap: 20px;            padding: 10px 20px;            background: rgba(255, 255, 255, 0.2);
 
         }
 
-            align-items: center;                            <span class="gender-label">Cutie</span>
+            max-width: 1200px;
 
-        .btn-primary {
+        .btn {
 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            justify-content: center;                            <span class="gender-desc">Cute & Sweet</span>
+            padding: 12px 30px;            margin: 0 auto;            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            transform: scale(1.05);
 
-            color: white;
+            border: none;
 
-        }            margin-bottom: 20px;                        </button>
-
-
-
-        .btn-secondary {            overflow: hidden;                    </div>
-
-            background: white;
-
-            color: #667eea;        }                </div>
-
-            border: 2px solid #667eea;
-
-        }                
-
-
-
-        .btn:hover {        .preview-avatar img {                <!-- Username Input -->
-
-            transform: translateY(-2px);
-
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);            width: 90%;                <div class="input-section">
-
-        }
-
-            height: 90%;                    <label for="usernameInput">
-
-        .btn:active {
-
-            transform: translateY(0);            object-fit: contain;                        <span class="label-icon">👤</span>
-
-        }
-
-        }                        <span class="label-text">Dein Name</span>
-
-        /* Style Selector */
-
-        .style-selector {                    </label>
-
-            background: white;
-
-            border-radius: 20px;        .save-button {                    <input 
-
-            padding: 25px;
-
-            margin-bottom: 25px;            width: 100%;                        type="text" 
-
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-
-        }            padding: 15px;                        id="usernameInput" 
-
-
-
-        .style-selector h2 {            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);                        placeholder="Gib deinen Namen ein..." 
-
-            margin: 0 0 20px 0;
-
-            color: #333;            color: white;                        maxlength="20"
-
-        }
-
-            border: none;                        autocomplete="off"
-
-        .style-grid {
-
-            display: grid;            border-radius: 10px;                    >
-
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-
-            gap: 15px;            font-size: 1.1rem;                    <span class="char-counter">0/20</span>
-
-        }
-
-            font-weight: bold;                </div>
-
-        .style-card {
-
-            background: #f8f9fa;            cursor: pointer;
-
-            border: 3px solid transparent;
-
-            border-radius: 15px;            transition: transform 0.2s;                <!-- Kopfbedeckung -->
-
-            padding: 20px;
-
-            text-align: center;        }                <div class="customization-category">
+            border-radius: 12px;        }
 
             cursor: pointer;
 
-            transition: all 0.3s;                    <h3>
+            font-size: 1rem;            border-radius: 25px;        }
 
-            position: relative;
+            font-weight: bold;
 
-        }        .save-button:hover {                        <span class="category-icon">🎩</span>
+            transition: all 0.3s;        .avatar-info {
+
+            display: flex;
+
+            align-items: center;            flex: 1;            color: white;    </style>
+
+            gap: 8px;
+
+        }        }
 
 
 
-        .style-card:hover:not(.locked) {            transform: scale(1.05);                        Kopfbedeckung
+        .btn-primary {            font-weight: bold;</head>
 
-            transform: translateY(-5px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);        }                    </h3>
+            color: white;        .avatar-header h1 {
 
         }
 
-                    <div id="headOptions" class="option-grid"></div>
+            font-size: 1.8rem;            font-size: 1.2rem;<body>
 
-        .style-card.active {
+        .btn-secondary {
 
-            border-color: #667eea;        .options-panel {                </div>
+            background: white;            margin: 0 0 5px 0;
 
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            color: #667eea;
+
+            border: 2px solid #667eea;            color: #333;        }    <div class="editor-container">
+
+        }
+
+            transition: all 0.3s ease;
+
+        .btn:hover {
+
+            transform: translateY(-2px);        }        <div class="editor-header">
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+        }
+
+
+
+        .btn:active {        .score-display {        .editor-layout {            <h1>✨ Erstelle deinen Avatar</h1>
+
+            transform: translateY(0);
+
+        }            display: inline-flex;
+
+
+
+        /* Style Selector */            align-items: center;            display: grid;            <p class="editor-subtitle">Gestalte deine persönliche Weihnachtsfigur</p>
+
+        .style-selector {
+
+            background: white;            gap: 8px;
+
+            border-radius: 20px;
+
+            padding: 25px;            padding: 6px 14px;            grid-template-columns: 1fr 400px;        </div>
+
+            margin-bottom: 25px;
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        }
+
+            border-radius: 20px;            gap: 30px;
+
+        .style-selector h2 {
+
+            margin: 0 0 20px 0;            color: white;
+
+            color: #333;
+
+        }            font-weight: bold;            margin-top: 30px;        <div class="editor-content">
+
+
+
+        .style-grid {            font-size: 1rem;
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));        }        }            <!-- Avatar Vorschau -->
+
+            gap: 15px;
+
+        }
+
+
+
+        .style-card {        .avatar-preview {            <div class="avatar-preview-section" id="avatarPreviewSection">
+
+            background: #f8f9fa;
+
+            border: 3px solid transparent;            width: 100px;
+
+            border-radius: 15px;
+
+            padding: 20px;            height: 100px;        @media (max-width: 768px) {                <div class="avatar-preview-card">
+
+            text-align: center;
+
+            cursor: pointer;            border-radius: 50%;
+
+            transition: all 0.3s;
+
+            position: relative;            overflow: hidden;            .editor-layout {                    <h2>Dein Avatar</h2>
+
+        }
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+        .style-card:hover:not(.locked) {
+
+            transform: translateY(-5px);            transition: all 0.3s ease;                grid-template-columns: 1fr;                    <div id="avatarPreview" class="avatar-preview"></div>
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 
         }            background: white;
 
 
 
-        .style-card.locked {            border-radius: 20px;                <!-- Gesicht -->
-
-            opacity: 0.5;
-
-            cursor: not-allowed;            padding: 30px;                <div class="customization-category">
-
-        }
-
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);                    <h3>
-
-        .lock-badge {
-
-            position: absolute;        }                        <span class="category-icon">😊</span>
-
-            top: 10px;
-
-            right: 10px;                        Gesicht
-
-            background: #ff6b6b;
-
-            color: white;        .style-grid {                    </h3>
-
-            padding: 5px 10px;
-
-            border-radius: 10px;            display: grid;                    <div id="faceOptions" class="option-grid"></div>
-
-            font-size: 0.8rem;
-
-        }            grid-template-columns: repeat(2, 1fr);                </div>
-
-
-
-        /* Customization Options */            gap: 15px;
-
-        .customization-panel {
-
-            background: white;            margin-top: 15px;                <!-- Körper -->
-
-            border-radius: 20px;
-
-            padding: 25px;        }                <div class="customization-category">
-
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-
-        }                    <h3>
-
-
-
-        .option-group {        .style-card {                        <span class="category-icon">👕</span>
-
-            margin-bottom: 25px;
-
-            padding-bottom: 25px;            padding: 20px;                        Kleidung
-
-            border-bottom: 1px solid #e0e0e0;
-
-        }            border: 3px solid #e0e0e0;                    </h3>
-
-
-
-        .option-group:last-child {            border-radius: 15px;                    <div id="bodyOptions" class="option-grid"></div>
-
-            border-bottom: none;
-
-            margin-bottom: 0;            cursor: pointer;                </div>
-
-            padding-bottom: 0;
-
-        }            transition: all 0.3s;
-
-
-
-        .option-header {            text-align: center;                <!-- Füße -->
-
-            display: flex;
-
-            align-items: center;            position: relative;                <div class="customization-category">
-
-            justify-content: space-between;
-
-            margin-bottom: 15px;        }                    <h3>
-
-        }
-
-                        <span class="category-icon">👢</span>
-
-        .option-header h3 {
-
-            margin: 0;        .style-card:hover {                        Schuhe
-
-            color: #333;
-
-            font-size: 1.2rem;            border-color: #667eea;                    </h3>
-
-        }
-
-            transform: translateY(-5px);                    <div id="feetOptions" class="option-grid"></div>
-
-        .unlock-badge {
-
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);        }                </div>
-
-            color: #333;
-
-            padding: 5px 12px;            </div>
-
-            border-radius: 15px;
-
-            font-size: 0.85rem;        .style-card.active {        </div>
-
-            font-weight: bold;
-
-        }            border-color: #667eea;
-
-
-
-        .options-grid {            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);        <!-- Action Buttons -->
-
-            display: grid;
-
-            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));        }        <div class="editor-actions">
-
-            gap: 10px;
-
-        }            <button id="randomizeButton" class="btn-secondary">
-
-
-
-        .option-item {        .style-card.locked {                🎲 Zufällig generieren
-
-            aspect-ratio: 1;
-
-            border: 3px solid #e0e0e0;            opacity: 0.5;            </button>
-
-            border-radius: 12px;
-
-            cursor: pointer;            cursor: not-allowed;            <button id="saveButton" class="btn-primary">
-
-            transition: all 0.3s;
-
-            display: flex;        }                ✅ Speichern & Loslegen!
-
-            align-items: center;
-
-            justify-content: center;            </button>
-
-            font-size: 0.8rem;
-
-            font-weight: bold;        .unlock-badge {        </div>
-
-            color: #666;
-
-            background: #f8f9fa;            position: absolute;    </div>
-
-            position: relative;
-
-            overflow: hidden;            top: 10px;
-
-        }
-
-            right: 10px;    <!-- Success Modal -->
-
-        .option-item:hover:not(.locked) {
-
-            border-color: #667eea;            background: #ff9800;    <div id="successModal" class="modal">
-
-            transform: scale(1.05);
-
-        }            color: white;        <div class="modal-content">
-
-
-
-        .option-item.active {            padding: 4px 8px;            <div class="success-icon">🎉</div>
+        .style-card.active {            flex-shrink: 0;            }                </div>
 
             border-color: #667eea;
 
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);            border-radius: 10px;            <h2>Avatar erstellt!</h2>
-
-            color: #667eea;
-
-        }            font-size: 0.8rem;            <p>Dein Avatar wurde erfolgreich gespeichert.</p>
-
-
-
-        .option-item.locked {            font-weight: bold;            <div id="finalAvatarPreview" class="final-avatar-preview"></div>
-
-            opacity: 0.4;
-
-            cursor: not-allowed;        }            <button id="continueButton" class="btn-primary">
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);        }
 
         }
 
-                Zum Adventskalender
+        }            </div>
 
-        .option-item.locked::after {
+        .style-card.locked {
 
-            content: '🔒';        .option-group {            </button>
+            opacity: 0.5;        .avatar-preview img {
+
+            cursor: not-allowed;
+
+        }            width: 100%;
+
+
+
+        .lock-badge {            height: 100%;
 
             position: absolute;
 
-            font-size: 1.5rem;            margin-bottom: 30px;        </div>
+            top: 10px;            object-fit: cover;        .preview-panel {            <!-- Customization Options -->
+
+            right: 10px;
+
+            background: #ff6b6b;        }
+
+            color: white;
+
+            padding: 5px 10px;            background: white;            <div class="customization-section">
+
+            border-radius: 10px;
+
+            font-size: 0.8rem;        /* Sticky Action Buttons am unteren Rand */
+
+        }
+
+        .action-buttons {            border-radius: 20px;                <!-- Gender Selection -->
+
+        /* Customization Options */
+
+        .customization-panel {            position: fixed;
+
+            background: white;
+
+            border-radius: 20px;            bottom: 0;            padding: 30px;                <div class="gender-selection">
+
+            padding: 25px;
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);            left: 0;
+
+        }
+
+            right: 0;            box-shadow: 0 10px 30px rgba(0,0,0,0.1);                    <h3>
+
+        .option-group {
+
+            margin-bottom: 25px;            z-index: 99;
+
+            padding-bottom: 25px;
+
+            border-bottom: 1px solid #e0e0e0;            background: rgba(255, 255, 255, 0.98);            position: sticky;                        <span class="category-icon">🎭</span>
+
+        }
+
+            backdrop-filter: blur(10px);
+
+        .option-group:last-child {
+
+            border-bottom: none;            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);            top: 20px;                        Wähle deinen Style
+
+            margin-bottom: 0;
+
+            padding-bottom: 0;            padding: 15px 20px;
+
+        }
+
+            display: flex;            height: fit-content;                    </h3>
+
+        .option-header {
+
+            display: flex;            gap: 15px;
+
+            align-items: center;
+
+            justify-content: space-between;            justify-content: center;        }                    <div class="gender-buttons">
+
+            margin-bottom: 15px;
+
+        }            align-items: center;
+
+
+
+        .option-header h3 {        }                        <button class="gender-button active" data-gender="babo">
+
+            margin: 0;
+
+            color: #333;
+
+            font-size: 1.2rem;
+
+        }        .btn {        .preview-avatar {                            <span class="gender-icon">💪</span>
+
+
+
+        .unlock-badge {            padding: 12px 30px;
+
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+
+            color: #333;            border: none;            width: 100%;                            <span class="gender-label">Babo</span>
+
+            padding: 5px 12px;
+
+            border-radius: 15px;            border-radius: 12px;
+
+            font-size: 0.85rem;
+
+            font-weight: bold;            cursor: pointer;            aspect-ratio: 1;                            <span class="gender-desc">Cool & Fresh</span>
+
+        }
+
+            font-size: 1rem;
+
+        .options-grid {
+
+            display: grid;            font-weight: bold;            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);                        </button>
+
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+
+            gap: 10px;            transition: all 0.3s;
+
+        }
+
+            display: flex;            border-radius: 20px;                        <button class="gender-button" data-gender="cutie">
+
+        .option-item {
+
+            aspect-ratio: 1;            align-items: center;
+
+            border: 3px solid #e0e0e0;
+
+            border-radius: 12px;            gap: 8px;            display: flex;                            <span class="gender-icon">✨</span>
+
+            cursor: pointer;
+
+            transition: all 0.3s;        }
+
+            display: flex;
+
+            align-items: center;            align-items: center;                            <span class="gender-label">Cutie</span>
+
+            justify-content: center;
+
+            font-size: 0.8rem;        .btn-primary {
+
+            font-weight: bold;
+
+            color: #666;            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            justify-content: center;                            <span class="gender-desc">Cute & Sweet</span>
+
+            background: #f8f9fa;
+
+            position: relative;            color: white;
+
+            overflow: hidden;
+
+        }        }            margin-bottom: 20px;                        </button>
+
+
+
+        .option-item:hover:not(.locked) {
+
+            border-color: #667eea;
+
+            transform: scale(1.05);        .btn-secondary {            overflow: hidden;                    </div>
+
+        }
+
+            background: white;
+
+        .option-item.active {
+
+            border-color: #667eea;            color: #667eea;        }                </div>
+
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+
+            color: #667eea;            border: 2px solid #667eea;
+
+        }
+
+        }                
+
+        .option-item.locked {
+
+            opacity: 0.4;
+
+            cursor: not-allowed;
+
+        }        .btn:hover {        .preview-avatar img {                <!-- Username Input -->
+
+
+
+        .option-item.locked::after {            transform: translateY(-2px);
+
+            content: '🔒';
+
+            position: absolute;            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);            width: 90%;                <div class="input-section">
+
+            font-size: 1.5rem;
+
+        }        }
+
+
+
+        .option-item.color-option {            height: 90%;                    <label for="usernameInput">
+
+            border-radius: 50%;
+
+        }        .btn:active {
+
+
+
+        /* Next Unlocks */            transform: translateY(0);            object-fit: contain;                        <span class="label-icon">👤</span>
+
+        .next-unlocks {
+
+            background: linear-gradient(135deg, #fff7e6 0%, #ffe6f0 100%);        }
+
+            border-radius: 15px;
+
+            padding: 20px;        }                        <span class="label-text">Dein Name</span>
+
+            margin-top: 25px;
+
+        }        /* Style Selector */
+
+
+
+        .next-unlocks h3 {        .style-selector {                    </label>
+
+            margin: 0 0 15px 0;
+
+            color: #333;            background: white;
+
+        }
+
+            border-radius: 20px;        .save-button {                    <input 
+
+        .unlock-item {
+
+            background: white;            padding: 25px;
+
+            padding: 12px;
+
+            border-radius: 10px;            margin-bottom: 25px;            width: 100%;                        type="text" 
+
+            margin-bottom: 10px;
+
+            display: flex;            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+
+            align-items: center;
+
+            justify-content: space-between;        }            padding: 15px;                        id="usernameInput" 
+
+        }
+
+
+
+        .unlock-item:last-child {
+
+            margin-bottom: 0;        .style-selector h2 {            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);                        placeholder="Gib deinen Namen ein..." 
+
+        }
+
+            margin: 0 0 20px 0;
+
+        .unlock-item-name {
+
+            font-weight: bold;            color: #333;            color: white;                        maxlength="20"
+
+            color: #667eea;
+
+        }        }
+
+
+
+        .unlock-item-points {            border: none;                        autocomplete="off"
+
+            color: #ff6b6b;
+
+            font-weight: bold;        .style-grid {
+
+        }
+
+            display: grid;            border-radius: 10px;                    >
+
+        .loading {
+
+            display: flex;            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+            align-items: center;
+
+            justify-content: center;            gap: 15px;            font-size: 1.1rem;                    <span class="char-counter">0/20</span>
+
+            padding: 40px;
+
+            color: #667eea;        }
+
+            font-size: 1.2rem;
+
+        }            font-weight: bold;                </div>
+
+
+
+        @media (max-width: 768px) {        .style-card {
+
+            .avatar-header-content {
+
+                gap: 15px;            background: #f8f9fa;            cursor: pointer;
+
+            }
+
+            border: 3px solid transparent;
+
+            .avatar-preview {
+
+                width: 70px;            border-radius: 15px;            transition: transform 0.2s;                <!-- Kopfbedeckung -->
+
+                height: 70px;
+
+            }            padding: 20px;
+
+
+
+            .avatar-header.scrolled .avatar-preview {            text-align: center;        }                <div class="customization-category">
+
+                width: 50px;
+
+                height: 50px;            cursor: pointer;
+
+            }
+
+            transition: all 0.3s;                    <h3>
+
+            .style-grid {
+
+                grid-template-columns: 1fr;            position: relative;
+
+            }
+
+        }        .save-button:hover {                        <span class="category-icon">🎩</span>
+
+            .options-grid {
+
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+
+            }
+
+        .style-card:hover:not(.locked) {            transform: scale(1.05);                        Kopfbedeckung
+
+            .action-buttons {
+
+                flex-direction: column;            transform: translateY(-5px);
+
+                gap: 10px;
+
+            }            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);        }                    </h3>
+
+
+
+            .btn {        }
+
+                width: 100%;
+
+                justify-content: center;                    <div id="headOptions" class="option-grid"></div>
+
+            }
+
+        }        .style-card.active {
+
+    </style>
+
+</head>            border-color: #667eea;        .options-panel {                </div>
+
+<body>
+
+    <div class="avatar-header" id="avatarHeader">            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+
+        <div class="avatar-header-content">
+
+            <div class="avatar-preview" id="avatarPreviewHeader">        }            background: white;
+
+                <img id="avatarPreviewImage" src="/api/avatar-custom/adventurer?seed=default" alt="Avatar Preview">
+
+            </div>
+
+            <div class="avatar-info">
+
+                <h1>✨ Erstelle deinen Avatar</h1>        .style-card.locked {            border-radius: 20px;                <!-- Gesicht -->
+
+                <div class="score-display">
+
+                    ⭐ <span id="userScore">0</span> Punkte            opacity: 0.5;
+
+                </div>
+
+            </div>            cursor: not-allowed;            padding: 30px;                <div class="customization-category">
+
+        </div>
+
+    </div>        }
+
+
+
+    <div class="editor-container">            box-shadow: 0 10px 30px rgba(0,0,0,0.1);                    <h3>
+
+        <div class="style-selector">
+
+            <h2>🎨 Wähle deinen Avatar-Stil</h2>        .lock-badge {
+
+            <div class="style-grid" id="styleGrid"></div>
+
+        </div>            position: absolute;        }                        <span class="category-icon">😊</span>
+
+
+
+        <div class="customization-panel">            top: 10px;
+
+            <h2>⚙️ Anpassungen</h2>
+
+            <div id="customizationOptions">            right: 10px;                        Gesicht
+
+                <div class="loading">Lade Optionen...</div>
+
+            </div>            background: #ff6b6b;
+
+
+
+            <div class="next-unlocks" id="nextUnlocks" style="display: none;">            color: white;        .style-grid {                    </h3>
+
+                <h3>🎁 Nächste Freischaltungen</h3>
+
+                <div id="nextUnlocksList"></div>            padding: 5px 10px;
+
+            </div>
+
+        </div>            border-radius: 10px;            display: grid;                    <div id="faceOptions" class="option-grid"></div>
+
+    </div>
+
+            font-size: 0.8rem;
+
+    <div class="action-buttons">
+
+        <button class="btn btn-secondary" id="randomBtn">🎲 Zufällig</button>        }            grid-template-columns: repeat(2, 1fr);                </div>
+
+        <button class="btn btn-primary" id="saveBtn">💾 Speichern</button>
+
+    </div>
+
+
+
+    <script type="module">        /* Customization Options */            gap: 15px;
+
+        let styleSchemas = {};
+
+        let currentStyle = 'adventurer';        .customization-panel {
+
+        let currentOptions = {};
+
+        let userScore = 150;            background: white;            margin-top: 15px;                <!-- Körper -->
+
+
+
+        async function init() {            border-radius: 20px;
+
+            window.addEventListener('scroll', () => {
+
+                const header = document.getElementById('avatarHeader');            padding: 25px;        }                <div class="customization-category">
+
+                if (window.scrollY > 50) {
+
+                    header.classList.add('scrolled');            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+
+                } else {
+
+                    header.classList.remove('scrolled');        }                    <h3>
+
+                }
+
+            });
+
+
+
+            await loadStyleSchemas();        .option-group {        .style-card {                        <span class="category-icon">👕</span>
+
+            document.getElementById('userScore').textContent = userScore;
+
+            renderStyleSelector();            margin-bottom: 25px;
+
+            selectStyle('adventurer');
+
+        }            padding-bottom: 25px;            padding: 20px;                        Kleidung
+
+
+
+        async function loadStyleSchemas() {            border-bottom: 1px solid #e0e0e0;
+
+            try {
+
+                const response = await fetch('avatarStyleSchemas.json');        }            border: 3px solid #e0e0e0;                    </h3>
+
+                styleSchemas = await response.json();
+
+                console.log('Style-Schemas geladen:', styleSchemas);
+
+            } catch (error) {
+
+                console.error('Fehler beim Laden der Style-Schemas:', error);        .option-group:last-child {            border-radius: 15px;                    <div id="bodyOptions" class="option-grid"></div>
+
+                alert('Fehler beim Laden der Avatar-Konfiguration');
+
+            }            border-bottom: none;
+
+        }
+
+            margin-bottom: 0;            cursor: pointer;                </div>
+
+        function renderStyleSelector() {
+
+            const grid = document.getElementById('styleGrid');            padding-bottom: 0;
+
+            grid.innerHTML = '';
+
+        }            transition: all 0.3s;
+
+            Object.keys(styleSchemas).forEach(styleId => {
+
+                const style = styleSchemas[styleId];
+
+                const isLocked = userScore < style.unlockScore;
+
+        .option-header {            text-align: center;                <!-- Füße -->
+
+                const card = document.createElement('div');
+
+                card.className = `style-card ${styleId === currentStyle ? 'active' : ''} ${isLocked ? 'locked' : ''}`;            display: flex;
+
+                
+
+                if (isLocked) {            align-items: center;            position: relative;                <div class="customization-category">
+
+                    card.innerHTML = `
+
+                        <div class="lock-badge">🔒 ${style.unlockScore}★</div>            justify-content: space-between;
+
+                        <h3>${style.displayName}</h3>
+
+                        <p>Benötigt ${style.unlockScore} Punkte</p>            margin-bottom: 15px;        }                    <h3>
+
+                    `;
+
+                } else {        }
+
+                    card.innerHTML = `
+
+                        <h3>${style.displayName}</h3>                        <span class="category-icon">👢</span>
+
+                        <p>Verfügbar ✓</p>
+
+                    `;        .option-header h3 {
+
+                    card.onclick = () => selectStyle(styleId);
+
+                }            margin: 0;        .style-card:hover {                        Schuhe
+
+
+
+                grid.appendChild(card);            color: #333;
+
+            });
+
+        }            font-size: 1.2rem;            border-color: #667eea;                    </h3>
+
+
+
+        function selectStyle(styleId) {        }
+
+            const style = styleSchemas[styleId];
+
+            if (!style || userScore < style.unlockScore) return;            transform: translateY(-5px);                    <div id="feetOptions" class="option-grid"></div>
+
+
+
+            currentStyle = styleId;        .unlock-badge {
+
+            currentOptions = { seed: `User-${Date.now()}` };
+
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);        }                </div>
+
+            Object.keys(style.options).forEach(optionKey => {
+
+                const option = style.options[optionKey];            color: #333;
+
+                if (userScore >= option.unlockScore && option.values.length > 0) {
+
+                    currentOptions[optionKey] = option.values[0];            padding: 5px 12px;            </div>
+
+                }
+
+            });            border-radius: 15px;
+
+
+
+            renderStyleSelector();            font-size: 0.85rem;        .style-card.active {        </div>
+
+            renderCustomizationOptions();
+
+            updatePreview();            font-weight: bold;
+
+        }
+
+        }            border-color: #667eea;
+
+        function renderCustomizationOptions() {
+
+            const container = document.getElementById('customizationOptions');
+
+            const style = styleSchemas[currentStyle];
+
+                    .options-grid {            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);        <!-- Action Buttons -->
+
+            if (!style) {
+
+                container.innerHTML = '<p>Kein Style ausgewählt</p>';            display: grid;
+
+                return;
+
+            }            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));        }        <div class="editor-actions">
+
+
+
+            container.innerHTML = '';            gap: 10px;
+
+
+
+            const sortedOptions = Object.entries(style.options).sort((a, b) =>         }            <button id="randomizeButton" class="btn-secondary">
+
+                a[1].unlockScore - b[1].unlockScore
+
+            );
+
+
+
+            sortedOptions.forEach(([key, option]) => {        .option-item {        .style-card.locked {                🎲 Zufällig generieren
+
+                renderOptionGroup(key, option, container);
+
+            });            aspect-ratio: 1;
+
+
+
+            updateNextUnlocks();            border: 3px solid #e0e0e0;            opacity: 0.5;            </button>
+
+        }
+
+            border-radius: 12px;
+
+        function renderOptionGroup(key, option, container) {
+
+            const isLocked = userScore < option.unlockScore;            cursor: pointer;            cursor: not-allowed;            <button id="saveButton" class="btn-primary">
+
+            
+
+            const group = document.createElement('div');            transition: all 0.3s;
+
+            group.className = 'option-group';
+
+                        display: flex;        }                ✅ Speichern & Loslegen!
+
+            const header = document.createElement('div');
+
+            header.className = 'option-header';            align-items: center;
+
+            header.innerHTML = `
+
+                <h3>${option.displayName}</h3>            justify-content: center;            </button>
+
+                ${isLocked ? `<span class="unlock-badge">🔒 ${option.unlockScore}★</span>` : ''}
+
+            `;            font-size: 0.8rem;
+
+            group.appendChild(header);
+
+            font-weight: bold;        .unlock-badge {        </div>
+
+            const grid = document.createElement('div');
+
+            grid.className = 'options-grid';            color: #666;
+
+
+
+            option.values.forEach(value => {            background: #f8f9fa;            position: absolute;    </div>
+
+                const item = document.createElement('div');
+
+                item.className = `option-item ${option.type === 'color' ? 'color-option' : ''} ${currentOptions[key] === value ? 'active' : ''} ${isLocked ? 'locked' : ''}`;            position: relative;
+
+                
+
+                if (option.type === 'color') {            overflow: hidden;            top: 10px;
+
+                    item.style.background = `#${value}`;
+
+                    item.title = `#${value}`;        }
+
+                } else {
+
+                    let displayText = value;            right: 10px;    <!-- Success Modal -->
+
+                    if (value.startsWith('variant')) {
+
+                        displayText = value.replace('variant', '').replace(/^0+/, '');        .option-item:hover:not(.locked) {
+
+                    } else if (value.length > 12) {
+
+                        displayText = value.substring(0, 10) + '...';            border-color: #667eea;            background: #ff9800;    <div id="successModal" class="modal">
+
+                    }
+
+                    item.textContent = displayText;            transform: scale(1.05);
+
+                    item.title = value;
+
+                }        }            color: white;        <div class="modal-content">
+
+
+
+                if (!isLocked) {
+
+                    item.onclick = () => selectOption(key, value);
+
+                }        .option-item.active {            padding: 4px 8px;            <div class="success-icon">🎉</div>
+
+
+
+                grid.appendChild(item);            border-color: #667eea;
+
+            });
+
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);            border-radius: 10px;            <h2>Avatar erstellt!</h2>
+
+            group.appendChild(grid);
+
+            container.appendChild(group);            color: #667eea;
+
+        }
+
+        }            font-size: 0.8rem;            <p>Dein Avatar wurde erfolgreich gespeichert.</p>
+
+        function selectOption(key, value) {
+
+            console.log(`Option gewählt: ${key} = ${value}`);
+
+            currentOptions[key] = value;
+
+            renderCustomizationOptions();        .option-item.locked {            font-weight: bold;            <div id="finalAvatarPreview" class="final-avatar-preview"></div>
+
+            updatePreview();
+
+        }            opacity: 0.4;
+
+
+
+        function updatePreview() {            cursor: not-allowed;        }            <button id="continueButton" class="btn-primary">
+
+            const params = new URLSearchParams();
+
+                    }
+
+            Object.keys(currentOptions).forEach(key => {
+
+                if (currentOptions[key]) {                Zum Adventskalender
+
+                    params.append(key, currentOptions[key]);
+
+                }        .option-item.locked::after {
+
+            });
+
+                        content: '🔒';        .option-group {            </button>
+
+            const url = `/api/avatar-custom/${currentStyle}?${params.toString()}`;
+
+            console.log('Preview URL:', url);            position: absolute;
+
+            
+
+            const img = document.getElementById('avatarPreviewImage');            font-size: 1.5rem;            margin-bottom: 30px;        </div>
+
+            img.src = url;
+
+            img.alt = `${currentStyle} Avatar`;        }
 
         }
 
         }    </div>
 
-        /* Color Options */
+        function randomizeAvatar() {
+
+            const style = styleSchemas[currentStyle];        /* Color Options */
+
+            if (!style) return;
 
         .option-item.color-option {
 
-            border-radius: 50%;
+            console.log('Randomizing avatar...');
 
-        }        .option-group h3 {    <script src="avatarManager.js"></script>
-
-
-
-        /* Next Unlocks */            color: #333;    <script src="avatar3DRenderer.js"></script>
-
-        .next-unlocks {
-
-            background: linear-gradient(135deg, #fff7e6 0%, #ffe6f0 100%);            margin-bottom: 15px;    <script src="avatar-editor.js"></script>
-
-            border-radius: 15px;
-
-            padding: 20px;            display: flex;    
-
-            margin-top: 25px;
-
-        }            align-items: center;    <script>
+            currentOptions.seed = `User-${Date.now()}`;            border-radius: 50%;
 
 
 
-        .next-unlocks h3 {            gap: 10px;        // Toggle zwischen 2D und 3D Rendering
+            Object.keys(style.options).forEach(optionKey => {        }        .option-group h3 {    <script src="avatarManager.js"></script>
 
-            margin: 0 0 15px 0;
+                const option = style.options[optionKey];
 
-            color: #333;        }        const previewCard = document.querySelector('.avatar-preview-card');
+                if (userScore >= option.unlockScore && option.values.length > 0) {
 
-        }
+                    const randomIndex = Math.floor(Math.random() * option.values.length);
 
-        if (previewCard) {
+                    currentOptions[optionKey] = option.values[randomIndex];        /* Next Unlocks */            color: #333;    <script src="avatar3DRenderer.js"></script>
 
-        .unlock-item {
+                }
 
-            background: white;        .locked-badge {            const toggleButton = document.createElement('button');
+            });        .next-unlocks {
 
-            padding: 12px;
 
-            border-radius: 10px;            background: #ff9800;            toggleButton.className = 'render-mode-toggle';
 
-            margin-bottom: 10px;
+            renderCustomizationOptions();            background: linear-gradient(135deg, #fff7e6 0%, #ffe6f0 100%);            margin-bottom: 15px;    <script src="avatar-editor.js"></script>
 
-            display: flex;            color: white;            toggleButton.innerHTML = '🎨 3D-Modus';
+            updatePreview();
 
-            align-items: center;
+        }            border-radius: 15px;
 
-            justify-content: space-between;            padding: 4px 12px;            previewCard.style.position = 'relative';
 
-        }
 
-            border-radius: 15px;            previewCard.appendChild(toggleButton);
+        function saveAvatar() {            padding: 20px;            display: flex;    
 
-        .unlock-item:last-child {
+            const avatarData = {
 
-            margin-bottom: 0;            font-size: 0.8rem;            
+                style: currentStyle,            margin-top: 25px;
 
-        }
+                options: currentOptions,
 
-            font-weight: bold;            toggleButton.addEventListener('click', () => {
+                createdAt: new Date().toISOString()        }            align-items: center;    <script>
 
-        .unlock-item-name {
+            };
 
-            font-weight: bold;        }                const editor = window.avatarEditor;
+
+
+            localStorage.setItem('customAvatar', JSON.stringify(avatarData));
+
+            console.log('Avatar gespeichert:', avatarData);        .next-unlocks h3 {            gap: 10px;        // Toggle zwischen 2D und 3D Rendering
+
+            alert('✅ Avatar erfolgreich gespeichert!');
+
+        }            margin: 0 0 15px 0;
+
+
+
+        function updateNextUnlocks() {            color: #333;        }        const previewCard = document.querySelector('.avatar-preview-card');
+
+            const style = styleSchemas[currentStyle];
+
+            const nextUnlocksDiv = document.getElementById('nextUnlocks');        }
+
+            const listDiv = document.getElementById('nextUnlocksList');
+
+                    if (previewCard) {
+
+            const lockedOptions = [];
+
+            Object.keys(style.options).forEach(optionKey => {        .unlock-item {
+
+                const option = style.options[optionKey];
+
+                if (userScore < option.unlockScore) {            background: white;        .locked-badge {            const toggleButton = document.createElement('button');
+
+                    lockedOptions.push({
+
+                        name: option.displayName,            padding: 12px;
+
+                        unlockScore: option.unlockScore
+
+                    });            border-radius: 10px;            background: #ff9800;            toggleButton.className = 'render-mode-toggle';
+
+                }
+
+            });            margin-bottom: 10px;
+
+
+
+            lockedOptions.sort((a, b) => a.unlockScore - b.unlockScore);            display: flex;            color: white;            toggleButton.innerHTML = '🎨 3D-Modus';
+
+
+
+            if (lockedOptions.length > 0) {            align-items: center;
+
+                nextUnlocksDiv.style.display = 'block';
+
+                listDiv.innerHTML = '';            justify-content: space-between;            padding: 4px 12px;            previewCard.style.position = 'relative';
+
+
+
+                lockedOptions.slice(0, 3).forEach(unlock => {        }
+
+                    const item = document.createElement('div');
+
+                    item.className = 'unlock-item';            border-radius: 15px;            previewCard.appendChild(toggleButton);
+
+                    item.innerHTML = `
+
+                        <span class="unlock-item-name">${unlock.name}</span>        .unlock-item:last-child {
+
+                        <span class="unlock-item-points">${unlock.unlockScore}★ (noch ${unlock.unlockScore - userScore})</span>
+
+                    `;            margin-bottom: 0;            font-size: 0.8rem;            
+
+                    listDiv.appendChild(item);
+
+                });        }
+
+            } else {
+
+                nextUnlocksDiv.style.display = 'none';            font-weight: bold;            toggleButton.addEventListener('click', () => {
+
+            }
+
+        }        .unlock-item-name {
+
+
+
+        document.getElementById('randomBtn').addEventListener('click', randomizeAvatar);            font-weight: bold;        }                const editor = window.avatarEditor;
+
+        document.getElementById('saveBtn').addEventListener('click', saveAvatar);
 
             color: #667eea;
 
-        }                if (editor) {
+        init();
 
+    </script>        }                if (editor) {
+
+</body>
+
+</html>
 
 
         .unlock-item-points {        .option-grid {                    editor.use3DRenderer = !editor.use3DRenderer;
