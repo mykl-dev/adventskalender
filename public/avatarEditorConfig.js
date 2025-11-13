@@ -274,18 +274,123 @@ const AvatarEditorConfig = {
         // NEUTRAL STYLES - Vereinfachte Versionen
         'adventurer-neutral': {
             basic: {
-                // Gleiche Struktur wie adventurer, aber gender-neutral
-                eyes: { /* ... */ },
-                mouth: { /* ... */ },
-                // etc.
+                eyes: {
+                    label: 'Augen',
+                    unlockScore: 0,
+                    options: [
+                        { value: 'variant01', label: 'Standard', preview: '👁️' },
+                        { value: 'variant02', label: 'Glücklich', preview: '😊' },
+                        { value: 'variant03', label: 'Fokussiert', preview: '😐' },
+                        { value: 'variant04', label: 'Überrascht', preview: '😲' }
+                    ]
+                },
+                mouth: {
+                    label: 'Mund',
+                    unlockScore: 0,
+                    options: [
+                        { value: 'variant01', label: 'Lächeln', preview: '😊' },
+                        { value: 'variant02', label: 'Grinsen', preview: '😁' },
+                        { value: 'variant03', label: 'Neutral', preview: '😐' }
+                    ]
+                },
+                hair: {
+                    label: 'Frisur',
+                    unlockScore: 0,
+                    options: [
+                        { value: 'short01', label: 'Kurz 1' },
+                        { value: 'short02', label: 'Kurz 2' },
+                        { value: 'long01', label: 'Lang 1' }
+                    ]
+                },
+                hairColor: {
+                    label: 'Haarfarbe',
+                    unlockScore: 0,
+                    options: [
+                        { value: '0e0e0e', label: 'Schwarz', color: '#0e0e0e' },
+                        { value: '562306', label: 'Braun', color: '#562306' },
+                        { value: 'b9a05f', label: 'Blond', color: '#b9a05f' }
+                    ]
+                },
+                skinColor: {
+                    label: 'Hautfarbe',
+                    unlockScore: 0,
+                    options: [
+                        { value: 'f2d3b1', label: 'Hell', color: '#f2d3b1' },
+                        { value: 'ecad80', label: 'Mittel', color: '#ecad80' },
+                        { value: '9e5622', label: 'Dunkel', color: '#9e5622' }
+                    ]
+                }
+            },
+            advanced: {
+                glasses: {
+                    label: 'Brille',
+                    unlockScore: 100,
+                    options: [
+                        { value: '', label: 'Keine' },
+                        { value: 'variant01', label: 'Rund' },
+                        { value: 'variant02', label: 'Eckig' }
+                    ]
+                }
             }
         },
         'avataaars-neutral': {
             basic: {
-                // Gleiche Struktur wie avataaars, aber gender-neutral
-                eyes: { /* ... */ },
-                mouth: { /* ... */ },
-                // etc.
+                eyes: {
+                    label: 'Augen',
+                    unlockScore: 0,
+                    options: [
+                        { value: 'default', label: 'Standard', preview: '👁️' },
+                        { value: 'happy', label: 'Glücklich', preview: '😊' },
+                        { value: 'wink', label: 'Zwinkern', preview: '😉' }
+                    ]
+                },
+                mouth: {
+                    label: 'Mund',
+                    unlockScore: 0,
+                    options: [
+                        { value: 'default', label: 'Standard', preview: '😊' },
+                        { value: 'smile', label: 'Lächeln', preview: '😃' },
+                        { value: 'serious', label: 'Ernst', preview: '😐' }
+                    ]
+                },
+                top: {
+                    label: 'Frisur',
+                    unlockScore: 0,
+                    options: [
+                        { value: 'shortHair', label: 'Kurzhaar' },
+                        { value: 'longHair', label: 'Langhaar' },
+                        { value: 'hat', label: 'Mit Hut' }
+                    ]
+                },
+                hairColor: {
+                    label: 'Haarfarbe',
+                    unlockScore: 0,
+                    options: [
+                        { value: '2c1b18', label: 'Schwarz', color: '#2c1b18' },
+                        { value: '724133', label: 'Braun', color: '#724133' },
+                        { value: 'd6b370', label: 'Blond', color: '#d6b370' }
+                    ]
+                },
+                skinColor: {
+                    label: 'Hautfarbe',
+                    unlockScore: 0,
+                    options: [
+                        { value: 'ffdbb4', label: 'Hell', color: '#ffdbb4' },
+                        { value: 'edb98a', label: 'Mittel', color: '#edb98a' },
+                        { value: 'd08b5b', label: 'Dunkel', color: '#d08b5b' }
+                    ]
+                }
+            },
+            advanced: {
+                accessories: {
+                    label: 'Accessoires',
+                    unlockScore: 100,
+                    options: [
+                        { value: '', label: 'Keine' },
+                        { value: 'round', label: 'Runde Brille' },
+                        { value: 'sunglasses', label: 'Sonnenbrille' }
+                    ]
+                }
             }
         }
     },
@@ -316,16 +421,20 @@ const AvatarEditorConfig = {
         const available = { basic: {}, advanced: {} };
 
         // Basis-Optionen prüfen
-        for (const [key, option] of Object.entries(styleConfig.basic)) {
-            if (this.isUnlocked(userScore, option.unlockScore)) {
-                available.basic[key] = option;
+        if (styleConfig.basic) {
+            for (const [key, option] of Object.entries(styleConfig.basic)) {
+                if (this.isUnlocked(userScore, option.unlockScore)) {
+                    available.basic[key] = option;
+                }
             }
         }
 
         // Fortgeschrittene Optionen prüfen
-        for (const [key, option] of Object.entries(styleConfig.advanced)) {
-            if (this.isUnlocked(userScore, option.unlockScore)) {
-                available.advanced[key] = option;
+        if (styleConfig.advanced) {
+            for (const [key, option] of Object.entries(styleConfig.advanced)) {
+                if (this.isUnlocked(userScore, option.unlockScore)) {
+                    available.advanced[key] = option;
+                }
             }
         }
 
@@ -342,7 +451,10 @@ const AvatarEditorConfig = {
         const locked = [];
 
         // Alle Optionen durchgehen
-        const allOptions = { ...styleConfig.basic, ...styleConfig.advanced };
+        const allOptions = { 
+            ...(styleConfig.basic || {}), 
+            ...(styleConfig.advanced || {}) 
+        };
         for (const [key, option] of Object.entries(allOptions)) {
             if (!this.isUnlocked(userScore, option.unlockScore)) {
                 locked.push({
