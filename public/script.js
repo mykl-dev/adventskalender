@@ -28,13 +28,12 @@ function initTheme() {
 
 function applyTheme(theme) {
     document.body.className = `${theme}-theme`;
-    const themeButton = document.getElementById('theme-toggle');
-    const themeText = themeButton.querySelector('.theme-text');
     
-    if (theme === 'classic') {
-        themeText.textContent = 'Modern';
-    } else {
-        themeText.textContent = 'Klassisch';
+    // Update Menu Text wenn vorhanden
+    const themeMenuText = document.getElementById('themeMenuText');
+    if (themeMenuText) {
+        const themeName = theme === 'classic' ? 'Klassisch' : 'Modern';
+        themeMenuText.textContent = 'Design: ' + themeName;
     }
 }
 
@@ -470,10 +469,6 @@ function showError(message) {
 // EVENT LISTENERS
 // ========================================
 function setupEventListeners() {
-    // Theme Toggle
-    const themeToggle = document.getElementById('theme-toggle');
-    themeToggle.addEventListener('click', toggleTheme);
-    
     // Modal Close Button
     const closeBtn = document.getElementById('modal-close');
     closeBtn.addEventListener('click', closeModal);
@@ -501,14 +496,21 @@ function initPlayerAvatarDisplay() {
     const display = document.getElementById('playerAvatarDisplay');
     if (!display) return;
     
-    const profile = avatarManager.getProfile();
-    if (profile) {
-        display.innerHTML = `
-            ${avatarManager.renderAvatarDisplay(profile, 40)}
-            <span class="player-name">${profile.username}</span>
-        `;
-        display.style.display = 'inline-flex';
-    } else {
-        display.style.display = 'none';
+    // Lade Custom Avatar aus localStorage
+    const customAvatar = localStorage.getItem('customAvatar');
+    if (customAvatar) {
+        try {
+            const avatar = JSON.parse(customAvatar);
+            const params = new URLSearchParams();
+            for (const [key, value] of Object.entries(avatar.options)) {
+                if (value !== '') {
+                    params.append(key, value);
+                }
+            }
+            const avatarUrl = '/api/avatar-custom/' + avatar.style + '?' + params.toString();
+            display.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">`;
+        } catch (error) {
+            console.error('Fehler beim Laden des Avatars:', error);
+        }
     }
 }

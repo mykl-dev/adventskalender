@@ -17,30 +17,48 @@
     
     <!-- Header -->
     <header class="header">
-        <h1 class="title">🎄 Adventskalender 2025 🎅</h1>
-        <p class="subtitle">Öffne jeden Tag ein neues Türchen!</p>
-        
-        <div class="header-actions">
-            <!-- Player Avatar Display -->
-            <div id="playerAvatarDisplay" class="player-avatar-display" onclick="window.location.href='avatar-editor.html'" title="Avatar bearbeiten">
+        <div class="header-content">
+            <!-- Avatar Links -->
+            <div id="playerAvatarDisplay" class="header-avatar" onclick="window.location.href='avatar-editor.html'" title="Avatar bearbeiten">
                 <!-- Wird dynamisch gefüllt -->
             </div>
             
-            <!-- Dashboard Link -->
-            <a href="dashboard.html" class="dashboard-link" title="Zur Gesamtübersicht">
-                <span class="dashboard-icon">🏆</span>
-                <span class="dashboard-text">Dashboard</span>
-            </a>
-        </div>
-        
-        <!-- Theme Switcher -->
-        <div class="theme-switcher">
-            <button id="theme-toggle" class="theme-button" aria-label="Theme wechseln">
-                <span class="theme-icon">🎨</span>
-                <span class="theme-text">Modern</span>
+            <!-- Titel Mitte -->
+            <div class="header-center">
+                <h1 class="header-title">Adventskalender 2025</h1>
+            </div>
+            
+            <!-- Hamburger Menu Rechts -->
+            <button class="hamburger-menu" id="hamburgerBtn" aria-label="Menü öffnen">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
         </div>
     </header>
+    
+    <!-- Slide-In Menu -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+    <nav class="slide-menu" id="slideMenu">
+        <div class="menu-header">
+            <h2>Menü</h2>
+            <button class="close-menu" onclick="closeMenu()" aria-label="Menü schließen">✕</button>
+        </div>
+        <div class="menu-items">
+            <a href="avatar-editor.html" class="menu-item">
+                <span class="menu-icon">👤</span>
+                <span>Spieler bearbeiten</span>
+            </a>
+            <a href="dashboard.html" class="menu-item">
+                <span class="menu-icon">🏆</span>
+                <span>Dashboard</span>
+            </a>
+            <div class="menu-item" onclick="toggleThemeFromMenu()">
+                <span class="menu-icon">🎨</span>
+                <span id="themeMenuText">Design: Modern</span>
+            </div>
+        </div>
+    </nav>
 
     <!-- Adventskalender Grid -->
     <main class="calendar-container">
@@ -64,6 +82,34 @@
         <p>🎁 Frohe Weihnachten! 🎁</p>
     </footer>
 
+    <script>
+        // Hamburger Menu Toggle
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const slideMenu = document.getElementById('slideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerBtn.classList.toggle('active');
+            slideMenu.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+        });
+        
+        function closeMenu() {
+            hamburgerBtn.classList.remove('active');
+            slideMenu.classList.remove('active');
+            menuOverlay.classList.remove('active');
+        }
+        
+        function toggleThemeFromMenu() {
+            // Ruft die Theme-Toggle Funktion aus script.js auf
+            if (typeof toggleTheme === 'function') {
+                toggleTheme();
+                // Update Menu Text
+                const currentTheme = document.body.classList.contains('modern-theme') ? 'Modern' : 'Klassisch';
+                document.getElementById('themeMenuText').textContent = 'Design: ' + currentTheme;
+            }
+        }
+    </script>
     <script src="avatarManager.js"></script>
     <script src="stats-manager.js"></script>
     <script src="minigames.js"></script>
