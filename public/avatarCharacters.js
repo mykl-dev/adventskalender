@@ -5,10 +5,11 @@
 
 const AvatarCharacters = {
     /**
-     * Hole Avatar-Bild-URL (lokal)
+     * Hole Avatar-Bild-URL (Server-API)
+     * Avatare werden zur Laufzeit mit DiceBear generiert
      */
     getAvatarImageUrl(characterId) {
-        return `avatars/${characterId}.svg`;
+        return `/api/avatar/${characterId}`;
     },
 
     /**
