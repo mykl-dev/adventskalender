@@ -123,6 +123,11 @@ class StatsManager {
         }
     }
     
+    // Alias für saveStats (manche Spiele verwenden saveScore)
+    async saveScore(gameName, score, playTime) {
+        return await this.saveStats(gameName, score, playTime);
+    }
+    
     // Top 3 für ein Spiel abrufen
     async getTop3(gameName) {
         try {
