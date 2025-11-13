@@ -157,6 +157,39 @@ class StatsManager {
         }
     }
     
+    // Stats für ein bestimmtes Spiel abrufen (für aktuellen Spieler)
+    async getGameStats(gameName) {
+        try {
+            const response = await fetch(`/api/stats/${gameName}`);
+            if (!response.ok) {
+                return { highscore: 0, gamesPlayed: 0 };
+            }
+            
+            const data = await response.json();
+            const playerStats = data.top3?.find(p => p.username === this.username);
+            return playerStats || { highscore: 0, gamesPlayed: 0 };
+        } catch (error) {
+            console.error('Fehler beim Laden der Game Stats:', error);
+            return { highscore: 0, gamesPlayed: 0 };
+        }
+    }
+    
+    // Top X Highscores für ein Spiel abrufen
+    async getHighscores(gameName, limit = 10) {
+        try {
+            const response = await fetch(`/api/stats/${gameName}/all`);
+            if (!response.ok) {
+                return [];
+            }
+            
+            const data = await response.json();
+            return (data.allScores || []).slice(0, limit);
+        } catch (error) {
+            console.error('Fehler beim Laden der Highscores:', error);
+            return [];
+        }
+    }
+    
     // Highscore-Anzeige erstellen
     createHighscoreDisplay(top3, currentScore = null) {
         if (!top3 || top3.length === 0) {

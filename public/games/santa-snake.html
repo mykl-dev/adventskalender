@@ -91,8 +91,8 @@
             flex-direction: column;
             align-items: center;
             gap: 20px;
-            max-width: 600px;
             width: 100%;
+            height: 100%;
         }
 
         .game-stats {
@@ -130,14 +130,15 @@
 
         /* Canvas */
         .snake-canvas {
-            width: 400px;
-            height: 400px;
+            width: min(calc(100vw - 40px), calc(100vh - 250px), 800px);
+            height: min(calc(100vw - 40px), calc(100vh - 250px), 800px);
             background: rgba(0, 0, 0, 0.3);
             border: 4px solid rgba(255, 255, 255, 0.5);
             border-radius: 15px;
             position: relative;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         /* Instructions */
@@ -267,11 +268,6 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .snake-canvas {
-                width: 320px;
-                height: 320px;
-            }
-
             .game-title {
                 font-size: 1.2rem;
             }
@@ -284,14 +280,14 @@
             .stat-value {
                 font-size: 1.5rem;
             }
+
+            .snake-canvas {
+                width: min(calc(100vw - 30px), calc(100vh - 220px));
+                height: min(calc(100vw - 30px), calc(100vh - 220px));
+            }
         }
 
         @media (max-width: 480px) {
-            .snake-canvas {
-                width: 280px;
-                height: 280px;
-            }
-
             .game-stats {
                 gap: 10px;
             }
@@ -304,6 +300,15 @@
 
             .stat-value {
                 font-size: 1.3rem;
+            }
+
+            .snake-canvas {
+                width: min(calc(100vw - 20px), calc(100vh - 200px));
+                height: min(calc(100vw - 20px), calc(100vh - 200px));
+            }
+            
+            #game-root {
+                padding: 10px;
             }
         }
 
@@ -522,28 +527,39 @@
                 this.nextDirection = 'right';
                 this.speed = 200;
 
-                // Canvas-Größe anpassen
+                // Canvas-Größe anpassen - dynamische Berechnung basierend auf tatsächlicher Canvas-Größe
                 const canvasWidth = this.canvas.offsetWidth;
+                const canvasHeight = this.canvas.offsetHeight;
+                const borderSize = 8; // 4px links + 4px rechts
                 
-                if (canvasWidth <= 300) {
-                    this.gridSize = 14;
+                // Berechne optimale Tile-Größe basierend auf Canvas-Größe
+                const availableSpace = Math.min(canvasWidth, canvasHeight) - borderSize;
+                
+                if (availableSpace >= 580) {
+                    // Große Displays (600x600 Canvas)
+                    this.gridSize = 28;
                     this.tileSize = 20;
-                    const playfield = 14 * 20;
-                    this.offsetX = Math.floor((canvasWidth - 8 - playfield) / 2);
-                    this.offsetY = this.offsetX;
-                } else if (canvasWidth <= 350) {
-                    this.gridSize = 16;
+                } else if (availableSpace >= 480) {
+                    // Mittlere Displays
+                    this.gridSize = 24;
                     this.tileSize = 20;
-                    const playfield = 16 * 20;
-                    this.offsetX = Math.floor((canvasWidth - 8 - playfield) / 2);
-                    this.offsetY = this.offsetX;
-                } else {
+                } else if (availableSpace >= 380) {
+                    // Tablets
                     this.gridSize = 19;
                     this.tileSize = 20;
-                    const playfield = 19 * 20;
-                    this.offsetX = Math.floor((canvasWidth - 8 - playfield) / 2);
-                    this.offsetY = this.offsetX;
+                } else if (availableSpace >= 300) {
+                    // Kleine Tablets
+                    this.gridSize = 16;
+                    this.tileSize = 18;
+                } else {
+                    // Mobile
+                    this.gridSize = 14;
+                    this.tileSize = Math.floor(availableSpace / 14);
                 }
+                
+                const playfield = this.gridSize * this.tileSize;
+                this.offsetX = Math.floor((availableSpace - playfield) / 2);
+                this.offsetY = this.offsetX;
 
                 const startX = Math.floor(this.gridSize / 4);
                 const centerY = Math.floor(this.gridSize / 2);
