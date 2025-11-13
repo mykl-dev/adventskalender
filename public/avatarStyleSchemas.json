@@ -43,7 +43,13 @@
         "displayName": "Brille",
         "unlockScore": 100,
         "type": "enum",
-        "values": ["variant01", "variant02", "variant03", "variant04", "variant05"]
+        "values": ["", "variant01", "variant02", "variant03", "variant04", "variant05"]
+      },
+      "glassesColor": {
+        "displayName": "Brillenfarbe",
+        "unlockScore": 100,
+        "type": "color",
+        "values": ["0e0e0e", "3eac2c", "562306", "85c2c6", "ab2a18", "ac6511", "afafaf"]
       },
       "earrings": {
         "displayName": "Ohrringe",
@@ -157,7 +163,13 @@
         "displayName": "Brille",
         "unlockScore": 100,
         "type": "enum",
-        "values": ["variant01", "variant02", "variant03", "variant04", "variant05"]
+        "values": ["", "variant01", "variant02", "variant03", "variant04", "variant05"]
+      },
+      "glassesColor": {
+        "displayName": "Brillenfarbe",
+        "unlockScore": 100,
+        "type": "color",
+        "values": ["0e0e0e", "3eac2c", "562306", "85c2c6", "ab2a18", "ac6511", "afafaf"]
       }
     }
   },
