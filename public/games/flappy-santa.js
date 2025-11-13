@@ -702,47 +702,42 @@ class FlappySanta {
     }
     
     async showGameOver() {
-        // Load top 3
-        let top3 = [];
-        if (typeof statsManager !== 'undefined') {
-            try {
-                top3 = await statsManager.getTop3(this.gameName);
-            } catch (error) {
-                console.error('Fehler beim Laden der Bestenliste:', error);
-            }
-        }
-        
         // Remove any existing overlays first
-        const existingOverlays = document.querySelectorAll('.overlay');
+        const existingOverlays = document.querySelectorAll('.overlay, .game-over-overlay');
         existingOverlays.forEach(el => el.remove());
         
-        // Create game over overlay
+        // Bestenliste laden
+        const highscores = await statsManager.getHighscores(this.gameName, 10);
+        
+        const highscoresHTML = highscores.map((entry, index) => `
+            <li class="highscore-item">
+                <span class="highscore-rank">${index + 1}.</span>
+                <span class="highscore-name">${entry.username}</span>
+                <span class="highscore-score">${entry.highscore} 🎁</span>
+            </li>
+        `).join('');
+        
         const overlay = document.createElement('div');
-        overlay.className = 'overlay';
+        overlay.className = 'game-over-overlay';
         overlay.innerHTML = `
-            <div class="overlay-content">
-                <div class="overlay-title">🎅 Game Over! 🎄</div>
-                <div class="score-message">${this.getScoreMessage()}</div>
-                <div class="final-score">${this.score}</div>
-                ${top3.length > 0 ? `
-                    <div class="highscore-table" onclick="window.location.href='../dashboard.html'" style="cursor: pointer;" title="Klicken für Gesamtübersicht">
-                        <div class="highscore-title">🏆 Top 3 <span style="font-size: 0.7em; opacity: 0.8;">(Klick für Dashboard)</span></div>
-                        ${top3.map((entry, index) => `
-                            <div class="highscore-entry">
-                                <span class="highscore-rank">${['🥇', '🥈', '🥉'][index]}</span>
-                                <span class="highscore-name">${entry.username}</span>
-                                <span class="highscore-score">${entry.score || entry.highscore || 0}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : ''}
-                <button class="game-button" onclick="game.start()">Nochmal spielen! 🔄</button>
+            <div class="game-over-content">
+                <h2>🎅 Game Over! 🎄</h2>
+                <div class="game-over-stats">
+                    <div class="game-over-stat-label">Deine Punkte</div>
+                    <div class="game-over-stat-value">${this.score}</div>
+                    <div class="game-over-message">${this.getScoreMessage()}</div>
+                </div>
+                <div class="game-over-highscores">
+                    <h3>🏆 Top 10 Highscores</h3>
+                    <ul class="highscore-list">${highscoresHTML}</ul>
+                </div>
+                <div class="game-over-buttons">
+                    <button class="game-over-button button-primary" onclick="game.start()">🔄 Nochmal spielen</button>
+                    <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
+                </div>
             </div>
         `;
         document.body.appendChild(overlay);
-        
-        // Force reflow to ensure animation plays
-        overlay.offsetHeight;
     }
     
     getScoreMessage() {

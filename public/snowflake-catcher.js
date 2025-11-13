@@ -682,46 +682,37 @@ class SnowflakeCatcherGame3D {
     
     async showGameOver() {
         // Bestenliste laden
-        let top3 = [];
-        try {
-            top3 = await statsManager.getTop3('snowflake-catcher');
-        } catch (error) {
-            console.error('Fehler beim Laden der Bestenliste:', error);
-        }
+        const highscores = await statsManager.getHighscores('snowflake-catcher', 10);
         
-        // Game Over Overlay erstellen
-        const overlay = document.getElementById('snowflake-instructions-overlay');
-        if (overlay) {
-            overlay.style.display = 'flex';
-            overlay.querySelector('.instructions-content').innerHTML = `
-                <h2 class="game-over-title">❄️ Spiel beendet! �</h2>
+        const highscoresHTML = highscores.map((entry, index) => `
+            <li class="highscore-item">
+                <span class="highscore-rank">${index + 1}.</span>
+                <span class="highscore-name">${entry.username}</span>
+                <span class="highscore-score">${entry.highscore} ❄️</span>
+            </li>
+        `).join('');
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'game-over-overlay';
+        overlay.innerHTML = `
+            <div class="game-over-content">
+                <h2>❄️ Spiel beendet! 🎄</h2>
                 <div class="game-over-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Punkte:</span>
-                        <span class="stat-value">${this.score}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Nachricht:</span>
-                        <span class="stat-message">${this.getScoreMessage()}</span>
-                    </div>
+                    <div class="game-over-stat-label">Deine Punkte</div>
+                    <div class="game-over-stat-value">${this.score}</div>
+                    <div class="game-over-message">${this.getScoreMessage()}</div>
                 </div>
-                ${top3.length > 0 ? `
-                    <div class="highscore-list" onclick="window.location.href='dashboard.html'" style="cursor: pointer;" title="Klicken für Gesamtübersicht">
-                        <h3>🏆 Top 3 <span style="font-size: 0.7em; opacity: 0.8;">(Klick für Dashboard)</span></h3>
-                        ${top3.map((entry, index) => `
-                            <div class="highscore-entry rank-${index + 1}">
-                                <span class="rank">${['🥇', '🥈', '🥉'][index]}</span>
-                                <span class="player-name">${entry.username}</span>
-                                <span class="player-score">${entry.score || entry.highscore || 0}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : ''}
-                <button class="instruction-ok-button" onclick="location.reload()">
-                    🔄 Nochmal spielen
-                </button>
-            `;
-        }
+                <div class="game-over-highscores">
+                    <h3>🏆 Top 10 Highscores</h3>
+                    <ul class="highscore-list">${highscoresHTML}</ul>
+                </div>
+                <div class="game-over-buttons">
+                    <button class="game-over-button button-primary" onclick="location.reload()">🔄 Nochmal spielen</button>
+                    <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
     }
     
     getScoreMessage() {
