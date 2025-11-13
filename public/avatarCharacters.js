@@ -5,7 +5,14 @@
 
 const AvatarCharacters = {
     /**
-     * Generiere SVG Avatar
+     * Hole Avatar-Bild-URL (lokal)
+     */
+    getAvatarImageUrl(characterId) {
+        return `avatars/${characterId}.svg`;
+    },
+
+    /**
+     * Generiere SVG Avatar (Fallback - wird nicht mehr benötigt)
      */
     generateAvatarSVG(character) {
         const styles = {
@@ -227,7 +234,7 @@ const AvatarCharacters = {
             name: 'Max der Coole',
             gender: 'babo',
             description: 'Cooler Typ mit Snapback und Style',
-            imageUrl: null, // Wird dynamisch generiert
+            imageUrl: 'avatars/babo-cool.svg',
             style: {
                 primary: '#4169e1',
                 secondary: '#1a1a1a',
@@ -239,7 +246,7 @@ const AvatarCharacters = {
             name: 'Leon der Sportliche',
             gender: 'babo',
             description: 'Sportlicher Typ mit Energie',
-            imageUrl: null,
+            imageUrl: 'avatars/babo-sporty.svg',
             style: {
                 primary: '#c41e3a',
                 secondary: '#1a1a1a',
@@ -251,7 +258,7 @@ const AvatarCharacters = {
             name: 'Jay der Streetstyle King',
             gender: 'babo',
             description: 'Urban Style mit Attitude',
-            imageUrl: null,
+            imageUrl: 'avatars/babo-street.svg',
             style: {
                 primary: '#1a1a1a',
                 secondary: '#ffd700',
@@ -263,7 +270,7 @@ const AvatarCharacters = {
             name: 'Noah der Gamer',
             gender: 'babo',
             description: 'Gaming Pro mit Headset',
-            imageUrl: null,
+            imageUrl: 'avatars/babo-gamer.svg',
             style: {
                 primary: '#667eea',
                 secondary: '#1a1a1a',
@@ -277,7 +284,7 @@ const AvatarCharacters = {
             name: 'Mia die Süße',
             gender: 'cutie',
             description: 'Niedlich mit rosa Schleife',
-            imageUrl: null,
+            imageUrl: 'avatars/cutie-sweet.svg',
             style: {
                 primary: '#ff69b4',
                 secondary: '#ffb6c1',
@@ -289,7 +296,7 @@ const AvatarCharacters = {
             name: 'Emma die Kawaii',
             gender: 'cutie',
             description: 'Kawaii-Style mit großen Augen',
-            imageUrl: null,
+            imageUrl: 'avatars/cutie-kawaii.svg',
             style: {
                 primary: '#ff69b4',
                 secondary: '#da70d6',
@@ -301,7 +308,7 @@ const AvatarCharacters = {
             name: 'Sophie die Prinzessin',
             gender: 'cutie',
             description: 'Elegante Prinzessin',
-            imageUrl: null,
+            imageUrl: 'avatars/cutie-princess.svg',
             style: {
                 primary: '#ff69b4',
                 secondary: '#ffd700',
@@ -313,7 +320,7 @@ const AvatarCharacters = {
             name: 'Lena die Aktive',
             gender: 'cutie',
             description: 'Sportlich und energiegeladen',
-            imageUrl: null,
+            imageUrl: 'avatars/cutie-sporty.svg',
             style: {
                 primary: '#da70d6',
                 secondary: '#ffffff',
@@ -327,7 +334,7 @@ const AvatarCharacters = {
             name: 'Santa Claus',
             gender: 'special',
             description: 'Der Weihnachtsmann himself',
-            imageUrl: null,
+            imageUrl: 'avatars/santa.svg',
             style: {
                 primary: '#c41e3a',
                 secondary: '#ffffff',
@@ -339,7 +346,7 @@ const AvatarCharacters = {
             name: 'Elfie der Helfer',
             gender: 'special',
             description: 'Weihnachtself mit Elfenohren',
-            imageUrl: null,
+            imageUrl: 'avatars/elf.svg',
             style: {
                 primary: '#00ff00',
                 secondary: '#c41e3a',
@@ -351,7 +358,7 @@ const AvatarCharacters = {
             name: 'Frosty der Schneemann',
             gender: 'special',
             description: 'Freundlicher Schneemann',
-            imageUrl: null,
+            imageUrl: 'avatars/snowman.svg',
             style: {
                 primary: '#ffffff',
                 secondary: '#4169e1',
@@ -363,7 +370,7 @@ const AvatarCharacters = {
             name: 'Rudolf das Rentier',
             gender: 'special',
             description: 'Rudolf mit der roten Nase',
-            imageUrl: null,
+            imageUrl: 'avatars/reindeer.svg',
             style: {
                 primary: '#8b4513',
                 secondary: '#c41e3a',
