@@ -4,7 +4,6 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dataService from './services/dataService.js';
-import * as avatarGenerator from './avatarGenerator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,25 +53,7 @@ app.get('/api/config', (req, res) => {
 
 // === AVATAR API ===
 
-// GET: Avatar SVG für einen bestimmten Charakter
-app.get('/api/avatar/:characterId', (req, res) => {
-  try {
-    const svg = avatarGenerator.generateAvatar(req.params.characterId);
-    res.setHeader('Content-Type', 'image/svg+xml');
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // 24h Cache
-    res.send(svg);
-  } catch (error) {
-    res.status(404).json({ error: error.message });
-  }
-});
-
-// GET: Alle verfügbaren Avatar-IDs
-app.get('/api/avatars/list', (req, res) => {
-  const avatarIds = Object.keys(avatarGenerator.avatarConfigs);
-  res.json({ avatars: avatarIds });
-});
-
-// GET: Custom Avatar mit Parametern generieren
+// GET: Custom Avatar mit Parametern generieren (DiceBear)
 app.get('/api/avatar-custom/:style', async (req, res) => {
   try {
     const style = req.params.style;
