@@ -72,6 +72,44 @@ app.get('/api/avatars/list', (req, res) => {
   res.json({ avatars: avatarIds });
 });
 
+// GET: Custom Avatar mit Parametern generieren
+app.get('/api/avatar-custom/:style', async (req, res) => {
+  try {
+    const style = req.params.style;
+    const options = req.query;
+    
+    // Dynamischer Import des gewünschten Styles
+    const { createAvatar } = await import('@dicebear/core');
+    let styleModule;
+    
+    switch(style) {
+      case 'adventurer':
+        styleModule = (await import('@dicebear/collection')).adventurer;
+        break;
+      case 'avataaars':
+        styleModule = (await import('@dicebear/collection')).avataaars;
+        break;
+      case 'adventurer-neutral':
+        styleModule = (await import('@dicebear/collection')).adventurerNeutral;
+        break;
+      case 'avataaars-neutral':
+        styleModule = (await import('@dicebear/collection')).avataaarsNeutral;
+        break;
+      default:
+        return res.status(400).json({ error: 'Unknown style' });
+    }
+    
+    const avatar = createAvatar(styleModule, options);
+    const svg = avatar.toString();
+    
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'public, max-age=3600'); // 1h Cache
+    res.send(svg);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // === GAMES API ===
 
 // GET: Alle Spiele abrufen
