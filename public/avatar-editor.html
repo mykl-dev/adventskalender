@@ -1,4 +1,4 @@
-<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
 
 <html lang="de">
 
@@ -6,473 +6,949 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><html lang="de"><html lang="de">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><html lang="de">
 
     <title>Avatar Editor - Adventskalender 2024</title>
 
     <style>    <meta charset="UTF-8">
 
-        * {
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-            margin: 0;    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><head>
-
-            padding: 0;
-
-            box-sizing: border-box;    <title>Avatar Editor - Adventskalender 2024</title>
-
-        }
-
-    <style>    <meta charset="UTF-8">    <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><html lang="de"><html lang="de">
 
         body {
 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);        * {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);    <title>Avatar Editor - Adventskalender 2024</title>
 
             min-height: 100vh;
 
+            padding: 0 0 100px 0;    <style>    <meta charset="UTF-8">
+
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+        }        * {
+
+
+
+        .avatar-header {            margin: 0;    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><head>
+
+            position: sticky;
+
+            top: 0;            padding: 0;
+
+            z-index: 100;
+
+            background: rgba(255, 255, 255, 0.95);            box-sizing: border-box;    <title>Avatar Editor - Adventskalender 2024</title>
+
+            backdrop-filter: blur(10px);
+
+            border-radius: 0 0 20px 20px;        }
+
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+            padding: 20px;    <style>    <meta charset="UTF-8">    <meta charset="UTF-8">
+
+            margin-bottom: 30px;
+
+            transition: all 0.3s ease;        body {
+
+        }
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);        * {
+
+        .avatar-header.scrolled { padding: 10px 20px; }
+
+        .avatar-header.scrolled .avatar-preview { width: 60px; height: 60px; }            min-height: 100vh;
+
+        .avatar-header.scrolled h1 { font-size: 1.2rem; }
+
             padding: 0 0 100px 0;            margin: 0;    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            margin: 0;
+        .avatar-header-content {
 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;            padding: 0;
+            display: flex;            margin: 0;
+
+            align-items: center;
+
+            gap: 20px;            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;            padding: 0;
+
+            max-width: 1200px;
+
+            margin: 0 auto;        }
 
         }
 
             box-sizing: border-box;    <title>Avatar Editor - Adventskalender</title>    <title>Avatar Editor - Adventskalender 2024</title>
 
+        .avatar-info { flex: 1; }
+
         .editor-container {
 
-            max-width: 1200px;        }
+        .avatar-header h1 {
 
-            margin: 0 auto;
+            font-size: 1.8rem;            max-width: 1200px;        }
 
-            padding: 20px;    <link rel="stylesheet" href="styles.css">    <link rel="stylesheet" href="avatar-editor.css">
+            margin: 0 0 5px 0;
+
+            color: #333;            margin: 0 auto;
+
+            transition: all 0.3s ease;
+
+        }            padding: 20px;    <link rel="stylesheet" href="styles.css">    <link rel="stylesheet" href="avatar-editor.css">
+
+
+
+        .score-display {        }
+
+            display: inline-flex;
+
+            align-items: center;        body {
+
+            gap: 8px;
+
+            padding: 6px 14px;        /* Sticky Avatar Preview Header */
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            border-radius: 20px;        .avatar-header {            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);    <style>    <style>
+
+            color: white;
+
+            font-weight: bold;            position: sticky;
 
         }
-
-        body {
-
-        /* Sticky Avatar Preview Header */
-
-        .avatar-header {            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);    <style>    <style>
-
-            position: sticky;
 
             top: 0;            min-height: 100vh;
 
-            z-index: 100;
+        .avatar-preview {
 
-            background: rgba(255, 255, 255, 0.95);            padding: 0;        .editor-container {        .avatar-3d-canvas {
+            width: 100px;            z-index: 100;
+
+            height: 100px;
+
+            border-radius: 50%;            background: rgba(255, 255, 255, 0.95);            padding: 0;        .editor-container {        .avatar-3d-canvas {
+
+            overflow: hidden;
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);            backdrop-filter: blur(10px);
+
+            transition: all 0.3s ease;
+
+            background: white;            border-radius: 0 0 20px 20px;            margin: 0;
+
+            flex-shrink: 0;
+
+        }            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+
+
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }            padding: 20px;            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;            max-width: 1200px;            border-radius: 15px;
+
+
+
+        .action-buttons {            margin-bottom: 30px;
+
+            position: fixed;
+
+            bottom: 0;            transition: all 0.3s ease;            padding-bottom: 100px; /* Platz für sticky Buttons */
+
+            left: 0;
+
+            right: 0;        }
+
+            z-index: 99;
+
+            background: rgba(255, 255, 255, 0.98);        }            margin: 40px auto;            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 
             backdrop-filter: blur(10px);
 
-            border-radius: 0 0 20px 20px;            margin: 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);        .avatar-header.scrolled {
 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 15px 20px;
 
-            padding: 20px;            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;            max-width: 1200px;            border-radius: 15px;
+            display: flex;            padding: 10px 20px;
 
-            margin-bottom: 30px;
+            gap: 15px;
 
-            transition: all 0.3s ease;            padding-bottom: 100px; /* Platz für sticky Buttons */
-
-        }
-
-        }            margin: 40px auto;            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-
-        .avatar-header.scrolled {
-
-            padding: 10px 20px;
+            justify-content: center;        }
 
         }
 
         .editor-container {            padding: 20px;        }
 
-        .avatar-header.scrolled .avatar-preview {
-
-            width: 60px;            max-width: 1200px;
-
-            height: 60px;
-
-        }            margin: 0 auto;        }        
-
-
-
-        .avatar-header.scrolled h1 {            padding: 20px;
-
-            font-size: 1.2rem;
-
-        }        }        .render-mode-toggle {
-
-
-
-        .avatar-header-content {
-
-            display: flex;
-
-            align-items: center;        /* Sticky Avatar Preview Header */        .editor-header {            position: absolute;
-
-            gap: 20px;
-
-            max-width: 1200px;        .avatar-header {
-
-            margin: 0 auto;
-
-        }            position: sticky;            text-align: center;            top: 10px;
-
-
-
-        .avatar-info {            top: 0;
-
-            flex: 1;
-
-        }            z-index: 100;            margin-bottom: 30px;            right: 10px;
-
-
-
-        .avatar-header h1 {            background: rgba(255, 255, 255, 0.95);
-
-            font-size: 1.8rem;
-
-            margin: 0 0 5px 0;            backdrop-filter: blur(10px);        }            background: rgba(255, 255, 255, 0.1);
-
-            color: #333;
-
-            transition: all 0.3s ease;            border-radius: 0 0 20px 20px;
-
-        }
-
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);            border: 1px solid rgba(255, 255, 255, 0.2);
-
-        .score-display {
-
-            display: inline-flex;            padding: 20px;
-
-            align-items: center;
-
-            gap: 8px;            margin-bottom: 30px;        .editor-header h1 {            padding: 8px 16px;
-
-            padding: 6px 14px;
-
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            transition: all 0.3s ease;
-
-            border-radius: 20px;
-
-            color: white;        }            font-size: 2.5rem;            border-radius: 20px;
-
-            font-weight: bold;
-
-            font-size: 1rem;
-
-        }
-
-        .avatar-header.scrolled {            margin-bottom: 10px;            cursor: pointer;
-
-        .avatar-preview {
-
-            width: 100px;            padding: 10px 20px;
-
-            height: 100px;
-
-            border-radius: 50%;        }            color: var(--primary-color, #c41e3a);            color: white;
-
-            overflow: hidden;
-
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-
-            transition: all 0.3s ease;
-
-            background: white;        .avatar-header.scrolled .avatar-preview {        }            font-size: 12px;
-
-            flex-shrink: 0;
-
-        }            width: 60px;
-
-
-
-        .avatar-preview img {            height: 60px;            transition: all 0.3s;
-
-            width: 100%;
-
-            height: 100%;        }
-
-            object-fit: cover;
-
-        }        .score-display {            backdrop-filter: blur(10px);
-
-
-
-        /* Sticky Action Buttons am unteren Rand */        .avatar-header.scrolled h1 {
-
-        .action-buttons {
-
-            position: fixed;            font-size: 1.2rem;            display: inline-flex;        }
-
-            bottom: 0;
-
-            left: 0;        }
-
-            right: 0;
-
-            z-index: 99;            align-items: center;        
-
-            background: rgba(255, 255, 255, 0.98);
-
-            backdrop-filter: blur(10px);        .avatar-header-content {
-
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-
-            padding: 15px 20px;            display: flex;            gap: 10px;        .render-mode-toggle:hover {
-
-            display: flex;
-
-            gap: 15px;            align-items: center;
-
-            justify-content: center;
-
-            align-items: center;            gap: 20px;            padding: 10px 20px;            background: rgba(255, 255, 255, 0.2);
-
-        }
-
-            max-width: 1200px;
-
         .btn {
 
-            padding: 12px 30px;            margin: 0 auto;            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            transform: scale(1.05);
+            padding: 12px 30px;        .avatar-header.scrolled .avatar-preview {
 
             border: none;
 
-            border-radius: 12px;        }
+            border-radius: 12px;            width: 60px;            max-width: 1200px;
 
             cursor: pointer;
 
-            font-size: 1rem;            border-radius: 25px;        }
+            font-size: 1rem;            height: 60px;
 
             font-weight: bold;
 
-            transition: all 0.3s;        .avatar-info {
+            transition: all 0.3s;        }            margin: 0 auto;        }        
 
             display: flex;
 
-            align-items: center;            flex: 1;            color: white;    </style>
+            align-items: center;
 
             gap: 8px;
+
+        }        .avatar-header.scrolled h1 {            padding: 20px;
+
+
+
+        .btn-primary {            font-size: 1.2rem;
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            color: white;        }        }        .render-mode-toggle {
+
+        }
+
+
+
+        .btn-secondary { background: white; color: #667eea; border: 2px solid #667eea; }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }        .avatar-header-content {
+
+        .btn:active { transform: translateY(0); }
+
+            display: flex;
+
+        .editor-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+            align-items: center;        /* Sticky Avatar Preview Header */        .editor-header {            position: absolute;
+
+        .style-selector, .customization-panel {
+
+            background: white;            gap: 20px;
+
+            border-radius: 20px;
+
+            padding: 25px;            max-width: 1200px;        .avatar-header {
+
+            margin-bottom: 25px;
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);            margin: 0 auto;
+
+        }
+
+        }            position: sticky;            text-align: center;            top: 10px;
+
+        .style-selector h2, .customization-panel h2 { margin: 0 0 20px 0; color: #333; }
+
+
+
+        .style-grid {
+
+            display: grid;        .avatar-info {            top: 0;
+
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+            gap: 15px;            flex: 1;
+
+        }
+
+        }            z-index: 100;            margin-bottom: 30px;            right: 10px;
+
+        .style-card {
+
+            background: #f8f9fa;
+
+            border: 3px solid transparent;
+
+            border-radius: 15px;        .avatar-header h1 {            background: rgba(255, 255, 255, 0.95);
+
+            padding: 20px;
+
+            text-align: center;            font-size: 1.8rem;
+
+            cursor: pointer;
+
+            transition: all 0.3s;            margin: 0 0 5px 0;            backdrop-filter: blur(10px);        }            background: rgba(255, 255, 255, 0.1);
+
+            position: relative;
+
+        }            color: #333;
+
+
+
+        .style-card:hover:not(.locked) { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); }            transition: all 0.3s ease;            border-radius: 0 0 20px 20px;
+
+        .style-card.active { border-color: #667eea; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); }
+
+        .style-card.locked { opacity: 0.5; cursor: not-allowed; }        }
+
+
+
+        .lock-badge {            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            position: absolute;
+
+            top: 10px;        .score-display {
+
+            right: 10px;
+
+            background: #ff6b6b;            display: inline-flex;            padding: 20px;
+
+            color: white;
+
+            padding: 5px 10px;            align-items: center;
+
+            border-radius: 10px;
+
+            font-size: 0.8rem;            gap: 8px;            margin-bottom: 30px;        .editor-header h1 {            padding: 8px 16px;
+
+        }
+
+            padding: 6px 14px;
+
+        .option-group {
+
+            margin-bottom: 25px;            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            transition: all 0.3s ease;
+
+            padding-bottom: 25px;
+
+            border-bottom: 1px solid #e0e0e0;            border-radius: 20px;
+
+        }
+
+            color: white;        }            font-size: 2.5rem;            border-radius: 20px;
+
+        .option-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+            font-weight: bold;
+
+        .option-header {
+
+            display: flex;            font-size: 1rem;
+
+            align-items: center;
+
+            justify-content: space-between;        }
+
+            margin-bottom: 15px;
+
+        }        .avatar-header.scrolled {            margin-bottom: 10px;            cursor: pointer;
+
+
+
+        .option-header h3 { margin: 0; color: #333; font-size: 1.2rem; }        .avatar-preview {
+
+
+
+        .unlock-badge {            width: 100px;            padding: 10px 20px;
+
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+
+            color: #333;            height: 100px;
+
+            padding: 5px 12px;
+
+            border-radius: 15px;            border-radius: 50%;        }            color: var(--primary-color, #c41e3a);            color: white;
+
+            font-size: 0.85rem;
+
+            font-weight: bold;            overflow: hidden;
+
+        }
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+        .options-grid {
+
+            display: grid;            transition: all 0.3s ease;
+
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+
+            gap: 10px;            background: white;        .avatar-header.scrolled .avatar-preview {        }            font-size: 12px;
+
+        }
+
+            flex-shrink: 0;
+
+        .option-item {
+
+            aspect-ratio: 1;        }            width: 60px;
+
+            border: 3px solid #e0e0e0;
+
+            border-radius: 12px;
+
+            cursor: pointer;
+
+            transition: all 0.3s;        .avatar-preview img {            height: 60px;            transition: all 0.3s;
+
+            display: flex;
+
+            align-items: center;            width: 100%;
+
+            justify-content: center;
+
+            font-size: 0.8rem;            height: 100%;        }
+
+            font-weight: bold;
+
+            color: #666;            object-fit: cover;
+
+            background: #f8f9fa;
+
+            position: relative;        }        .score-display {            backdrop-filter: blur(10px);
+
+            overflow: hidden;
+
+        }
+
+
+
+        .option-item:hover:not(.locked) { border-color: #667eea; transform: scale(1.05); }        /* Sticky Action Buttons am unteren Rand */        .avatar-header.scrolled h1 {
+
+        .option-item.active { border-color: #667eea; background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%); color: #667eea; }
+
+        .option-item.locked { opacity: 0.4; cursor: not-allowed; }        .action-buttons {
+
+        .option-item.locked::after { content: '🔒'; position: absolute; font-size: 1.5rem; }
+
+        .option-item.color-option { border-radius: 50%; }            position: fixed;            font-size: 1.2rem;            display: inline-flex;        }
+
+
+
+        .next-unlocks {            bottom: 0;
+
+            background: linear-gradient(135deg, #fff7e6 0%, #ffe6f0 100%);
+
+            border-radius: 15px;            left: 0;        }
+
+            padding: 20px;
+
+            margin-top: 25px;            right: 0;
+
+        }
+
+            z-index: 99;            align-items: center;        
+
+        .next-unlocks h3 { margin: 0 0 15px 0; color: #333; }
+
+            background: rgba(255, 255, 255, 0.98);
+
+        .unlock-item {
+
+            background: white;            backdrop-filter: blur(10px);        .avatar-header-content {
+
+            padding: 12px;
+
+            border-radius: 10px;            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+
+            margin-bottom: 10px;
+
+            display: flex;            padding: 15px 20px;            display: flex;            gap: 10px;        .render-mode-toggle:hover {
+
+            align-items: center;
+
+            justify-content: space-between;            display: flex;
+
+        }
+
+            gap: 15px;            align-items: center;
+
+        .unlock-item:last-child { margin-bottom: 0; }
+
+        .unlock-item-name { font-weight: bold; color: #667eea; }            justify-content: center;
+
+        .unlock-item-points { color: #ff6b6b; font-weight: bold; }
+
+        .loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: #667eea; font-size: 1.2rem; }            align-items: center;            gap: 20px;            padding: 10px 20px;            background: rgba(255, 255, 255, 0.2);
+
+
+
+        @media (max-width: 768px) {        }
+
+            .avatar-header-content { gap: 15px; }
+
+            .avatar-preview { width: 70px; height: 70px; }            max-width: 1200px;
+
+            .avatar-header.scrolled .avatar-preview { width: 50px; height: 50px; }
+
+            .style-grid { grid-template-columns: 1fr; }        .btn {
+
+            .options-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); }
+
+            .action-buttons { flex-direction: column; gap: 10px; }            padding: 12px 30px;            margin: 0 auto;            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            transform: scale(1.05);
+
+            .btn { width: 100%; justify-content: center; }
+
+        }            border: none;
+
+    </style>
+
+</head>            border-radius: 12px;        }
+
+<body>
+
+    <div class="avatar-header" id="avatarHeader">            cursor: pointer;
+
+        <div class="avatar-header-content">
+
+            <div class="avatar-preview">            font-size: 1rem;            border-radius: 25px;        }
+
+                <img id="avatarPreviewImage" src="/api/avatar-custom/adventurer?seed=default" alt="Avatar">
+
+            </div>            font-weight: bold;
+
+            <div class="avatar-info">
+
+                <h1>✨ Erstelle deinen Avatar</h1>            transition: all 0.3s;        .avatar-info {
+
+                <div class="score-display">⭐ <span id="userScore">0</span> Punkte</div>
+
+            </div>            display: flex;
+
+        </div>
+
+    </div>            align-items: center;            flex: 1;            color: white;    </style>
+
+
+
+    <div class="editor-container">            gap: 8px;
+
+        <div class="style-selector">
+
+            <h2>🎨 Wähle deinen Avatar-Stil</h2>        }        }
+
+            <div class="style-grid" id="styleGrid"></div>
+
+        </div>
+
+
+
+        <div class="customization-panel">        .btn-primary {            font-weight: bold;</head>
+
+            <h2>⚙️ Anpassungen</h2>
+
+            <div id="customizationOptions"><div class="loading">Lade Optionen...</div></div>            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            <div class="next-unlocks" id="nextUnlocks" style="display: none;">
+
+                <h3>🎁 Nächste Freischaltungen</h3>            color: white;        .avatar-header h1 {
+
+                <div id="nextUnlocksList"></div>
+
+            </div>        }
+
+        </div>
+
+    </div>            font-size: 1.8rem;            font-size: 1.2rem;<body>
+
+
+
+    <div class="action-buttons">        .btn-secondary {
+
+        <button class="btn btn-secondary" id="randomBtn">🎲 Zufällig</button>
+
+        <button class="btn btn-primary" id="saveBtn">💾 Speichern</button>            background: white;            margin: 0 0 5px 0;
+
+    </div>
+
+            color: #667eea;
+
+    <script type="module">
+
+        let styleSchemas = {}, currentStyle = 'adventurer', currentOptions = {}, userScore = 150;            border: 2px solid #667eea;            color: #333;        }    <div class="editor-container">
+
+
+
+        async function init() {        }
+
+            window.addEventListener('scroll', () => {
+
+                const header = document.getElementById('avatarHeader');            transition: all 0.3s ease;
+
+                header.classList.toggle('scrolled', window.scrollY > 50);
+
+            });        .btn:hover {
+
+
+
+            await loadStyleSchemas();            transform: translateY(-2px);        }        <div class="editor-header">
+
+            document.getElementById('userScore').textContent = userScore;
+
+            renderStyleSelector();            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+            selectStyle('adventurer');
 
         }        }
 
 
 
-        .btn-primary {            font-weight: bold;</head>
+        async function loadStyleSchemas() {
 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            try {
 
-            color: white;        .avatar-header h1 {
+                const response = await fetch('avatarStyleSchemas.json');        .btn:active {        .score-display {        .editor-layout {            <h1>✨ Erstelle deinen Avatar</h1>
 
-        }
+                styleSchemas = await response.json();
 
-            font-size: 1.8rem;            font-size: 1.2rem;<body>
+                console.log('Schemas geladen:', styleSchemas);            transform: translateY(0);
 
-        .btn-secondary {
+            } catch (error) {
 
-            background: white;            margin: 0 0 5px 0;
+                console.error('Fehler beim Laden:', error);        }            display: inline-flex;
 
-            color: #667eea;
+                alert('Fehler beim Laden der Avatar-Konfiguration');
 
-            border: 2px solid #667eea;            color: #333;        }    <div class="editor-container">
-
-        }
-
-            transition: all 0.3s ease;
-
-        .btn:hover {
-
-            transform: translateY(-2px);        }        <div class="editor-header">
-
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
 
         }
-
-
-
-        .btn:active {        .score-display {        .editor-layout {            <h1>✨ Erstelle deinen Avatar</h1>
-
-            transform: translateY(0);
-
-        }            display: inline-flex;
-
-
 
         /* Style Selector */            align-items: center;            display: grid;            <p class="editor-subtitle">Gestalte deine persönliche Weihnachtsfigur</p>
 
-        .style-selector {
+        function renderStyleSelector() {
+
+            const grid = document.getElementById('styleGrid');        .style-selector {
+
+            grid.innerHTML = '';
 
             background: white;            gap: 8px;
 
-            border-radius: 20px;
+            Object.keys(styleSchemas).forEach(styleId => {
 
-            padding: 25px;            padding: 6px 14px;            grid-template-columns: 1fr 400px;        </div>
+                const style = styleSchemas[styleId];            border-radius: 20px;
 
-            margin-bottom: 25px;
+                const isLocked = userScore < style.unlockScore;
 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                const card = document.createElement('div');            padding: 25px;            padding: 6px 14px;            grid-template-columns: 1fr 400px;        </div>
+
+                card.className = `style-card ${styleId === currentStyle ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
+
+                            margin-bottom: 25px;
+
+                if (isLocked) {
+
+                    card.innerHTML = `<div class="lock-badge">🔒 ${style.unlockScore}★</div><h3>${style.displayName}</h3><p>Benötigt ${style.unlockScore} Punkte</p>`;            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+                } else {
+
+                    card.innerHTML = `<h3>${style.displayName}</h3><p>Verfügbar ✓</p>`;        }
+
+                    card.onclick = () => selectStyle(styleId);
+
+                }            border-radius: 20px;            gap: 30px;
+
+                grid.appendChild(card);
+
+            });        .style-selector h2 {
 
         }
-
-            border-radius: 20px;            gap: 30px;
-
-        .style-selector h2 {
 
             margin: 0 0 20px 0;            color: white;
 
-            color: #333;
+        function selectStyle(styleId) {
+
+            const style = styleSchemas[styleId];            color: #333;
+
+            if (!style || userScore < style.unlockScore) return;
 
         }            font-weight: bold;            margin-top: 30px;        <div class="editor-content">
 
+            currentStyle = styleId;
+
+            currentOptions = { seed: `User-${Date.now()}` };
 
 
-        .style-grid {            font-size: 1rem;
 
-            display: grid;
+            Object.keys(style.options).forEach(optionKey => {        .style-grid {            font-size: 1rem;
 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));        }        }            <!-- Avatar Vorschau -->
+                const option = style.options[optionKey];
+
+                if (userScore >= option.unlockScore && option.values.length > 0) {            display: grid;
+
+                    currentOptions[optionKey] = option.values[0];
+
+                }            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));        }        }            <!-- Avatar Vorschau -->
+
+            });
 
             gap: 15px;
 
+            renderStyleSelector();
+
+            renderCustomizationOptions();        }
+
+            updatePreview();
+
         }
 
 
 
-        .style-card {        .avatar-preview {            <div class="avatar-preview-section" id="avatarPreviewSection">
+        function renderCustomizationOptions() {        .style-card {        .avatar-preview {            <div class="avatar-preview-section" id="avatarPreviewSection">
 
-            background: #f8f9fa;
+            const container = document.getElementById('customizationOptions');
 
-            border: 3px solid transparent;            width: 100px;
+            const style = styleSchemas[currentStyle];            background: #f8f9fa;
 
-            border-radius: 15px;
+            
+
+            if (!style) {            border: 3px solid transparent;            width: 100px;
+
+                container.innerHTML = '<p>Kein Style ausgewählt</p>';
+
+                return;            border-radius: 15px;
+
+            }
 
             padding: 20px;            height: 100px;        @media (max-width: 768px) {                <div class="avatar-preview-card">
 
-            text-align: center;
+            container.innerHTML = '';
 
-            cursor: pointer;            border-radius: 50%;
+            const sortedOptions = Object.entries(style.options).sort((a, b) => a[1].unlockScore - b[1].unlockScore);            text-align: center;
+
+            sortedOptions.forEach(([key, option]) => renderOptionGroup(key, option, container));
+
+            updateNextUnlocks();            cursor: pointer;            border-radius: 50%;
+
+        }
 
             transition: all 0.3s;
 
-            position: relative;            overflow: hidden;            .editor-layout {                    <h2>Dein Avatar</h2>
+        function renderOptionGroup(key, option, container) {
 
-        }
+            const isLocked = userScore < option.unlockScore;            position: relative;            overflow: hidden;            .editor-layout {                    <h2>Dein Avatar</h2>
 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            const group = document.createElement('div');
 
-        .style-card:hover:not(.locked) {
+            group.className = 'option-group';        }
+
+            
+
+            const header = document.createElement('div');            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+            header.className = 'option-header';
+
+            header.innerHTML = `<h3>${option.displayName}</h3>${isLocked ? `<span class="unlock-badge">🔒 ${option.unlockScore}★</span>` : ''}`;        .style-card:hover:not(.locked) {
+
+            group.appendChild(header);
 
             transform: translateY(-5px);            transition: all 0.3s ease;                grid-template-columns: 1fr;                    <div id="avatarPreview" class="avatar-preview"></div>
 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            const grid = document.createElement('div');
 
-        }            background: white;
+            grid.className = 'options-grid';            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 
 
 
-        .style-card.active {            flex-shrink: 0;            }                </div>
+            option.values.forEach(value => {        }            background: white;
 
-            border-color: #667eea;
+                const item = document.createElement('div');
 
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);        }
+                item.className = `option-item ${option.type === 'color' ? 'color-option' : ''} ${currentOptions[key] === value ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
+
+                
+
+                if (option.type === 'color') {        .style-card.active {            flex-shrink: 0;            }                </div>
+
+                    item.style.background = `#${value}`;
+
+                    item.title = `#${value}`;            border-color: #667eea;
+
+                } else {
+
+                    let displayText = value;            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);        }
+
+                    if (value.startsWith('variant')) {
+
+                        displayText = value.replace('variant', '').replace(/^0+/, '');        }
+
+                    } else if (value.length > 12) {
+
+                        displayText = value.substring(0, 10) + '...';        }            </div>
+
+                    }
+
+                    item.textContent = displayText;        .style-card.locked {
+
+                    item.title = value;
+
+                }            opacity: 0.5;        .avatar-preview img {
+
+
+
+                if (!isLocked) item.onclick = () => selectOption(key, value);            cursor: not-allowed;
+
+                grid.appendChild(item);
+
+            });        }            width: 100%;
+
+
+
+            group.appendChild(grid);
+
+            container.appendChild(group);
+
+        }        .lock-badge {            height: 100%;
+
+
+
+        function selectOption(key, value) {            position: absolute;
+
+            console.log(`Option: ${key} = ${value}`);
+
+            currentOptions[key] = value;            top: 10px;            object-fit: cover;        .preview-panel {            <!-- Customization Options -->
+
+            renderCustomizationOptions();
+
+            updatePreview();            right: 10px;
 
         }
-
-        }            </div>
-
-        .style-card.locked {
-
-            opacity: 0.5;        .avatar-preview img {
-
-            cursor: not-allowed;
-
-        }            width: 100%;
-
-
-
-        .lock-badge {            height: 100%;
-
-            position: absolute;
-
-            top: 10px;            object-fit: cover;        .preview-panel {            <!-- Customization Options -->
-
-            right: 10px;
 
             background: #ff6b6b;        }
 
-            color: white;
+        function updatePreview() {
 
-            padding: 5px 10px;            background: white;            <div class="customization-section">
+            const params = new URLSearchParams();            color: white;
 
-            border-radius: 10px;
+            Object.keys(currentOptions).forEach(key => {
 
-            font-size: 0.8rem;        /* Sticky Action Buttons am unteren Rand */
+                if (currentOptions[key]) params.append(key, currentOptions[key]);            padding: 5px 10px;            background: white;            <div class="customization-section">
 
-        }
+            });
 
-        .action-buttons {            border-radius: 20px;                <!-- Gender Selection -->
+                        border-radius: 10px;
 
-        /* Customization Options */
+            const url = `/api/avatar-custom/${currentStyle}?${params.toString()}`;
 
-        .customization-panel {            position: fixed;
+            console.log('Preview:', url);            font-size: 0.8rem;        /* Sticky Action Buttons am unteren Rand */
+
+            document.getElementById('avatarPreviewImage').src = url;
+
+        }        }
+
+
+
+        function randomizeAvatar() {        .action-buttons {            border-radius: 20px;                <!-- Gender Selection -->
+
+            const style = styleSchemas[currentStyle];
+
+            if (!style) return;        /* Customization Options */
+
+
+
+            console.log('Randomizing...');        .customization-panel {            position: fixed;
+
+            currentOptions.seed = `User-${Date.now()}`;
 
             background: white;
 
-            border-radius: 20px;            bottom: 0;            padding: 30px;                <div class="gender-selection">
+            Object.keys(style.options).forEach(optionKey => {
 
-            padding: 25px;
+                const option = style.options[optionKey];            border-radius: 20px;            bottom: 0;            padding: 30px;                <div class="gender-selection">
 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);            left: 0;
+                if (userScore >= option.unlockScore && option.values.length > 0) {
+
+                    currentOptions[optionKey] = option.values[Math.floor(Math.random() * option.values.length)];            padding: 25px;
+
+                }
+
+            });            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);            left: 0;
+
+
+
+            renderCustomizationOptions();        }
+
+            updatePreview();
+
+        }            right: 0;            box-shadow: 0 10px 30px rgba(0,0,0,0.1);                    <h3>
+
+
+
+        function saveAvatar() {        .option-group {
+
+            const avatarData = { style: currentStyle, options: currentOptions, createdAt: new Date().toISOString() };
+
+            localStorage.setItem('customAvatar', JSON.stringify(avatarData));            margin-bottom: 25px;            z-index: 99;
+
+            console.log('Gespeichert:', avatarData);
+
+            alert('✅ Avatar erfolgreich gespeichert!');            padding-bottom: 25px;
 
         }
-
-            right: 0;            box-shadow: 0 10px 30px rgba(0,0,0,0.1);                    <h3>
-
-        .option-group {
-
-            margin-bottom: 25px;            z-index: 99;
-
-            padding-bottom: 25px;
 
             border-bottom: 1px solid #e0e0e0;            background: rgba(255, 255, 255, 0.98);            position: sticky;                        <span class="category-icon">🎭</span>
 
-        }
+        function updateNextUnlocks() {
 
-            backdrop-filter: blur(10px);
+            const style = styleSchemas[currentStyle];        }
 
-        .option-group:last-child {
+            const nextUnlocksDiv = document.getElementById('nextUnlocks');
 
-            border-bottom: none;            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);            top: 20px;                        Wähle deinen Style
+            const listDiv = document.getElementById('nextUnlocksList');            backdrop-filter: blur(10px);
 
-            margin-bottom: 0;
+            
 
-            padding-bottom: 0;            padding: 15px 20px;
+            const lockedOptions = [];        .option-group:last-child {
 
-        }
+            Object.keys(style.options).forEach(optionKey => {
 
-            display: flex;            height: fit-content;                    </h3>
+                const option = style.options[optionKey];            border-bottom: none;            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);            top: 20px;                        Wähle deinen Style
 
-        .option-header {
+                if (userScore < option.unlockScore) {
 
-            display: flex;            gap: 15px;
+                    lockedOptions.push({ name: option.displayName, unlockScore: option.unlockScore });            margin-bottom: 0;
 
-            align-items: center;
+                }
 
-            justify-content: space-between;            justify-content: center;        }                    <div class="gender-buttons">
-
-            margin-bottom: 15px;
-
-        }            align-items: center;
+            });            padding-bottom: 0;            padding: 15px 20px;
 
 
 
-        .option-header h3 {        }                        <button class="gender-button active" data-gender="babo">
+            lockedOptions.sort((a, b) => a.unlockScore - b.unlockScore);        }
 
-            margin: 0;
+
+
+            if (lockedOptions.length > 0) {            display: flex;            height: fit-content;                    </h3>
+
+                nextUnlocksDiv.style.display = 'block';
+
+                listDiv.innerHTML = '';        .option-header {
+
+                lockedOptions.slice(0, 3).forEach(unlock => {
+
+                    const item = document.createElement('div');            display: flex;            gap: 15px;
+
+                    item.className = 'unlock-item';
+
+                    item.innerHTML = `<span class="unlock-item-name">${unlock.name}</span><span class="unlock-item-points">${unlock.unlockScore}★ (noch ${unlock.unlockScore - userScore})</span>`;            align-items: center;
+
+                    listDiv.appendChild(item);
+
+                });            justify-content: space-between;            justify-content: center;        }                    <div class="gender-buttons">
+
+            } else {
+
+                nextUnlocksDiv.style.display = 'none';            margin-bottom: 15px;
+
+            }
+
+        }        }            align-items: center;
+
+
+
+        document.getElementById('randomBtn').addEventListener('click', randomizeAvatar);
+
+        document.getElementById('saveBtn').addEventListener('click', saveAvatar);
+
+        init();        .option-header h3 {        }                        <button class="gender-button active" data-gender="babo">
+
+    </script>
+
+</body>            margin: 0;
+
+</html>
 
             color: #333;
 
