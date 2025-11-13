@@ -15,7 +15,7 @@
 
         <div class="editor-content">
             <!-- Avatar Vorschau -->
-            <div class="avatar-preview-section">
+            <div class="avatar-preview-section" id="avatarPreviewSection">
                 <div class="avatar-preview-card">
                     <h2>Dein Avatar</h2>
                     <div id="avatarPreview" class="avatar-preview"></div>
@@ -24,6 +24,26 @@
 
             <!-- Customization Options -->
             <div class="customization-section">
+                <!-- Gender Selection -->
+                <div class="gender-selection">
+                    <h3>
+                        <span class="category-icon">🎭</span>
+                        Wähle deinen Style
+                    </h3>
+                    <div class="gender-buttons">
+                        <button class="gender-button active" data-gender="babo">
+                            <span class="gender-icon">💪</span>
+                            <span class="gender-label">Babo</span>
+                            <span class="gender-desc">Cool & Fresh</span>
+                        </button>
+                        <button class="gender-button" data-gender="cutie">
+                            <span class="gender-icon">✨</span>
+                            <span class="gender-label">Cutie</span>
+                            <span class="gender-desc">Cute & Sweet</span>
+                        </button>
+                    </div>
+                </div>
+                
                 <!-- Username Input -->
                 <div class="input-section">
                     <label for="usernameInput">

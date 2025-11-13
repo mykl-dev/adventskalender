@@ -6,19 +6,23 @@ class AvatarEditor {
     constructor() {
         this.currentAvatar = avatarManager.getDefaultAvatar();
         this.currentUsername = '';
-        this.avatarOptions = avatarManager.getAvatarOptions();
+        this.currentGender = 'babo';
+        this.avatarOptions = avatarManager.getAvatarOptions(this.currentGender);
         
         // Lade existierendes Profil falls vorhanden
         const existingProfile = avatarManager.getProfile();
         if (existingProfile) {
             this.currentAvatar = existingProfile.avatar;
             this.currentUsername = existingProfile.username;
+            this.currentGender = existingProfile.avatar.gender || 'babo';
+            this.avatarOptions = avatarManager.getAvatarOptions(this.currentGender);
         }
         
         this.init();
     }
 
     init() {
+        this.setupScrollBehavior();
         this.renderOptions();
         this.updatePreview();
         this.setupEventListeners();
@@ -29,6 +33,48 @@ class AvatarEditor {
         if (this.currentUsername) {
             usernameInput.value = this.currentUsername;
         }
+        
+        // Setze Gender-Button
+        this.updateGenderButtons();
+    }
+    
+    /**
+     * Setup Scroll-basiertes Verhalten für Avatar-Vorschau
+     */
+    setupScrollBehavior() {
+        const previewSection = document.getElementById('avatarPreviewSection');
+        
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const maxScroll = 300; // Ab wann maximale Verkleinerung erreicht ist
+            
+            // Berechne Skalierung (1.0 bis 0.5)
+            const scale = Math.max(0.5, 1 - (scrollY / maxScroll) * 0.5);
+            
+            // Berechne Position (sticky ab oberen Drittel)
+            if (scrollY > 50) {
+                previewSection.style.position = 'sticky';
+                previewSection.style.top = '2rem';
+                previewSection.style.transform = `scale(${scale})`;
+                previewSection.style.transformOrigin = 'top center';
+            } else {
+                previewSection.style.position = 'sticky';
+                previewSection.style.top = '2rem';
+                previewSection.style.transform = 'scale(1)';
+            }
+        });
+    }
+    
+    /**
+     * Update Gender-Button Status
+     */
+    updateGenderButtons() {
+        document.querySelectorAll('.gender-button').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.gender === this.currentGender) {
+                btn.classList.add('active');
+            }
+        });
     }
 
     /**
@@ -118,6 +164,14 @@ class AvatarEditor {
      * Setup Event Listeners
      */
     setupEventListeners() {
+        // Gender Selection
+        document.querySelectorAll('.gender-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const button = e.currentTarget;
+                this.switchGender(button.dataset.gender);
+            });
+        });
+        
         // Username Input
         const usernameInput = document.getElementById('usernameInput');
         usernameInput.addEventListener('input', (e) => {
@@ -147,6 +201,52 @@ class AvatarEditor {
                 this.saveAvatar();
             }
         });
+    }
+    
+    /**
+     * Wechsle Geschlecht
+     */
+    switchGender(gender) {
+        if (this.currentGender === gender) return;
+        
+        this.currentGender = gender;
+        this.currentAvatar.gender = gender;
+        this.avatarOptions = avatarManager.getAvatarOptions(gender);
+        
+        // Setze Standard-Avatar-Teile für neues Geschlecht
+        if (gender === 'babo') {
+            this.currentAvatar.head = 'snapback';
+            this.currentAvatar.face = 'cool-dude';
+            this.currentAvatar.body = 'hoodie-black';
+            this.currentAvatar.feet = 'sneakers-white';
+        } else {
+            this.currentAvatar.head = 'bow-pink';
+            this.currentAvatar.face = 'kawaii';
+            this.currentAvatar.body = 'dress-pink';
+            this.currentAvatar.feet = 'ballet-shoes';
+        }
+        
+        // Update UI
+        this.updateGenderButtons();
+        this.clearAndRerenderOptions();
+        this.updatePreview();
+        
+        // Animation
+        const previewCard = document.querySelector('.avatar-preview-card');
+        previewCard.classList.add('gender-switch-animation');
+        setTimeout(() => {
+            previewCard.classList.remove('gender-switch-animation');
+        }, 500);
+    }
+    
+    /**
+     * Lösche und rendere Optionen neu
+     */
+    clearAndRerenderOptions() {
+        ['headOptions', 'faceOptions', 'bodyOptions', 'feetOptions'].forEach(id => {
+            document.getElementById(id).innerHTML = '';
+        });
+        this.renderOptions();
     }
 
     /**
@@ -178,7 +278,7 @@ class AvatarEditor {
      * Zufälligen Avatar generieren
      */
     randomizeAvatar() {
-        // Zufällige Option für jede Kategorie
+        // Zufällige Option für jede Kategorie (außer gender)
         Object.keys(this.avatarOptions).forEach(category => {
             const options = this.avatarOptions[category];
             const randomOption = options[Math.floor(Math.random() * options.length)];
@@ -186,12 +286,14 @@ class AvatarEditor {
             
             // Update Button states
             const container = document.getElementById(`${category}Options`);
-            container.querySelectorAll('.option-button').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.value === randomOption.id) {
-                    btn.classList.add('active');
-                }
-            });
+            if (container) {
+                container.querySelectorAll('.option-button').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.value === randomOption.id) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
         });
         
         this.updatePreview();
