@@ -10,7 +10,7 @@
     <div class="dashboard-container">
         <!-- Header -->
         <header class="dashboard-header">
-            <a href="../index.html" class="back-button">
+            <a href="index.html" class="back-button">
                 <span>←</span>
                 <span>Zurück zum Kalender</span>
             </a>
@@ -28,8 +28,14 @@
             </div>
         </div>
 
+        <!-- Loading State -->
+        <div id="loading-state" class="loading-state">
+            <div class="loading-spinner">🎅</div>
+            <p>Lade Dashboard-Daten...</p>
+        </div>
+
         <!-- Overall Leaderboard -->
-        <section class="leaderboard-section">
+        <section class="leaderboard-section" id="leaderboard-section" style="display: none;">
             <h2>🏆 Gesamtrangliste</h2>
             <div class="ranking-description">
                 Sortiert nach Anzahl der 1. Plätze in allen Spielen
@@ -40,7 +46,7 @@
         </section>
 
         <!-- Games Overview -->
-        <section class="games-section">
+        <section class="games-section" id="games-section" style="display: none;">
             <h2>🎮 Alle Spiele im Überblick</h2>
             <div id="games-overview" class="games-grid">
                 <!-- Wird dynamisch gefüllt -->

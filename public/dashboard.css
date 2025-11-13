@@ -141,6 +141,44 @@ body {
     font-weight: 600;
 }
 
+/* Loading State */
+.loading-state {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 60px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    margin-bottom: 30px;
+}
+
+.loading-spinner {
+    font-size: 4rem;
+    animation: loadingSpin 2s ease-in-out infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes loadingSpin {
+    0%, 100% {
+        transform: rotate(0deg) scale(1);
+    }
+    25% {
+        transform: rotate(-15deg) scale(1.1);
+    }
+    50% {
+        transform: rotate(0deg) scale(1);
+    }
+    75% {
+        transform: rotate(15deg) scale(1.1);
+    }
+}
+
+.loading-state p {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    font-weight: 600;
+}
+
 /* Leaderboard Section */
 .leaderboard-section {
     background: rgba(255, 255, 255, 0.95);

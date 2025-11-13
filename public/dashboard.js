@@ -8,31 +8,63 @@ class DashboardManager {
             { id: 'flappy-santa', name: 'Flappy Santa', icon: '🛷', key: 'flappySanta' },
             // Weitere Spiele können hier hinzugefügt werden
         ];
+        this.allScores = {};
         this.init();
     }
 
-    init() {
-        this.loadAllScores();
-        this.renderOverallLeaderboard();
-        this.renderGamesOverview();
-        this.checkWinnerDate();
-        this.updateLastUpdateTime();
+    async init() {
+        try {
+            await this.loadAllScores();
+            this.renderOverallLeaderboard();
+            this.renderGamesOverview();
+            this.checkWinnerDate();
+            this.updateLastUpdateTime();
+            
+            // Verstecke Loading, zeige Content
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('leaderboard-section').style.display = 'block';
+            document.getElementById('games-section').style.display = 'block';
+        } catch (error) {
+            console.error('Fehler beim Laden des Dashboards:', error);
+            document.getElementById('loading-state').innerHTML = `
+                <div class="loading-spinner">❌</div>
+                <p style="color: #e74c3c;">Fehler beim Laden der Daten. Bitte Server überprüfen.</p>
+            `;
+        }
     }
 
-    loadAllScores() {
-        this.allScores = {};
-        this.games.forEach(game => {
-            const scores = this.loadGameScores(game.key);
-            this.allScores[game.key] = scores;
+    async loadAllScores() {
+        // Lade Scores von der API für jedes Spiel
+        const promises = this.games.map(game => this.loadGameScores(game.key));
+        const results = await Promise.all(promises);
+        
+        this.games.forEach((game, index) => {
+            this.allScores[game.key] = results[index];
         });
     }
 
-    loadGameScores(gameKey) {
+    async loadGameScores(gameKey) {
         try {
-            const scores = localStorage.getItem(`${gameKey}Scores`);
-            return scores ? JSON.parse(scores) : [];
+            console.log(`Lade Scores für ${gameKey}...`);
+            const response = await fetch(`/api/stats/${gameKey}/all`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log(`${gameKey} API Response:`, data);
+            
+            // Konvertiere API-Format zu unserem Format
+            const scores = (data.allScores || []).map(entry => ({
+                name: entry.username,
+                score: entry.highscore || entry.score || 0,
+                playTime: entry.playTime || 0,
+                timestamp: entry.timestamp || Date.now()
+            }));
+            
+            console.log(`${gameKey} verarbeitete Scores:`, scores);
+            return scores;
         } catch (error) {
-            console.warn(`Could not load scores for ${gameKey}:`, error);
+            console.warn(`Could not load scores for ${gameKey} from API:`, error);
             return [];
         }
     }
@@ -44,10 +76,20 @@ class DashboardManager {
         this.games.forEach(game => {
             const scores = this.allScores[game.key] || [];
             
-            // Top 3 pro Spiel
-            const sortedScores = [...scores].sort((a, b) => b.score - a.score);
+            // Gruppiere Scores nach Spieler (nimm nur den besten Score pro Spieler)
+            const playerBestScores = {};
+            scores.forEach(entry => {
+                if (!playerBestScores[entry.name] || entry.score > playerBestScores[entry.name].score) {
+                    playerBestScores[entry.name] = entry;
+                }
+            });
             
-            sortedScores.forEach((entry, index) => {
+            // Sortiere nach Score und nimm Top 3
+            const sortedPlayers = Object.values(playerBestScores)
+                .sort((a, b) => b.score - a.score);
+            
+            // Zähle nur die Top 3 pro Spiel
+            sortedPlayers.forEach((entry, index) => {
                 if (!playerStats[entry.name]) {
                     playerStats[entry.name] = {
                         name: entry.name,
@@ -60,23 +102,25 @@ class DashboardManager {
                     };
                 }
 
-                // Zähle Platzierungen (nur die beste Platzierung pro Spiel)
-                if (index === 0) playerStats[entry.name].firstPlaces++;
-                else if (index === 1) playerStats[entry.name].secondPlaces++;
-                else if (index === 2) playerStats[entry.name].thirdPlaces++;
+                // Zähle Platzierungen (nur Top 3)
+                if (index === 0) {
+                    playerStats[entry.name].firstPlaces++;
+                } else if (index === 1) {
+                    playerStats[entry.name].secondPlaces++;
+                } else if (index === 2) {
+                    playerStats[entry.name].thirdPlaces++;
+                }
 
+                // Sammle alle Scores für Gesamtpunktzahl
                 playerStats[entry.name].totalScore += entry.score;
                 playerStats[entry.name].gamesPlayed++;
                 
-                // Speichere beste Platzierung für dieses Spiel
-                if (!playerStats[entry.name].gameDetails[game.key] || 
-                    entry.score > playerStats[entry.name].gameDetails[game.key].score) {
-                    playerStats[entry.name].gameDetails[game.key] = {
-                        score: entry.score,
-                        rank: index + 1,
-                        game: game.name
-                    };
-                }
+                // Speichere Details für dieses Spiel
+                playerStats[entry.name].gameDetails[game.key] = {
+                    score: entry.score,
+                    rank: index + 1,
+                    game: game.name
+                };
             });
         });
 
