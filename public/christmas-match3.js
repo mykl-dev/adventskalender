@@ -103,6 +103,10 @@ class ChristmasMatch3Game {
                         <span>Kettenreaktionen: +2.5 Sekunden Bonus!</span>
                     </div>
                     <div class="instruction-item">
+                        <span class="item-icon">🎲</span>
+                        <span>5+ Kugeln: +1 Zug | 7+: +2 Züge | 9+: +3 Züge</span>
+                    </div>
+                    <div class="instruction-item">
                         <span class="item-icon">🎁</span>
                         <span>Geschenke verdoppeln deine Punkte!</span>
                     </div>
@@ -594,7 +598,7 @@ class ChristmasMatch3Game {
         this.grid[row2][col2] = temp;
         
         this.renderBoard();
-        await this.sleep(300);
+        await this.sleep(400); // Länger für flüssigere Animation
         
         // Prüfen ob Match entsteht
         const matches = this.findMatches();
@@ -740,6 +744,19 @@ class ChristmasMatch3Game {
             console.log(`⏱️ Zeit-Bonus: +${totalTimeBonus.toFixed(2)}s (${normalTiles} Kugeln × ${timePerTile.toFixed(3)}s${isCombo ? ' + 1.5s Combo' : ''}) [Scaling: ${(scalingFactor * 100).toFixed(0)}%]`);
         }
         
+        // === ZÜGE-BONUS für große Kombos ===
+        let movesBonus = 0;
+        if (matches.length >= 9) movesBonus = 3;
+        else if (matches.length >= 7) movesBonus = 2;
+        else if (matches.length >= 5) movesBonus = 1;
+        
+        if (movesBonus > 0) {
+            this.movesLeft += movesBonus;
+            document.getElementById('match3-moves').textContent = this.movesLeft;
+            this.addFloatingText(matches[0].row, matches[0].col, `+${movesBonus} 🎲`, '#f39c12', 28);
+            console.log(`🎲 Züge-Bonus: +${movesBonus} (${matches.length} Kugeln Kombo!)`);
+        }
+        
         this.totalTilesCleared += normalTiles;
         
         // === PUNKTE berechnen ===
@@ -782,7 +799,7 @@ class ChristmasMatch3Game {
         });
         
         this.renderBoard();
-        await this.sleep(300); // Kurz aufleuchten lassen
+        await this.sleep(400); // Aufleuchten lassen
         
         // PHASE 2: Zu "exploding" ändern (Knall!)
         matches.forEach(match => {
@@ -820,7 +837,7 @@ class ChristmasMatch3Game {
         });
         
         this.renderBoard();
-        await this.sleep(100);
+        await this.sleep(150); // Etwas länger um neue Tiles zu sehen
         
         // PHASE 5: Kugeln fallen lassen
         console.log('⬇️ Kugeln fallen lassen...');
@@ -832,7 +849,7 @@ class ChristmasMatch3Game {
         this.renderBoard();
         
         // PHASE 7: Warten bis Bounce-Animation fertig ist
-        await this.sleep(600); // Warten bis neue Kugeln komplett gelandet sind
+        await this.sleep(500); // Optimiert für smooth cascade
         
         // PHASE 8: JETZT erst neue Matches suchen
         const newMatches = this.findMatches();
@@ -883,7 +900,7 @@ class ChristmasMatch3Game {
             
             if (hasEmptySpaces) {
                 this.renderBoard();
-                await this.sleep(100); // Optimiert für fließende Bewegung
+                await this.sleep(50); // Schneller für smooth falling
             }
         }
     }
