@@ -10,8 +10,10 @@ class ChristmasMatch3Game {
         this.isAnimating = false;
         this.gameActive = false;
         
-        // === ZEIT-BASIERTES SYSTEM (SCHWER!) ===
-        this.timeLeft = 20; // Start mit 20 Sekunden (härter!)
+        // === KOMBINIERTES SYSTEM: ZÜGE + ZEIT (wie Candy Crush) ===
+        this.movesLeft = 30; // Start mit 30 Zügen
+        this.timeLeft = 20; // Start mit 20 Sekunden
+        this.maxTime = 60; // Maximale Zeit: 60 Sekunden
         this.timerInterval = null;
         this.totalTilesCleared = 0; // Für Schwierigkeits-Scaling
         this.comboCounter = 0; // Für Kettenreaktionen
@@ -47,8 +49,11 @@ class ChristmasMatch3Game {
                     <div class="score-display">
                         🎯 Punkte: <span id="match3-score">0</span>
                     </div>
+                    <div class="moves-display">
+                        🎲 Züge: <span id="match3-moves">30</span>
+                    </div>
                     <div class="time-display">
-                        ⏱️ Zeit: <span id="match3-time">30</span>s
+                        ⏱️ Zeit: <span id="match3-time">20</span>s
                     </div>
                 </div>
                 <div class="match3-board" id="match3-board"></div>
@@ -82,8 +87,12 @@ class ChristmasMatch3Game {
                         <span>PC: Klicke 2 benachbarte Kugeln zum Tauschen!</span>
                     </div>
                     <div class="instruction-item">
+                        <span class="item-icon">🎲</span>
+                        <span>Du hast 30 Züge!</span>
+                    </div>
+                    <div class="instruction-item">
                         <span class="item-icon">⏱️</span>
-                        <span>Du startest mit 20 Sekunden!</span>
+                        <span>Startzeit: 20s (Maximum: 60s)</span>
                     </div>
                     <div class="instruction-item">
                         <span class="item-icon">🔴</span>
@@ -118,6 +127,7 @@ class ChristmasMatch3Game {
         await statsManager.ensureUsername();
         
         this.score = 0;
+        this.movesLeft = 30;
         this.timeLeft = 20;
         this.gameActive = true;
         this.selectedTile = null;
@@ -130,6 +140,7 @@ class ChristmasMatch3Game {
         
         document.getElementById('match3-start-button').style.display = 'none';
         document.getElementById('match3-score').textContent = '0';
+        document.getElementById('match3-moves').textContent = '30';
         document.getElementById('match3-time').textContent = '20';
         document.getElementById('combo-display').style.display = 'none';
         
@@ -154,8 +165,11 @@ class ChristmasMatch3Game {
             
             this.timeLeft -= 0.1; // Update alle 100ms für smooth countdown
             
-            if (this.timeLeft <= 0) {
-                this.timeLeft = 0;
+            // Game Over wenn Zeit oder Züge auf 0
+            if (this.timeLeft <= 0 || this.movesLeft <= 0) {
+                this.timeLeft = Math.max(0, this.timeLeft);
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
                 this.endGame();
                 return;
             }
@@ -176,7 +190,7 @@ class ChristmasMatch3Game {
     }
     
     addTime(seconds) {
-        this.timeLeft += seconds;
+        this.timeLeft = Math.min(this.maxTime, this.timeLeft + seconds); // Maximal 60 Sekunden
         
         // Zeige Floating Text
         this.showFloatingText(`+${seconds}s`, '#2ecc71');
@@ -562,6 +576,17 @@ class ChristmasMatch3Game {
     
     async swapTiles(row1, col1, row2, col2) {
         this.isAnimating = true;
+        
+        // Reduziere Züge
+        this.movesLeft--;
+        document.getElementById('match3-moves').textContent = this.movesLeft;
+        
+        // Prüfe Game Over bei 0 Zügen
+        if (this.movesLeft <= 0) {
+            this.isAnimating = false;
+            this.endGame();
+            return;
+        }
         
         // Tauschen (bleibt IMMER getauscht!)
         const temp = this.grid[row1][col1];
@@ -1178,11 +1203,15 @@ class ChristmasMatch3Game {
         overlay.className = 'game-over-overlay';
         overlay.innerHTML = `
             <div class="game-over-content">
-                <h2>⏱️ Zeit abgelaufen! 🎄</h2>
+                <h2>${this.movesLeft <= 0 ? '🎲 Keine Züge mehr!' : '⏱️ Zeit abgelaufen!'} 🎄</h2>
                 <div class="game-over-stats">
                     <div class="game-over-stat-item">
                         <div class="game-over-stat-label">Punkte</div>
                         <div class="game-over-stat-value">${this.score}</div>
+                    </div>
+                    <div class="game-over-stat-item">
+                        <div class="game-over-stat-label">Züge verwendet</div>
+                        <div class="game-over-stat-value">${30 - this.movesLeft}/30</div>
                     </div>
                     <div class="game-over-stat-item">
                         <div class="game-over-stat-label">Kugeln eliminiert</div>

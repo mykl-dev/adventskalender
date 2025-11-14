@@ -18,7 +18,7 @@
     justify-content: center;
 }
 
-.score-display, .time-display, .combo-display {
+.score-display, .moves-display, .time-display, .combo-display {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 10px 20px;
@@ -27,6 +27,10 @@
     min-width: 130px;
     text-align: center;
     transition: all 0.3s ease;
+}
+
+.moves-display {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
 }
 
 .time-display {
