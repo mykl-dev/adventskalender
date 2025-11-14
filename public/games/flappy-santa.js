@@ -245,8 +245,8 @@ class FlappySanta {
         // Remove overlays
         const instructionsOverlay = document.getElementById('flappy-instructions-overlay');
         if (instructionsOverlay) instructionsOverlay.remove();
-        const gameOverOverlay = document.querySelector('.overlay');
-        if (gameOverOverlay) gameOverOverlay.remove();
+        const existingOverlays = document.querySelectorAll('.overlay, .game-over-overlay');
+        existingOverlays.forEach(el => el.remove());
         
         // Reset game state
         this.score = 0;

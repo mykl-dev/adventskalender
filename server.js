@@ -172,17 +172,19 @@ app.post('/api/stats', (req, res) => {
     return res.status(400).json({ error: 'Fehlende Daten (gameName, username, score erforderlich)' });
   }
   
-  // Use data service to save score
-  const success = dataService.savePlayerScore(gameName, username, score, playTime);
+  // Save game score
+  const success = dataService.savePlayerScore(gameName, username, score, playTime || 0);
   
+  // Update user stats
   if (success) {
+    dataService.updateUserStats(username, gameName, score, playTime || 0);
     res.json({ success: true, message: 'Statistik gespeichert' });
   } else {
     res.status(500).json({ error: 'Fehler beim Speichern' });
   }
 });
 
-// API Endpoint zum Aktualisieren des Benutzernamens in stats.json
+// API Endpoint zum Aktualisieren des Benutzernamens (Legacy - nutzt jetzt dataService)
 app.post('/api/update-username', (req, res) => {
   const { oldUsername, newUsername } = req.body;
   
@@ -190,39 +192,12 @@ app.post('/api/update-username', (req, res) => {
     return res.status(400).json({ error: 'Fehlende Daten (oldUsername, newUsername erforderlich)' });
   }
   
-  try {
-    const statsPath = path.join(__dirname, 'data', 'stats.json');
-    let stats = { games: {} };
-    
-    // Lade bestehende Stats
-    if (fs.existsSync(statsPath)) {
-      const data = fs.readFileSync(statsPath, 'utf8');
-      stats = JSON.parse(data);
-    }
-    
-    // Aktualisiere alle Vorkommen des alten Usernamens
-    let updated = false;
-    for (const gameName in stats.games) {
-      if (stats.games[gameName]) {
-        stats.games[gameName].forEach(entry => {
-          if (entry.username === oldUsername) {
-            entry.username = newUsername;
-            updated = true;
-          }
-        });
-      }
-    }
-    
-    // Speichere aktualisierte Stats
-    if (updated) {
-      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2));
-      res.json({ success: true, message: 'Benutzername aktualisiert' });
-    } else {
-      res.json({ success: true, message: 'Kein Eintrag gefunden' });
-    }
-  } catch (error) {
-    console.error('Fehler beim Aktualisieren des Benutzernamens:', error);
-    res.status(500).json({ error: 'Fehler beim Aktualisieren' });
+  const success = dataService.updateUsername(oldUsername, newUsername);
+  
+  if (success) {
+    res.json({ success: true, message: 'Benutzername aktualisiert' });
+  } else {
+    res.status(400).json({ error: 'Username bereits vergeben oder Benutzer nicht gefunden' });
   }
 });
 
@@ -259,6 +234,64 @@ app.get('/api/door/:day', (req, res) => {
       year: today.getFullYear()
     }
   });
+});
+
+// =====================
+// USER API ENDPOINTS
+// =====================
+
+// GET: User Profile
+app.get('/api/user/:username', (req, res) => {
+  const username = req.params.username;
+  const profile = dataService.getUserProfile(username);
+  res.json(profile);
+});
+
+// GET: User Stars
+app.get('/api/user/:username/stars', (req, res) => {
+  const username = req.params.username;
+  const stars = dataService.calculateUserStars(username);
+  res.json(stars);
+});
+
+// POST: Update Avatar
+app.post('/api/user/avatar', (req, res) => {
+  const { username, style, options } = req.body;
+  
+  if (!username || !style) {
+    return res.status(400).json({ error: 'Username and style required' });
+  }
+  
+  const success = dataService.updateUserAvatar(username, { style, options });
+  
+  if (success) {
+    res.json({ success: true, message: 'Avatar updated' });
+  } else {
+    res.status(500).json({ error: 'Failed to update avatar' });
+  }
+});
+
+// POST: Update Username
+app.post('/api/user/update-username', (req, res) => {
+  const { oldUsername, newUsername } = req.body;
+  
+  if (!oldUsername || !newUsername) {
+    return res.status(400).json({ error: 'Both old and new username required' });
+  }
+  
+  const success = dataService.updateUsername(oldUsername, newUsername);
+  
+  if (success) {
+    res.json({ success: true, message: 'Username updated' });
+  } else {
+    res.status(400).json({ error: 'Username already exists or user not found' });
+  }
+});
+
+// GET: All users sorted by stars
+app.get('/api/users/leaderboard', (req, res) => {
+  const users = dataService.getAllUsersSortedByStars();
+  res.json({ users });
 });
 
 // Serve HTML

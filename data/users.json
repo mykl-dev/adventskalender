@@ -1,0 +1,74 @@
+{
+  "users": {
+    "Spieler": {
+      "username": "Spieler",
+      "createdAt": "2025-11-14T07:02:57.429Z",
+      "lastActive": "2025-11-14T07:02:57.429Z",
+      "avatar": {
+        "style": "adventurer",
+        "options": {},
+        "lastChanged": "2025-11-14T07:02:57.429Z"
+      },
+      "avatarChanges": 0,
+      "usernameChanges": 0,
+      "usernameHistory": [],
+      "stats": {
+        "totalGamesPlayed": 0,
+        "totalPlayTime": 0,
+        "totalScore": 0,
+        "averageScore": 0,
+        "bestGame": null,
+        "worstGame": null,
+        "favoriteGame": null,
+        "perfectGames": 0,
+        "comebacks": 0,
+        "consistency": 0,
+        "longestPlaySession": 0,
+        "shortestPlaySession": 0,
+        "averagePlayTime": 0,
+        "totalDaysPlayed": 0,
+        "lastPlayedDate": null,
+        "playStreak": 0,
+        "longestStreak": 0,
+        "winRate": 0,
+        "top1Count": 0,
+        "top3Count": 0,
+        "improvementRate": 0,
+        "gamesPerDay": 0,
+        "uniqueGamesPlayed": 0,
+        "completionRate": 0,
+        "christmasSpiritScore": 0,
+        "dailyLoginCount": 0,
+        "doorsOpened": 0
+      },
+      "stars": {
+        "total": 0,
+        "breakdown": {
+          "gameScore": 0,
+          "mastery": 0,
+          "consistency": 0,
+          "improvement": 0,
+          "engagement": 0,
+          "variety": 0,
+          "dedication": 0,
+          "achievements": 0
+        },
+        "lastCalculated": "2025-11-14T07:02:57.435Z"
+      },
+      "achievements": [],
+      "unlockedItems": {
+        "avatarStyles": [
+          "adventurer"
+        ],
+        "avatarOptions": {},
+        "badges": [],
+        "titles": []
+      },
+      "preferences": {
+        "notifications": true,
+        "soundEnabled": true,
+        "theme": "christmas"
+      }
+    }
+  }
+}

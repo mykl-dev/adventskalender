@@ -155,11 +155,34 @@
         async function init() {
             const response = await fetch('/avatarStyleSchemas.json');
             schemas = await response.json();
-            userScore = parseInt(localStorage.getItem('totalScore') || '150');
+            
+            // Lade gespeicherten Avatar um Username zu bekommen
+            const savedAvatar = localStorage.getItem('customAvatar');
+            let username = null;
+            if (savedAvatar) {
+                try {
+                    const profile = JSON.parse(savedAvatar);
+                    username = profile.username;
+                } catch (e) {}
+            }
+            
+            // Lade Sterne aus Backend (falls Username vorhanden)
+            if (username) {
+                try {
+                    const starsResponse = await fetch(`/api/user/${username}/stars`);
+                    const stars = await starsResponse.json();
+                    userScore = stars.total || 0;
+                } catch (error) {
+                    console.warn('Konnte Sterne nicht laden:', error);
+                    userScore = 0;
+                }
+            } else {
+                userScore = 0; // Neue Nutzer starten mit 0 Sternen
+            }
+            
             document.getElementById('scoreDisplay').textContent = userScore;
             
-            // Lade gespeicherten Avatar
-            const savedAvatar = localStorage.getItem('customAvatar');
+            // Verarbeite gespeicherten Avatar
             const backButton = document.querySelector('.btn-back');
             
             if (savedAvatar) {
@@ -394,6 +417,21 @@
                     options: currentOptions,
                     username: username 
                 }));
+                
+                // Sende Avatar-Änderung ans Backend
+                try {
+                    await fetch('/api/user/avatar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            username: username,
+                            style: currentStyle,
+                            options: currentOptions
+                        })
+                    });
+                } catch (error) {
+                    console.warn('Konnte Avatar im Backend nicht speichern:', error);
+                }
                 
                 // Setze Cookie für Profilerkennung (damit Welcome Screen nicht mehr erscheint)
                 const profileData = {

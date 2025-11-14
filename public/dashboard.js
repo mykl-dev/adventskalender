@@ -91,7 +91,8 @@ class DashboardManager {
             
             // Konvertiere API-Format zu unserem Format
             const scores = (data.allScores || []).map(entry => ({
-                name: entry.username,
+                username: entry.username,
+                highscore: entry.highscore || entry.score || 0,
                 score: entry.highscore || entry.score || 0,
                 playTime: entry.playTime || 0,
                 timestamp: entry.timestamp || Date.now()
@@ -160,8 +161,9 @@ class DashboardManager {
         
         container.innerHTML = this.games.map(game => {
             const scores = this.allScores[game.id] || [];
+            // Sortiere nach highscore (bereits von API sortiert, aber sicherheitshalber nochmal)
             const sortedScores = [...scores]
-                .sort((a, b) => (b.highscore || b.score || 0) - (a.highscore || a.score || 0))
+                .sort((a, b) => (b.highscore || 0) - (a.highscore || 0))
                 .slice(0, 3);
 
             return `
@@ -182,14 +184,14 @@ class DashboardManager {
     renderTop3(scores, game) {
         const medals = ['🥇', '🥈', '🥉'];
         return scores.map((entry, index) => {
-            const score = entry.highscore || entry.score || 0;
+            const score = entry.highscore || 0;
             const scoreDisplay = game.scoreUnit ? `${score.toLocaleString()}${game.scoreUnit}` : score.toLocaleString();
             
             return `
                 <div class="top-player">
                     <div class="top-player-left">
                         <span class="top-medal">${medals[index]}</span>
-                        <span class="top-player-name">${this.escapeHtml(entry.username || entry.name)}</span>
+                        <span class="top-player-name">${this.escapeHtml(entry.username)}</span>
                     </div>
                     <span class="top-player-score">${scoreDisplay}</span>
                 </div>
