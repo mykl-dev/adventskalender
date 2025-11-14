@@ -139,8 +139,8 @@ class GiftCatcherGame3D {
         this.catcherWidth = Math.min(80, this.canvas.width / 8);
         this.catcherHeight = Math.min(80, this.canvas.width / 8);
         
-        // Spawn-Spacing basierend auf Canvas-Höhe (50% der Höhe zwischen Items)
-        this.spawnSpacing = Math.max(200, this.canvas.height * 0.5);
+        // Spawn-Spacing basierend auf Canvas-Höhe (30% der Höhe zwischen Items)
+        this.spawnSpacing = Math.max(150, this.canvas.height * 0.3);
     }
     
     setupTouchControls() {
@@ -224,7 +224,7 @@ class GiftCatcherGame3D {
         this.particles = [];
         this.gameSpeed = 2.5;
         this.spawnDistance = 0;
-        this.spawnSpacing = Math.max(200, this.canvas.height * 0.5); // 50% der Höhe zwischen Items
+        this.spawnSpacing = Math.max(150, this.canvas.height * 0.3); // 30% der Höhe zwischen Items
         this.catcherX = this.canvas.width / 2;
         this.startTime = Date.now();
         
@@ -247,8 +247,8 @@ class GiftCatcherGame3D {
         // 60% Geschenke, 40% Kohle (war 30/70 - jetzt viel mehr Geschenke!)
         const isGift = Math.random() < 0.6;
         
-        // Wenn Kohle, nur selten (20% statt 50%) 2 Steine gleichzeitig, nie 3
-        const coalCount = !isGift && Math.random() < 0.2 ? 2 : 1;
+        // Wenn Kohle, 35% Chance auf 2 Steine gleichzeitig
+        const coalCount = !isGift && Math.random() < 0.35 ? 2 : 1;
         
         for (let i = 0; i < coalCount; i++) {
             const item = {
