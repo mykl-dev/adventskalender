@@ -235,24 +235,24 @@
         /* Touch D-Pad Controls */
         .touch-dpad {
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             right: 50%;
             transform: translateX(50%);
-            width: 140px;
-            height: 140px;
-            display: grid;
+            width: 180px;
+            height: 180px;
+            display: none;
             grid-template-columns: 1fr 1fr 1fr;
             grid-template-rows: 1fr 1fr 1fr;
-            gap: 5px;
+            gap: 8px;
             z-index: 50;
         }
 
         .dpad-btn {
             background: rgba(255, 255, 255, 0.15);
             border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
+            border-radius: 12px;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.15s ease;
@@ -567,8 +567,8 @@
                 this.setupDPad();
             }
             
-            setupDPad() {
-                // Zeige D-Pad nur auf Touch-Geräten
+            showDPad() {
+                // Zeige D-Pad nur auf Touch-Geräten während das Spiel läuft
                 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
                 const dpad = document.getElementById('touch-dpad');
                 
@@ -595,6 +595,13 @@
                             }
                         });
                     });
+                }
+            }
+
+            hideDPad() {
+                const dpad = document.getElementById('touch-dpad');
+                if (dpad) {
+                    dpad.style.display = 'none';
                 }
             }
 
@@ -658,6 +665,7 @@
                 document.getElementById('snake-speed').textContent = '1';
 
                 this.setupControls();
+                this.showDPad();
                 this.spawnGift();
                 this.renderSnake();
                 this.gameLoop = setInterval(() => this.update(), this.speed);
@@ -985,6 +993,9 @@
                 // Bonus und negative Items aufräumen
                 this.removeBonusItem();
                 this.removeNegativeItem();
+
+                // D-Pad ausblenden
+                this.hideDPad();
 
                 document.removeEventListener('keydown', this.keyHandler);
                 this.canvas.removeEventListener('touchstart', this.touchStartHandler);
