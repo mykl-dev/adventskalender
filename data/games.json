@@ -40,6 +40,27 @@
       "difficulty": "hard",
       "scoreType": "points",
       "active": true
+    },
+    {
+      "id": "santa-snake",
+      "name": "Santa Snake",
+      "icon": "🎅",
+      "description": "Sammle Geschenke und werde länger!",
+      "category": "arcade",
+      "difficulty": "medium",
+      "scoreType": "points",
+      "active": true
+    },
+    {
+      "id": "christmas-memory",
+      "name": "Christmas Memory",
+      "icon": "🎄",
+      "description": "Finde alle Weihnachts-Paare!",
+      "category": "puzzle",
+      "difficulty": "easy",
+      "scoreType": "moves",
+      "scoreUnit": "Züge",
+      "active": true
     }
   ]
 }

@@ -56,24 +56,63 @@ class ChristmasMatch3Game {
                 <div class="combo-display" id="combo-display" style="display: none;">
                     🔥 Combo x<span id="match3-combo">0</span>
                 </div>
-                <div class="match3-instructions">
-                    <h3>🎄 Christmas Match-3 ⏱️</h3>
-                    <p>📱 Handy: Wische Kugel in gewünschte Richtung!</p>
-                    <p>🖱️ PC: Klicke 2 benachbarte Kugeln!</p>
-                    <p>⏱️ Du hast 20 Sekunden Zeit!</p>
-                    <p>🔴 +0.5 Sekunden pro eliminierte Kugel</p>
-                    <p>🔥 Kettenreaktionen geben +1.5 Sekunden Bonus!</p>
-                    <p>🎁 Geschenke = Punkte x2 (KEINE Zeit!)</p>
-                    <p>⚠️ Zeit-Bonus schrumpft mit Fortschritt!</p>
-                    <p>🎯 Wie lange kannst du überleben?</p>
-                </div>
                 <button class="game-button" id="match3-start-button">Spiel starten! 🎮</button>
             </div>
         `;
         
         document.getElementById('match3-start-button').addEventListener('click', () => this.start());
+        
+        // Zeige Start-Overlay nach kurzer Verzögerung
+        setTimeout(() => this.showStartOverlay(), 100);
     }
     
+    showStartOverlay() {
+        const overlay = document.createElement('div');
+        overlay.className = 'game-instructions-overlay';
+        overlay.innerHTML = `
+            <div class="instructions-content">
+                <h2>🎄 Christmas Match-3 ⏱️</h2>
+                <div class="instruction-items">
+                    <div class="instruction-item">
+                        <span class="item-icon">📱</span>
+                        <span>Handy: Wische Kugel in gewünschte Richtung!</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="item-icon">🖱️</span>
+                        <span>PC: Klicke 2 benachbarte Kugeln zum Tauschen!</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="item-icon">⏱️</span>
+                        <span>Du startest mit 20 Sekunden!</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="item-icon">🔴</span>
+                        <span>+0.5 Sekunden pro eliminierte Kugel</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="item-icon">🔥</span>
+                        <span>Kettenreaktionen: +1.5 Sekunden Bonus!</span>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="item-icon">🎁</span>
+                        <span>Geschenke verdoppeln deine Punkte!</span>
+                    </div>
+                </div>
+                <p class="difficulty-info">🎯 Wie lange kannst du überleben?</p>
+                <button class="instruction-ok-button" id="instruction-ok-button">
+                    ✓ Los geht's!
+                </button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        document.getElementById('instruction-ok-button').addEventListener('click', () => {
+            overlay.remove();
+            const startBtn = document.getElementById('match3-start-button');
+            if (startBtn) startBtn.classList.add('pulse');
+        });
+    }
+
     async start() {
         // Spielername sicherstellen (wird ggf. abgefragt)
         await statsManager.ensureUsername();
@@ -88,9 +127,6 @@ class ChristmasMatch3Game {
         this.particles = [];
         this.shakeAmount = 0;
         this.floatingTexts = [];
-        
-        const instructions = this.container.querySelector('.match3-instructions');
-        if (instructions) instructions.style.display = 'none';
         
         document.getElementById('match3-start-button').style.display = 'none';
         document.getElementById('match3-score').textContent = '0';
@@ -1124,39 +1160,48 @@ class ChristmasMatch3Game {
         // Speichere Statistik
         await statsManager.saveStats('christmas-match3', this.score, playTime);
         
-        // Lade aktualisierte Top 3
-        const top3 = await statsManager.getTop3('christmas-match3');
-        const highscoreHTML = statsManager.createHighscoreDisplay(top3, this.score);
+        // Lade Highscores
+        const highscores = await statsManager.getHighscores('christmas-match3', 10);
+        let highscoresHTML = '<div class="no-highscores">Noch keine Highscores vorhanden</div>';
         
-        const board = document.getElementById('match3-board');
+        if (highscores && highscores.length > 0) {
+            highscoresHTML = highscores.map((entry, index) => `
+                <li class="highscore-item">
+                    <span class="highscore-rank">${index + 1}.</span>
+                    <span class="highscore-name">${entry.username}</span>
+                    <span class="highscore-score">${entry.highscore} Punkte</span>
+                </li>
+            `).join('');
+        }
+        
         const overlay = document.createElement('div');
-        overlay.className = 'game-over';
+        overlay.className = 'game-over-overlay';
         overlay.innerHTML = `
-            <div class="game-over-title">⏱️ Zeit abgelaufen! 🎄</div>
-            <div class="game-over-score">Du hast <strong>${this.score}</strong> Punkte erreicht!</div>
-            <div class="game-over-stats">🔴 ${this.totalTilesCleared} Kugeln eliminiert</div>
-            <div class="game-over-message">${this.getScoreMessage()}</div>
-            ${highscoreHTML}
-            <div class="game-over-buttons">
-                <button class="game-restart-button" id="match3-restart-button">🔄 Nochmal spielen</button>
-                <button class="game-fullhighscore-button" id="match3-fullhighscore-button">📊 Alle Highscores</button>
+            <div class="game-over-content">
+                <h2>⏱️ Zeit abgelaufen! 🎄</h2>
+                <div class="game-over-stats">
+                    <div class="game-over-stat-item">
+                        <div class="game-over-stat-label">Punkte</div>
+                        <div class="game-over-stat-value">${this.score}</div>
+                    </div>
+                    <div class="game-over-stat-item">
+                        <div class="game-over-stat-label">Kugeln eliminiert</div>
+                        <div class="game-over-stat-value">${this.totalTilesCleared}</div>
+                    </div>
+                    <div class="game-over-message">${this.getScoreMessage()}</div>
+                </div>
+                <div class="game-over-highscores">
+                    <h3>🏆 Top 10 Highscores</h3>
+                    <ul class="highscore-list">${highscoresHTML}</ul>
+                </div>
+                <div class="game-over-buttons">
+                    <button class="game-over-button button-primary" onclick="location.reload()">🔄 Nochmal spielen</button>
+                    <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
+                </div>
             </div>
         `;
         
-        board.appendChild(overlay);
-        
-        // Event Listener für Neustart
-        document.getElementById('match3-restart-button').addEventListener('click', () => {
-            overlay.remove();
-            const existingHighscore = document.querySelector('.highscore-display');
-            if (existingHighscore) existingHighscore.remove();
-            this.start();
-        });
-        
-        // Event Listener für vollständige Highscore-Liste
-        document.getElementById('match3-fullhighscore-button').addEventListener('click', async () => {
-            await this.showFullHighscores();
-        });
+        document.body.appendChild(overlay);
     }
     
     async showFullHighscores() {

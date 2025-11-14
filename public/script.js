@@ -332,7 +332,8 @@ function showModal(data) {
                 'gift-catcher',
                 'flappy-santa',
                 'santa-run',
-                'santa-snake'
+                'santa-snake',
+                'christmas-memory'
             ];
             
             if (fullscreenGames.includes(data.content)) {
