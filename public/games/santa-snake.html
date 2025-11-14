@@ -966,7 +966,8 @@
             renderGift() {
                 if (!this.gift) return;
 
-                const existingGift = this.canvas.querySelector('.snake-gift');
+                // Entferne nur das normale Geschenk, NICHT Bonus oder Negative Items!
+                const existingGift = this.canvas.querySelector('.snake-gift:not(.bonus-item):not(.negative-item)');
                 if (existingGift) existingGift.remove();
 
                 const giftEl = document.createElement('div');
