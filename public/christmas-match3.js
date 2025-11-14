@@ -87,11 +87,11 @@ class ChristmasMatch3Game {
                     </div>
                     <div class="instruction-item">
                         <span class="item-icon">🔴</span>
-                        <span>+0.5 Sekunden pro eliminierte Kugel</span>
+                        <span>+0.8 Sekunden pro eliminierte Kugel</span>
                     </div>
                     <div class="instruction-item">
                         <span class="item-icon">🔥</span>
-                        <span>Kettenreaktionen: +1.5 Sekunden Bonus!</span>
+                        <span>Kettenreaktionen: +2.5 Sekunden Bonus!</span>
                     </div>
                     <div class="instruction-item">
                         <span class="item-icon">🎁</span>
@@ -704,9 +704,9 @@ class ChristmasMatch3Game {
         // Nach 100 Kugeln: ~33% Bonus
         // Nach 150 Kugeln: ~25% Bonus (Minimum)
         const scalingFactor = Math.max(0.25, 1 - (this.totalTilesCleared / 100)); // Min 25% bei 75+ Kugeln
-        const baseTimePerTile = 0.5; // Reduziert von 1.0 → 0.5 Sekunden
+        const baseTimePerTile = 0.8; // 0.8 Sekunden pro Kugel (ausgeglichen)
         const timePerTile = baseTimePerTile * scalingFactor;
-        const comboTimeBonus = isCombo ? 1.5 : 0; // Reduziert von 2 → 1.5 Sekunden
+        const comboTimeBonus = isCombo ? 2.5 : 0; // 2.5 Sekunden Combo-Bonus
         
         const totalTimeBonus = (normalTiles * timePerTile) + comboTimeBonus;
         
