@@ -133,8 +133,6 @@
     touch-action: none;
     -webkit-user-select: none;
     user-select: none;
-    transform: translateZ(0);
-    will-change: transform;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
 }
@@ -152,7 +150,7 @@
     position: relative;
     transform-style: preserve-3d;
     perspective: 1000px;
-    will-change: transform, opacity;
+    backface-visibility: hidden;
 }
 
 .tile-inner {
@@ -173,7 +171,7 @@
         inset 2px 2px 8px rgba(255, 255, 255, 0.3);
     transform: translateZ(10px);
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    will-change: transform, opacity;
+    backface-visibility: hidden;
 }
 
 .tile-shine {
