@@ -31,8 +31,8 @@ class FlappySanta {
         this.obstacleSpeed = 2;
         this.baseObstacleSpeed = 2;
         this.obstacleGap = 200;
-        this.obstacleSpawnTime = 2500;
-        this.lastObstacleTime = 0;
+        this.obstacleSpawnDistance = 0; // Distanz zum nächsten Hindernis
+        this.obstacleSpacing = 300; // Fester Abstand in Pixeln (unabhängig von Auflösung)
         
         // Background 3D elements
         this.buildings = [];
@@ -115,16 +115,16 @@ class FlappySanta {
         
         // Adjust obstacle parameters based on device type
         if (isMobile) {
-            this.obstacleSpawnTime = 2200; // Mobile: dichter als vorher
             this.obstacleGap = 200; // Mobile: normale Lücke
             this.obstacleSpeed = 1.8; // Mobile: etwas langsamer als Desktop
+            this.obstacleSpacing = Math.max(250, this.canvas.width * 0.35); // 35% der Bildschirmbreite, min 250px
         } else {
-            this.obstacleSpawnTime = 2500; // Desktop
             this.obstacleGap = 200; // Desktop
             this.obstacleSpeed = 2; // Desktop
+            this.obstacleSpacing = Math.max(300, this.canvas.width * 0.4); // 40% der Bildschirmbreite, min 300px
         }
         
-        console.log(`Device: ${isMobile ? 'Mobile' : 'Desktop'} - Width: ${window.innerWidth}px - Touch: ${('ontouchstart' in window)} - Gap: ${this.obstacleGap}px - Spawn: ${this.obstacleSpawnTime}ms - Speed: ${this.obstacleSpeed}`);
+        console.log(`Device: ${isMobile ? 'Mobile' : 'Desktop'} - Width: ${this.canvas.width}px - Touch: ${('ontouchstart' in window)} - Gap: ${this.obstacleGap}px - Spacing: ${this.obstacleSpacing}px - Speed: ${this.obstacleSpeed}`);
     }
     
     isMobileDevice() {
@@ -260,15 +260,15 @@ class FlappySanta {
         const isMobile = this.isMobileDevice();
         if (isMobile) {
             this.obstacleGap = 200; // Mobile: normale Lücke
-            this.obstacleSpawnTime = 2200; // Mobile: dichter
             this.obstacleSpeed = 1.8; // Mobile: etwas langsamer
+            this.obstacleSpacing = Math.max(250, this.canvas.width * 0.35); // 35% der Bildschirmbreite
         } else {
             this.obstacleGap = 200; // Desktop
-            this.obstacleSpawnTime = 2500; // Desktop
             this.obstacleSpeed = 2; // Desktop
+            this.obstacleSpacing = Math.max(300, this.canvas.width * 0.4); // 40% der Bildschirmbreite
         }
         
-        this.lastObstacleTime = 0;
+        this.obstacleSpawnDistance = 0;
         this.startTime = Date.now();
         
         document.getElementById('score-value').textContent = '0';
@@ -354,10 +354,11 @@ class FlappySanta {
             return;
         }
         
-        // Spawn obstacles
-        if (currentTime - this.lastObstacleTime > this.obstacleSpawnTime) {
+        // Spawn obstacles based on distance
+        this.obstacleSpawnDistance += this.obstacleSpeed;
+        if (this.obstacleSpawnDistance >= this.obstacleSpacing) {
             this.spawnObstacle();
-            this.lastObstacleTime = currentTime;
+            this.obstacleSpawnDistance = 0;
         }
         
         // Update obstacles
@@ -482,7 +483,7 @@ class FlappySanta {
             this.showDifficultyNotification();
         } else if (this.score === 15) {
             this.obstacleSpeed += 0.4;
-            this.obstacleSpawnTime = 2200;
+            this.obstacleSpacing = Math.max(220, this.obstacleSpacing * 0.9); // 10% enger
             this.showDifficultyNotification();
         } else if (this.score === 20) {
             this.obstacleGap = 180;

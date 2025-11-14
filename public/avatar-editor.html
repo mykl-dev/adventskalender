@@ -983,7 +983,22 @@
             options.forEach(opt => {
                 const isColorOption = opt.key.toLowerCase().includes('color');
                 
-                const items = opt.values.map((val, idx) => {
+                // Add "Remove/None" option first for non-color options
+                let items = '';
+                if (!isColorOption) {
+                    const isNoneActive = !currentOptions[opt.key] || currentOptions[opt.key].length === 0;
+                    items = `
+                        <div class="option-item ${isNoneActive ? 'active' : ''}" 
+                             style="background: #95a5a6; color: #fff; position: relative;"
+                             data-key="${opt.key}" 
+                             data-value="">
+                            <span style="font-size: 1.2rem;">✕</span>
+                            <span style="font-size: 0.7rem; display: block;">Keine</span>
+                        </div>
+                    `;
+                }
+                
+                items += opt.values.map((val, idx) => {
                     let bgColor, textColor, content;
                     
                     if (isColorOption) {
@@ -1101,14 +1116,28 @@
 
             // Toggle current
             element.classList.add('active');
-            currentOptions[key] = [value];
             
-            // Set probability to 100 if there's a corresponding probability field
-            const probabilityKey = key + 'Probability';
-            const schema = styleLibraries[currentStyle]?.schema?.properties;
-            if (schema && schema[probabilityKey]) {
-                currentOptions[probabilityKey] = 100;
-                console.log(`Set ${probabilityKey} to 100`);
+            // If value is empty (Remove/None option), delete the key or set probability to 0
+            if (value === '' || value === null) {
+                delete currentOptions[key];
+                
+                // Set probability to 0 if there's a corresponding probability field
+                const probabilityKey = key + 'Probability';
+                const schema = styleLibraries[currentStyle]?.schema?.properties;
+                if (schema && schema[probabilityKey]) {
+                    currentOptions[probabilityKey] = 0;
+                    console.log(`Set ${probabilityKey} to 0 (removed)`);
+                }
+            } else {
+                currentOptions[key] = [value];
+                
+                // Set probability to 100 if there's a corresponding probability field
+                const probabilityKey = key + 'Probability';
+                const schema = styleLibraries[currentStyle]?.schema?.properties;
+                if (schema && schema[probabilityKey]) {
+                    currentOptions[probabilityKey] = 100;
+                    console.log(`Set ${probabilityKey} to 100`);
+                }
             }
             
             console.log('Current options:', currentOptions);
