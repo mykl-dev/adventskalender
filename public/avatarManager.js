@@ -10,8 +10,23 @@ class AvatarManager {
         this.init();
     }
 
-    init() {
-        // Lade Profil aus Cookie
+    async init() {
+        // Prüfe Session beim Backend
+        try {
+            const response = await fetch('/api/auth/session');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.authenticated) {
+                    // User ist eingeloggt, kein Overlay
+                    this.currentAvatar = data.user;
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('Fehler beim Prüfen der Session:', error);
+        }
+        
+        // Fallback: Lade Profil aus Cookie
         this.currentAvatar = this.loadProfile();
         
         // Prüfe ob Profil vorhanden ist

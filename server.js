@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import session from 'express-session';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -25,8 +26,22 @@ const loadConfig = () => {
 const config = loadConfig();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
+  secret: 'christmas-advent-calendar-secret-2024',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true in production with HTTPS
+    httpOnly: true,
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+  }
+}));
 app.use(express.static('public'));
 
 // Lade Kalender-Inhalte
@@ -123,6 +138,128 @@ app.get('/api/avatar-custom/:style', async (req, res) => {
   }
 });
 
+// === AUTHENTICATION MIDDLEWARE ===
+
+// Middleware to check if user is authenticated
+const requireAuth = (req, res, next) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Nicht authentifiziert' });
+  }
+  next();
+};
+
+// === AUTHENTICATION API ===
+
+// POST: Register new user
+app.post('/api/auth/register', (req, res) => {
+  console.log('Register request body:', req.body);
+  console.log('Register request headers:', req.headers);
+  const { displayName, password } = req.body;
+  
+  // Validation
+  if (!displayName || !password) {
+    console.log('Missing displayName or password:', { displayName, password });
+    return res.status(400).json({ error: 'DisplayName und Passwort erforderlich' });
+  }
+  
+  if (displayName.trim().length < 3) {
+    return res.status(400).json({ error: 'DisplayName muss mindestens 3 Zeichen lang sein' });
+  }
+  
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Passwort muss mindestens 6 Zeichen lang sein' });
+  }
+  
+  // Register user
+  const user = dataService.registerUser(displayName.trim(), password);
+  
+  if (!user) {
+    return res.status(400).json({ error: 'DisplayName bereits vergeben' });
+  }
+  
+  // Create session
+  req.session.userId = user.userId;
+  req.session.displayName = user.displayName;
+  
+  res.json({ 
+    success: true, 
+    message: 'Registrierung erfolgreich',
+    user: {
+      userId: user.userId,
+      displayName: user.displayName,
+      stars: user.stars
+    }
+  });
+});
+
+// POST: Login
+app.post('/api/auth/login', (req, res) => {
+  console.log('Login request body:', req.body);
+  console.log('Login request headers:', req.headers);
+  const { displayName, password } = req.body;
+  
+  // Validation
+  if (!displayName || !password) {
+    console.log('Missing displayName or password:', { displayName, password });
+    return res.status(400).json({ error: 'DisplayName und Passwort erforderlich' });
+  }
+  
+  // Login user
+  const user = dataService.loginUser(displayName.trim(), password);
+  
+  if (!user) {
+    return res.status(401).json({ error: 'Ungültige Anmeldedaten' });
+  }
+  
+  // Create session
+  req.session.userId = user.userId;
+  req.session.displayName = user.displayName;
+  
+  res.json({ 
+    success: true, 
+    message: 'Anmeldung erfolgreich',
+    user: {
+      userId: user.userId,
+      displayName: user.displayName,
+      stars: user.stars,
+      avatar: user.avatar
+    }
+  });
+});
+
+// POST: Logout
+app.post('/api/auth/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Fehler beim Abmelden' });
+    }
+    res.json({ success: true, message: 'Erfolgreich abgemeldet' });
+  });
+});
+
+// GET: Check session / get current user
+app.get('/api/auth/session', (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ authenticated: false });
+  }
+  
+  const user = dataService.getUserProfileById(req.session.userId);
+  
+  if (!user) {
+    return res.status(401).json({ authenticated: false });
+  }
+  
+  res.json({ 
+    authenticated: true,
+    user: {
+      userId: user.userId,
+      displayName: user.displayName,
+      stars: user.stars,
+      avatar: user.avatar
+    }
+  });
+});
+
 // === GAMES API ===
 
 // GET: Alle Spiele abrufen
@@ -167,21 +304,32 @@ app.get('/api/leaderboard/global', (req, res) => {
 app.post('/api/stats', (req, res) => {
   const { gameName, username, score, playTime } = req.body;
   
+  // Get userId from session if available, otherwise use username from body
+  let userId = req.session?.userId;
+  let displayName = username;
+  
+  // If user is logged in, use their userId
+  if (userId) {
+    const user = dataService.getUserProfileById(userId);
+    if (user) {
+      displayName = user.displayName;
+    }
+  }
+  
   // Validierung
-  if (!gameName || !username || score === undefined) {
+  if (!gameName || !displayName || score === undefined) {
     return res.status(400).json({ error: 'Fehlende Daten (gameName, username, score erforderlich)' });
   }
   
-  // Save game score
-  const success = dataService.savePlayerScore(gameName, username, score, playTime || 0);
+  // Save game score (still using displayName for stats.json compatibility)
+  const success = dataService.savePlayerScore(gameName, displayName, score, playTime || 0);
   
-  // Update user stats
-  if (success) {
-    dataService.updateUserStats(username, gameName, score, playTime || 0);
-    res.json({ success: true, message: 'Statistik gespeichert' });
-  } else {
-    res.status(500).json({ error: 'Fehler beim Speichern' });
+  // Update user stats only if logged in
+  if (success && userId) {
+    dataService.updateUserStats(userId, gameName, score, playTime || 0);
   }
+  
+  res.json({ success: true, message: 'Statistik gespeichert' });
 });
 
 // API Endpoint zum Aktualisieren des Benutzernamens (Legacy - nutzt jetzt dataService)
@@ -240,51 +388,85 @@ app.get('/api/door/:day', (req, res) => {
 // USER API ENDPOINTS
 // =====================
 
-// GET: User Profile
-app.get('/api/user/:username', (req, res) => {
-  const username = req.params.username;
-  const profile = dataService.getUserProfile(username);
+// GET: Current User Profile (Protected)
+app.get('/api/user/profile', requireAuth, (req, res) => {
+  const profile = dataService.getUserProfileById(req.session.userId);
+  if (!profile) {
+    return res.status(404).json({ error: 'Benutzer nicht gefunden' });
+  }
   res.json(profile);
 });
 
-// GET: User Stars
-app.get('/api/user/:username/stars', (req, res) => {
-  const username = req.params.username;
-  const stars = dataService.calculateUserStars(username);
+// GET: Current User Stars (Protected)
+app.get('/api/user/stars', requireAuth, (req, res) => {
+  const stars = dataService.calculateUserStars(req.session.userId);
+  if (!stars) {
+    return res.status(404).json({ error: 'Benutzer nicht gefunden' });
+  }
   res.json(stars);
 });
 
-// POST: Update Avatar
-app.post('/api/user/avatar', (req, res) => {
-  const { username, style, options } = req.body;
+// POST: Update Avatar (Protected)
+app.post('/api/user/avatar', requireAuth, (req, res) => {
+  const { style, options } = req.body;
   
-  if (!username || !style) {
-    return res.status(400).json({ error: 'Username and style required' });
+  if (!style) {
+    return res.status(400).json({ error: 'Style required' });
   }
   
-  const success = dataService.updateUserAvatar(username, { style, options });
+  const success = dataService.updateUserAvatar(req.session.userId, { style, options });
   
   if (success) {
-    res.json({ success: true, message: 'Avatar updated' });
+    res.json({ success: true, message: 'Avatar aktualisiert' });
   } else {
-    res.status(500).json({ error: 'Failed to update avatar' });
+    res.status(500).json({ error: 'Fehler beim Aktualisieren' });
   }
 });
 
-// POST: Update Username
-app.post('/api/user/update-username', (req, res) => {
-  const { oldUsername, newUsername } = req.body;
+// POST: Update Display Name (Protected)
+app.post('/api/user/displayname', requireAuth, (req, res) => {
+  const { newDisplayName } = req.body;
   
-  if (!oldUsername || !newUsername) {
-    return res.status(400).json({ error: 'Both old and new username required' });
+  if (!newDisplayName) {
+    return res.status(400).json({ error: 'Neuer DisplayName erforderlich' });
   }
   
-  const success = dataService.updateUsername(oldUsername, newUsername);
+  if (newDisplayName.trim().length < 3) {
+    return res.status(400).json({ error: 'DisplayName muss mindestens 3 Zeichen lang sein' });
+  }
+  
+  const success = dataService.updateDisplayName(req.session.userId, newDisplayName.trim());
   
   if (success) {
-    res.json({ success: true, message: 'Username updated' });
+    req.session.displayName = newDisplayName.trim();
+    res.json({ success: true, message: 'DisplayName aktualisiert' });
   } else {
-    res.status(400).json({ error: 'Username already exists or user not found' });
+    res.status(400).json({ error: 'DisplayName bereits vergeben oder Benutzer nicht gefunden' });
+  }
+});
+
+// POST: Update Password (Protected)
+app.post('/api/user/password', requireAuth, (req, res) => {
+  console.log('Password change request:', { userId: req.session.userId, body: req.body });
+  const { currentPassword, newPassword } = req.body;
+  
+  if (!currentPassword || !newPassword) {
+    console.log('Missing fields');
+    return res.status(400).json({ error: 'Aktuelles und neues Passwort erforderlich' });
+  }
+  
+  if (newPassword.length < 6) {
+    console.log('Password too short');
+    return res.status(400).json({ error: 'Neues Passwort muss mindestens 6 Zeichen lang sein' });
+  }
+  
+  const success = dataService.updatePassword(req.session.userId, currentPassword, newPassword);
+  console.log('Update password result:', success);
+  
+  if (success) {
+    res.json({ success: true, message: 'Passwort erfolgreich geändert' });
+  } else {
+    res.status(400).json({ error: 'Aktuelles Passwort falsch oder Benutzer nicht gefunden' });
   }
 });
 

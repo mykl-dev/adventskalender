@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Editor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding-bottom: 100px; }
+        .avatar-header { position: sticky; top: 0; background: white; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); padding: 20px; z-index: 100; transition: padding 0.3s; }
+        .avatar-header.scrolled { padding: 10px 20px; }
+        .avatar-header-content { display: flex; align-items: center; gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .sticky-avatar { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 101; transition: all 0.3s; opacity: 0; pointer-events: none; }
+        .sticky-avatar.visible { opacity: 1; pointer-events: all; }
+        .sticky-avatar-preview { width: 120px; height: 120px; border-radius: 50%; overflow: hidden; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); display: flex; align-items: center; justify-content: center; border: 4px solid white; }
+        .sticky-avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .avatar-preview { width: 100px; height: 100px; border-radius: 50%; overflow: hidden; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); flex-shrink: 0; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
+        .avatar-header.scrolled .avatar-preview { width: 60px; height: 60px; }
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .avatar-info { flex: 1; }
+        .avatar-header h1 { font-size: 1.8rem; margin: 0 0 10px 0; color: #333; transition: font-size 0.3s; }
+        .avatar-header.scrolled h1 { font-size: 1.2rem; }
+        .username-input-wrapper { margin: 10px 0; }
+        .username-input-wrapper label { display: block; font-size: 0.9rem; color: #666; margin-bottom: 5px; font-weight: 600; }
+        .username-input-wrapper input { width: 100%; max-width: 300px; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s; }
+        .username-input-wrapper input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .score-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        .score-badge { display: inline-block; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
+        .action-buttons { position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1); padding: 15px; display: flex; gap: 10px; justify-content: center; z-index: 99; }
+        .action-buttons button { padding: 12px 30px; font-size: 1rem; border: none; border-radius: 25px; cursor: pointer; transition: all 0.3s; font-weight: 600; }
+        .btn-back { background: #95a5a6; color: white; }
+        .btn-back:hover { background: #7f8c8d; transform: translateY(-2px); }
+        .btn-secondary { background: #ecf0f1; color: #2c3e50; }
+        .btn-secondary:hover { background: #d5dbdd; transform: translateY(-2px); }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+        .editor-content { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .style-heading-wrapper { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
+        .section-heading { font-size: 1.3rem; color: #333; margin: 0; text-align: center; font-weight: 600; }
+        .style-items { display: flex; justify-content: center; gap: 20px; padding: 0; margin-bottom: 20px; }
+        .style-items .option-item { width: 70px; height: 70px; min-width: 70px; border-radius: 50%; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; background: transparent; position: relative; filter: brightness(0.8) saturate(0.7); }
+        .style-items .option-item:hover { transform: scale(1.1); filter: brightness(1) saturate(1); }
+        .style-items .option-item.active { filter: brightness(1) saturate(1); box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.6), 0 8px 20px rgba(102, 126, 234, 0.4); }
+        .style-items .option-item img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .options-panel { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); }
+        .option-group { margin-bottom: 10px; border-radius: 12px; overflow: hidden; background: #f8f9fa; transition: all 0.3s; }
+        .option-group.active { background: white; box-shadow: 0 2px 10px rgba(102, 126, 234, 0.15); }
+        .option-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; cursor: pointer; user-select: none; transition: all 0.3s; }
+        .option-header:hover { background: rgba(102, 126, 234, 0.05); }
+        .option-group.active .option-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .option-header h3 { font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 10px; }
+        .option-header .chevron { font-size: 1.2rem; transition: transform 0.3s; }
+        .option-group.active .option-header .chevron { transform: rotate(180deg); }
+        .option-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out; padding: 0 20px; }
+        .option-group.active .option-content { max-height: 200px; padding: 20px; }
+        .option-scroll-wrapper { position: relative; padding: 0 50px; }
+        .option-items { display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth; padding: 10px 0; scrollbar-width: thin; scrollbar-color: #667eea #f1f1f1; }
+        .option-items::-webkit-scrollbar { height: 8px; }
+        .option-items::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .option-items::-webkit-scrollbar-thumb { background: #667eea; border-radius: 10px; }
+        .option-items::-webkit-scrollbar-thumb:hover { background: #5568d3; }
+        .scroll-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; background: white; border: 2px solid #667eea; color: #667eea; font-size: 1.3rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15); transition: all 0.2s; z-index: 10; }
+        .scroll-btn:hover { background: #667eea; color: white; transform: translateY(-50%) scale(1.1); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+        .scroll-btn-left { left: 0; }
+        .scroll-btn-right { right: 0; }
+        .scroll-btn.hidden { opacity: 0; pointer-events: none; }
+        .btn-new-name { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; white-space: nowrap; transition: all 0.2s; }
+        .btn-new-name:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+        .option-item { width: 50px; height: 50px; min-width: 50px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; background: white; position: relative; }
+        .option-item:hover { transform: scale(1.15); border-color: #667eea; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
+        .option-item.active { border-color: #667eea; border-width: 3px; box-shadow: 0 0 15px rgba(102, 126, 234, 0.6); transform: scale(1.1); }
+        .option-item.locked { opacity: 0.4; cursor: not-allowed; }
+        .color-item { width: 50px; height: 50px; }
+        .variant-item { background: #f8f9fa; color: #2c3e50; }
+        .empty-item { background: repeating-linear-gradient(45deg, #f8f9fa, #f8f9fa 10px, #e9ecef 10px, #e9ecef 20px); }
+        .empty-item::after { content: '✕'; font-size: 1.5rem; color: #e74c3c; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal-overlay.visible { opacity: 1; pointer-events: all; }
+        .modal-content { background: white; border-radius: 20px; padding: 40px; max-width: 500px; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); transform: scale(0.9); transition: transform 0.3s; }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-avatar { width: 200px; height: 200px; margin: 0 auto 30px auto; border-radius: 50%; overflow: hidden; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+        .modal-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .modal-title { font-size: 2rem; margin-bottom: 15px; color: #333; }
+        .modal-message { font-size: 1.1rem; color: #666; margin-bottom: 30px; }
+        .modal-button { padding: 15px 40px; font-size: 1.1rem; border: none; border-radius: 25px; cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s; }
+        .modal-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+    </style>
+</head><body>
+    <div class="modal-overlay" id="saveModal">
+        <div class="modal-content">
+            <div class="modal-avatar">
+                <img id="modalAvatarPreview" src="/api/avatar-custom/adventurer?seed=default" alt="Avatar">
+            </div>
+            <h2 class="modal-title">✨ Avatar gespeichert!</h2>
+            <p class="modal-message">Dein Avatar wurde erfolgreich gespeichert.</p>
+            <button class="modal-button" onclick="closeModal()">Okay</button>
+        </div>
+    </div>
+    <div class="sticky-avatar" id="stickyAvatar">
+        <div class="sticky-avatar-preview">
+            <img id="stickyAvatarPreview" src="/api/avatar-custom/adventurer?seed=default" alt="Avatar">
+        </div>
+    </div>
+    <div class="avatar-header" id="header">
+        <div class="avatar-header-content">
+            <div class="avatar-preview">
+                <img id="avatarPreview" src="/api/avatar-custom/adventurer?seed=default" alt="Avatar">
+            </div>
+            <div class="avatar-info">
+                <h1>🎨 Avatar Editor</h1>
+                <div class="username-input-wrapper">
+                    <label for="usernameInput">👤 Spielername:</label>
+                    <input type="text" id="usernameInput" placeholder="Dein Name" maxlength="20" value="Spieler">
+                </div>
+                <div class="score-row">
+                    <div class="score-badge">⭐ <span id="scoreDisplay">0</span> Punkte</div>
+                    <button class="btn-new-name" onclick="generateNewName()">🎲 Neuer Name</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="action-buttons">
+        <button class="btn-back" onclick="window.location.href='/'">← Zurück zum Kalender</button>
+        <button class="btn-secondary" onclick="randomize()">🎲 Zufällig</button>
+        <button class="btn-primary" onclick="save()">💾 Speichern</button>
+    </div>
+    <div class="editor-content">
+        <div class="style-heading-wrapper">
+            <h2 class="section-heading">🎭 Wähle deinen Avatar-Stil</h2>
+        </div>
+        <div class="style-items" id="styleSelector"></div>
+        <div class="options-panel" id="optionsPanel"></div>
+    </div>    <script type="module">
+        let schemas = {};
+        let currentStyle = 'adventurer';
+        let currentOptions = {};
+        let userScore = 150;
+        let openOptionKey = null;
+        
+        // Docker-Style Namengenerator
+        const adjectives = ['fröhlicher', 'lustiger', 'wilder', 'cooler', 'bunter', 'flotter', 'cleverer', 'flinker', 'mutiger', 'schneller', 'frecher', 'lieber', 'süßer', 'tapferer'];
+        const nouns = ['Elf', 'Schneemann', 'Wichtel', 'Rentier', 'Pinguin', 'Eisbär', 'Stern', 'Engel', 'Weihnachtsmann', 'Lebkuchen', 'Tannenbaum', 'Schneeflocke'];
+        
+        function generateRandomName() {
+            const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const noun = nouns[Math.floor(Math.random() * nouns.length)];
+            return adj + ' ' + noun;
+        }
+        
+        window.generateNewName = function() {
+            const newName = generateRandomName();
+            document.getElementById('usernameInput').value = newName;
+        };
+        
+        async function init() {
+            const response = await fetch('/avatarStyleSchemas.json');
+            schemas = await response.json();
+            
+            // Lade gespeicherten Avatar um Username zu bekommen
+            const savedAvatar = localStorage.getItem('customAvatar');
+            let username = null;
+            if (savedAvatar) {
+                try {
+                    const profile = JSON.parse(savedAvatar);
+                    username = profile.username;
+                } catch (e) {}
+            }
+            
+            // Lade Sterne aus Backend (falls Username vorhanden)
+            if (username) {
+                try {
+                    const starsResponse = await fetch(`/api/user/${username}/stars`);
+                    const stars = await starsResponse.json();
+                    userScore = stars.total || 0;
+                } catch (error) {
+                    console.warn('Konnte Sterne nicht laden:', error);
+                    userScore = 0;
+                }
+            } else {
+                userScore = 0; // Neue Nutzer starten mit 0 Sternen
+            }
+            
+            document.getElementById('scoreDisplay').textContent = userScore;
+            
+            // Verarbeite gespeicherten Avatar
+            const backButton = document.querySelector('.btn-back');
+            
+            if (savedAvatar) {
+                try {
+                    const profile = JSON.parse(savedAvatar);
+                    if (profile.username) {
+                        document.getElementById('usernameInput').value = profile.username;
+                    } else {
+                        document.getElementById('usernameInput').value = generateRandomName();
+                    }
+                    if (profile.style && profile.options) {
+                        // Lade gespeicherten Avatar - Zeige Zurück-Button
+                        backButton.style.display = 'inline-block';
+                        currentStyle = profile.style;
+                        currentOptions = profile.options;
+                        renderStyles();
+                        renderOptions();
+                        updatePreview();
+                    } else {
+                        // Kein vollständiger Avatar, generiere zufälligen - Verstecke Zurück-Button
+                        backButton.style.display = 'none';
+                        renderStyles();
+                        selectStyle('adventurer');
+                        randomize();
+                    }
+                } catch (error) {
+                    console.error('Fehler beim Laden des Avatars:', error);
+                    backButton.style.display = 'none';
+                    document.getElementById('usernameInput').value = generateRandomName();
+                    renderStyles();
+                    selectStyle('adventurer');
+                    randomize();
+                }
+            } else {
+                // Kein Avatar gespeichert, generiere zufälligen - Verstecke Zurück-Button
+                backButton.style.display = 'none';
+                document.getElementById('usernameInput').value = generateRandomName();
+                renderStyles();
+                selectStyle('adventurer');
+                randomize();
+            }
+            
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('header');
+                const stickyAvatar = document.getElementById('stickyAvatar');
+                const scrolled = window.scrollY > 50;
+                header.classList.toggle('scrolled', scrolled);
+                stickyAvatar.classList.toggle('visible', scrolled);
+            });
+        }
+        function renderStyles() {
+            const container = document.getElementById('styleSelector');
+            container.innerHTML = '';
+            for (const [styleId, style] of Object.entries(schemas)) {
+                const isLocked = userScore < style.unlockScore;
+                const item = document.createElement('div');
+                item.className = 'option-item' + (currentStyle === styleId ? ' active' : '') + (isLocked ? ' locked' : '');
+                item.title = style.displayName + (isLocked ? ' (🔒 ' + style.unlockScore + '★)' : '');
+                const img = document.createElement('img');
+                img.src = '/style-previews/' + styleId + '.svg';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+                item.appendChild(img);
+                if (!isLocked) item.onclick = () => selectStyle(styleId);
+                container.appendChild(item);
+            }
+        }
+        function selectStyle(styleId) {
+            if (userScore < schemas[styleId].unlockScore) return;
+            currentStyle = styleId;
+            currentOptions = { seed: 'user-' + Date.now() };
+            const style = schemas[styleId];
+            for (const [key, option] of Object.entries(style.options)) {
+                if (userScore >= option.unlockScore && option.values.length > 0) {
+                    currentOptions[key] = option.values[0];
+                }
+            }
+            openOptionKey = null;
+            renderStyles();
+            renderOptions();
+            updatePreview();
+        }
+        function toggleOption(key) {
+            openOptionKey = openOptionKey === key ? null : key;
+            renderOptions();
+        }        function renderOptions() {
+            const panel = document.getElementById('optionsPanel');
+            panel.innerHTML = '';
+            const style = schemas[currentStyle];
+            const sortedOptions = Object.entries(style.options).sort((a, b) => a[1].unlockScore - b[1].unlockScore);
+            for (const [key, option] of sortedOptions) {
+                const isLocked = userScore < option.unlockScore;
+                const isOpen = openOptionKey === key;
+                const group = document.createElement('div');
+                group.className = 'option-group' + (isOpen ? ' active' : '');
+                const header = document.createElement('div');
+                header.className = 'option-header';
+                header.innerHTML = '<h3>' + option.displayName + ' ' + (isLocked ? '🔒 ' + option.unlockScore + '★' : '') + '</h3><span class="chevron">▼</span>';
+                header.onclick = () => !isLocked && toggleOption(key);
+                const content = document.createElement('div');
+                content.className = 'option-content';
+                if (isOpen) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'option-scroll-wrapper';
+                    const itemsContainer = document.createElement('div');
+                    itemsContainer.className = 'option-items';
+                    itemsContainer.id = 'items-' + key;
+                    for (const value of option.values) {
+                        const item = document.createElement('div');
+                        const isEmpty = value === '';
+                        item.className = 'option-item ' + (isEmpty ? 'empty-item ' : (option.type === 'color' ? 'color-item ' : 'variant-item ')) + (currentOptions[key] === value ? 'active' : '');
+                        if (isEmpty) {
+                            item.title = 'Keine';
+                        } else if (option.type === 'color') {
+                            item.style.backgroundColor = '#' + value;
+                            item.title = '#' + value;
+                        } else {
+                            const num = value.match(/\d+/);
+                            item.textContent = num ? num[0] : '?';
+                            item.title = value;
+                        }
+                        item.onclick = () => {
+                            currentOptions[key] = value;
+                            // Nur active-Klasse aktualisieren statt neu zu rendern
+                            const container = document.getElementById('items-' + key);
+                            container.querySelectorAll('.option-item').forEach(el => el.classList.remove('active'));
+                            item.classList.add('active');
+                            // Zentriere das ausgewählte Element
+                            const containerWidth = container.offsetWidth;
+                            const itemLeft = item.offsetLeft;
+                            const itemWidth = item.offsetWidth;
+                            const scrollTo = itemLeft - (containerWidth / 2) + (itemWidth / 2);
+                            container.scrollTo({ left: scrollTo, behavior: 'smooth' });
+                            updatePreview();
+                        };
+                        itemsContainer.appendChild(item);
+                    }
+                    if (option.values.length > 10) {
+                        const btnLeft = document.createElement('div');
+                        btnLeft.className = 'scroll-btn scroll-btn-left';
+                        btnLeft.innerHTML = '‹';
+                        btnLeft.onclick = (e) => {
+                            e.stopPropagation();
+                            itemsContainer.scrollBy({ left: -200, behavior: 'smooth' });
+                        };
+                        const btnRight = document.createElement('div');
+                        btnRight.className = 'scroll-btn scroll-btn-right';
+                        btnRight.innerHTML = '›';
+                        btnRight.onclick = (e) => {
+                            e.stopPropagation();
+                            itemsContainer.scrollBy({ left: 200, behavior: 'smooth' });
+                        };
+                        wrapper.appendChild(btnLeft);
+                        wrapper.appendChild(btnRight);
+                    }
+                    wrapper.appendChild(itemsContainer);
+                    content.appendChild(wrapper);
+                }
+                group.appendChild(header);
+                group.appendChild(content);
+                panel.appendChild(group);
+            }
+            // Zentriere alle aktiven Elemente beim ersten Rendern
+            setTimeout(() => {
+                document.querySelectorAll('.option-items').forEach(container => {
+                    const activeItem = container.querySelector('.option-item.active');
+                    if (activeItem) {
+                        const containerWidth = container.offsetWidth;
+                        const itemLeft = activeItem.offsetLeft;
+                        const itemWidth = activeItem.offsetWidth;
+                        const scrollTo = itemLeft - (containerWidth / 2) + (itemWidth / 2);
+                        container.scrollLeft = scrollTo;
+                    }
+                });
+            }, 0);
+        }        function updatePreview() {
+            const params = new URLSearchParams();
+            for (const [key, value] of Object.entries(currentOptions)) {
+                if (value !== '') {
+                    params.append(key, value);
+                }
+            }
+            const url = '/api/avatar-custom/' + currentStyle + '?' + params.toString();
+            const img = document.getElementById('avatarPreview');
+            const stickyImg = document.getElementById('stickyAvatarPreview');
+            console.log('Loading avatar:', url);
+            img.style.display = 'block';
+            img.src = url;
+            stickyImg.src = url;
+        }
+        window.randomize = function() {
+            const style = schemas[currentStyle];
+            currentOptions = { seed: 'random-' + Math.random() };
+            for (const [key, option] of Object.entries(style.options)) {
+                if (userScore >= option.unlockScore && option.values.length > 0) {
+                    currentOptions[key] = option.values[Math.floor(Math.random() * option.values.length)];
+                }
+            }
+            renderOptions();
+            updatePreview();
+        };
+        window.save = async function() {
+            try {
+                // Hole alten Namen aus localStorage für Vergleich
+                const oldProfile = localStorage.getItem('customAvatar');
+                const oldUsername = oldProfile ? JSON.parse(oldProfile).username : null;
+                
+                // Hole Benutzernamen aus Input oder generiere zufälligen Namen
+                let username = document.getElementById('usernameInput').value.trim();
+                if (!username) {
+                    username = generateRandomName();
+                    document.getElementById('usernameInput').value = username;
+                }
+                
+                // Wenn Name geändert wurde, aktualisiere stats.json auf Server
+                if (oldUsername && oldUsername !== username) {
+                    try {
+                        await fetch('/api/update-username', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ oldUsername, newUsername: username })
+                        });
+                    } catch (error) {
+                        console.error('Fehler beim Aktualisieren des Namens in Stats:', error);
+                    }
+                }
+                
+                // Speichere in localStorage für Avatar-Anzeige
+                localStorage.setItem('customAvatar', JSON.stringify({ 
+                    style: currentStyle, 
+                    options: currentOptions,
+                    username: username 
+                }));
+                
+                // Sende Avatar-Änderung ans Backend
+                try {
+                    await fetch('/api/user/avatar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            username: username,
+                            style: currentStyle,
+                            options: currentOptions
+                        })
+                    });
+                } catch (error) {
+                    console.warn('Konnte Avatar im Backend nicht speichern:', error);
+                }
+                
+                // Setze Cookie für Profilerkennung (damit Welcome Screen nicht mehr erscheint)
+                const profileData = {
+                    username: username,
+                    avatar: { style: currentStyle, options: currentOptions },
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                const cookieValue = encodeURIComponent(JSON.stringify(profileData));
+                const expires = new Date();
+                expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000)); // 1 Jahr
+                document.cookie = `advent_player_profile=${cookieValue};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+                
+                // Aktualisiere auch playerName Cookie für Stats
+                document.cookie = `playerName=${encodeURIComponent(username)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+                
+                // Aktualisiere Modal-Avatar und Namen
+                const params = new URLSearchParams();
+                for (const [key, value] of Object.entries(currentOptions)) {
+                    if (value !== '') {
+                        params.append(key, value);
+                    }
+                }
+                const url = '/api/avatar-custom/' + currentStyle + '?' + params.toString();
+                document.getElementById('modalAvatarPreview').src = url;
+                
+                // Unterschiedliche Nachricht für neue vs. bestehende Nutzer
+                const isNewUser = !oldProfile;
+                const message = isNewUser 
+                    ? `Herzlich willkommen, ${username}! Dein Avatar wurde erfolgreich gespeichert.`
+                    : `Erfolgreich geändert, ${username}! Deine Avatar-Einstellungen wurden aktualisiert.`;
+                document.querySelector('.modal-message').textContent = message;
+                
+                // Zeige Modal
+                const modal = document.getElementById('saveModal');
+                modal.classList.add('visible');
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+                alert('❌ Fehler beim Speichern. Bitte versuche es erneut.');
+            }
+        };
+        window.closeModal = function() {
+            const modal = document.getElementById('saveModal');
+            modal.classList.remove('visible');
+            setTimeout(() => window.location.href = '/', 300);
+        };
+        init();
+    </script>
+</body>
+</html>

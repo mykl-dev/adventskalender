@@ -45,6 +45,10 @@
             <button class="close-menu" onclick="closeMenu()" aria-label="Menü schließen">✕</button>
         </div>
         <div class="menu-items">
+            <div id="auth-section" class="menu-item" onclick="handleAuthClick()">
+                <span class="menu-icon">🔐</span>
+                <span id="auth-text">Anmelden</span>
+            </div>
             <a href="avatar-editor.html" class="menu-item">
                 <span class="menu-icon">👤</span>
                 <span>Spieler bearbeiten</span>
@@ -73,6 +77,17 @@
             <button class="modal-close" id="modal-close">&times;</button>
             <div class="modal-body" id="modal-body">
                 <!-- Inhalt wird dynamisch geladen -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logout-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 40px; text-align: center; color: white; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.5); max-width: 400px;">
+            <h2 style="font-size: 2.5rem; margin: 0 0 20px 0; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);">Willst du schon gehen?</h2>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px;">
+                <button onclick="closeLogoutModal()" style="padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border: none; border-radius: 25px; cursor: pointer; background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); color: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); transition: all 0.3s ease;">Abbrechen</button>
+                <button onclick="confirmLogout()" style="padding: 12px 30px; font-size: 1.1rem; font-weight: bold; border: none; border-radius: 25px; cursor: pointer; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); transition: all 0.3s ease;">Abmelden</button>
             </div>
         </div>
     </div>
@@ -109,6 +124,84 @@
                 document.getElementById('themeMenuText').textContent = 'Design: ' + currentTheme;
             }
         }
+
+        // Auth state
+        let currentUser = null;
+
+        // Check session on page load
+        async function checkSession() {
+            try {
+                const response = await fetch('/api/auth/session');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        currentUser = data.user;
+                        updateAuthUI(true, data.user.displayName);
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.log('Not authenticated');
+            }
+            currentUser = null;
+            updateAuthUI(false);
+            
+            // Redirect to login if not authenticated
+            window.location.href = '/login.html';
+            return false;
+        }
+
+        // Update auth UI
+        function updateAuthUI(isLoggedIn, displayName = '') {
+            const authText = document.getElementById('auth-text');
+            const authIcon = document.querySelector('#auth-section .menu-icon');
+            
+            if (isLoggedIn) {
+                authText.textContent = `Abmelden (${displayName})`;
+                authIcon.textContent = '👋';
+            } else {
+                authText.textContent = 'Anmelden';
+                authIcon.textContent = '🔐';
+            }
+        }
+
+        // Handle auth click (login or logout)
+        async function handleAuthClick() {
+            if (currentUser) {
+                // Show logout confirmation modal
+                document.getElementById('logout-modal').style.display = 'flex';
+                closeMenu();
+            } else {
+                // Redirect to login
+                window.location.href = '/login.html';
+            }
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logout-modal').style.display = 'none';
+        }
+
+        async function confirmLogout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    currentUser = null;
+                    updateAuthUI(false);
+                    closeLogoutModal();
+                    window.location.href = '/login.html';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                closeLogoutModal();
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            checkSession();
+        });
     </script>
     <script src="avatarManager.js"></script>
     <script src="stats-manager.js"></script>

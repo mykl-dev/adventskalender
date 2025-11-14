@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Willkommen - Adventskalender 2024</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .logo .christmas-emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.visible {
+            display: block;
+        }
+
+        .message.error {
+            background: #ffdddd;
+            color: #cc0000;
+        }
+
+        .message.success {
+            background: #ddffdd;
+            color: #008800;
+        }
+
+        .guest-login {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .guest-login a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .guest-login a:hover {
+            text-decoration: underline;
+        }
+
+        /* Success Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.visible {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-content .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .modal-content .btn {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div class="christmas-emoji">🎄</div>
+            <h1>Adventskalender 2024</h1>
+            <p>Willkommen zurück!<br>Melde dich an um deine Fortschritte zu speichern</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="auth-form">
+            <div class="form-group">
+                <label for="displayname">Benutzername</label>
+                <input 
+                    type="text" 
+                    id="displayname" 
+                    placeholder="Dein Benutzername"
+                    required
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Passwort</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="Dein Passwort"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Anmelden</button>
+                <button type="button" class="btn btn-secondary" onclick="showRegister()">Registrieren</button>
+            </div>
+        </form>
+
+        <div class="message" id="message"></div>
+
+        <div class="guest-login">
+            <a href="/">Als Gast fortfahren (ohne Anmeldung)</a>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="success-modal">
+        <div class="modal-content">
+            <div class="success-icon">🎉</div>
+            <h2>Registrierung erfolgreich!</h2>
+            <p>Dein Account wurde erstellt. Jetzt kannst du deinen Avatar personalisieren!</p>
+            <button class="btn btn-primary" onclick="goToAvatarEditor()">Avatar erstellen</button>
+        </div>
+    </div>
+
+    <script>
+        let isRegisterMode = false;
+
+        // Switch to register mode
+        function showRegister() {
+            isRegisterMode = true;
+            const form = document.getElementById('auth-form');
+            const submitBtn = form.querySelector('.btn-primary');
+            const logo = document.querySelector('.logo p');
+            
+            submitBtn.textContent = 'Registrieren';
+            logo.innerHTML = 'Erstelle deinen Account<br>und starte deine Adventsreise!';
+            
+            // Change form handler
+            form.onsubmit = handleRegister;
+            
+            // Change button
+            const buttonGroup = document.querySelector('.button-group');
+            buttonGroup.innerHTML = `
+                <button type="submit" class="btn btn-primary">Registrieren</button>
+                <button type="button" class="btn btn-secondary" onclick="showLogin()">Zurück</button>
+            `;
+            
+            hideMessage();
+        }
+
+        // Switch to login mode
+        function showLogin() {
+            isRegisterMode = false;
+            const form = document.getElementById('auth-form');
+            const submitBtn = form.querySelector('.btn-primary');
+            const logo = document.querySelector('.logo p');
+            
+            submitBtn.textContent = 'Anmelden';
+            logo.innerHTML = 'Willkommen zurück!<br>Melde dich an um deine Fortschritte zu speichern';
+            
+            // Change form handler
+            form.onsubmit = handleLogin;
+            
+            // Change button
+            const buttonGroup = document.querySelector('.button-group');
+            buttonGroup.innerHTML = `
+                <button type="submit" class="btn btn-primary">Anmelden</button>
+                <button type="button" class="btn btn-secondary" onclick="showRegister()">Registrieren</button>
+            `;
+            
+            hideMessage();
+        }
+
+        // Message display
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message visible ${type}`;
+        }
+
+        function hideMessage() {
+            const message = document.getElementById('message');
+            message.className = 'message';
+        }
+
+        // Show success modal
+        function showSuccessModal() {
+            document.getElementById('success-modal').classList.add('visible');
+        }
+
+        // Go to avatar editor
+        function goToAvatarEditor() {
+            window.location.href = '/avatar-editor.html';
+        }
+
+        // Login handler
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const displayName = document.getElementById('displayname').value.trim();
+            const password = document.getElementById('password').value;
+            
+            const submitBtn = e.target.querySelector('.btn-primary');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Wird angemeldet...';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ displayName, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('Anmeldung erfolgreich! Weiterleitung...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    showMessage(data.error || 'Anmeldung fehlgeschlagen', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('Verbindungsfehler', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        }
+
+        // Register handler
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const displayName = document.getElementById('displayname').value.trim();
+            const password = document.getElementById('password').value;
+            
+            // Validation
+            if (displayName.length < 3) {
+                showMessage('Benutzername muss mindestens 3 Zeichen lang sein', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('Passwort muss mindestens 6 Zeichen lang sein', 'error');
+                return;
+            }
+            
+            const submitBtn = e.target.querySelector('.btn-primary');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Wird erstellt...';
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ displayName, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccessModal();
+                } else {
+                    showMessage(data.error || 'Registrierung fehlgeschlagen', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                showMessage('Verbindungsfehler', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        }
+
+        // Initialize form
+        document.getElementById('auth-form').onsubmit = handleLogin;
+
+        // Check if already logged in
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/api/auth/session');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        // Already logged in, redirect to calendar
+                        window.location.href = '/';
+                    }
+                }
+            } catch (error) {
+                console.log('Not logged in');
+            }
+        });
+    </script>
+</body>
+</html>

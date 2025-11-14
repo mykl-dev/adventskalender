@@ -1,15 +1,54 @@
 {
   "users": {
-    "Spieler": {
-      "username": "Spieler",
-      "createdAt": "2025-11-14T07:02:57.429Z",
-      "lastActive": "2025-11-14T07:02:57.429Z",
+    "user_6baf7e2114d9e3376f2709b4407583a4": {
+      "userId": "user_6baf7e2114d9e3376f2709b4407583a4",
+      "displayName": "mykl",
+      "password": "93695213259b233226ed6a4e397173a1107a01716c1adbebc48e8f5ddb8494c2",
+      "createdAt": "2025-11-14T09:54:42.064Z",
+      "lastActive": "2025-11-14T17:49:46.618Z",
       "avatar": {
-        "style": "adventurer",
-        "options": {},
-        "lastChanged": "2025-11-14T07:02:57.429Z"
+        "style": "avataaars",
+        "options": {
+          "accessoriesColor": [
+            "a7ffc4"
+          ],
+          "hatColor": [
+            "ff5c5c"
+          ],
+          "facialHair": [
+            "beardLight"
+          ],
+          "facialHairProbability": 100,
+          "base": [
+            "default"
+          ],
+          "facialHairColor": [
+            "2c1b18"
+          ],
+          "nose": [
+            "default"
+          ],
+          "skinColor": [
+            "d08b5b"
+          ],
+          "mouth": [
+            "disbelief"
+          ],
+          "accessories": [
+            "prescription02"
+          ],
+          "accessoriesProbability": 100,
+          "hairColor": [
+            "2c1b18"
+          ],
+          "top": [
+            "shortFlat"
+          ],
+          "topProbability": 100
+        },
+        "lastChanged": "2025-11-14T16:15:46.676Z"
       },
-      "avatarChanges": 0,
+      "avatarChanges": 4,
       "usernameChanges": 0,
       "usernameHistory": [],
       "stats": {
@@ -53,7 +92,7 @@
           "dedication": 0,
           "achievements": 0
         },
-        "lastCalculated": "2025-11-14T07:02:57.435Z"
+        "lastCalculated": "2025-11-14T17:49:46.638Z"
       },
       "achievements": [],
       "unlockedItems": {

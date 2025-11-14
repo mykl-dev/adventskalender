@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -336,132 +337,244 @@ class DataService {
   }
 
   /**
-   * Get or create user profile
-   * @param {string} username - Username
-   * @returns {Object} User profile
+   * Generate unique user ID
+   * @returns {string} Unique user ID
    */
-  getUserProfile(username) {
+  generateUserId() {
+    return 'user_' + crypto.randomBytes(16).toString('hex');
+  }
+
+  /**
+   * Hash password (simple hash for this project)
+   * @param {string} password - Password to hash
+   * @returns {string} Hashed password
+   */
+  hashPassword(password) {
+    return crypto.createHash('sha256').update(password).digest('hex');
+  }
+
+  /**
+   * Verify password
+   * @param {string} password - Plain password
+   * @param {string} hashedPassword - Hashed password
+   * @returns {boolean} Password matches
+   */
+  verifyPassword(password, hashedPassword) {
+    return this.hashPassword(password) === hashedPassword;
+  }
+
+  /**
+   * Check if display name is available
+   * @param {string} displayName - Display name to check
+   * @param {string} excludeUserId - User ID to exclude from check (for updates)
+   * @returns {boolean} True if available
+   */
+  isDisplayNameAvailable(displayName, excludeUserId = null) {
+    const users = this.loadUsers();
+    const normalizedName = displayName.toLowerCase().trim();
+    
+    for (const [userId, user] of Object.entries(users.users)) {
+      if (userId === excludeUserId) continue;
+      if (user.displayName.toLowerCase().trim() === normalizedName) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Register new user
+   * @param {string} displayName - Display name
+   * @param {string} password - Password
+   * @returns {Object|null} User object or null if failed
+   */
+  registerUser(displayName, password) {
     const users = this.loadUsers();
     
-    if (!users.users[username]) {
-      // Create new user profile
-      users.users[username] = {
-        username: username,
-        createdAt: new Date().toISOString(),
-        lastActive: new Date().toISOString(),
-        
-        // Avatar Data
-        avatar: {
-          style: 'adventurer',
-          options: {},
-          lastChanged: new Date().toISOString()
-        },
-        avatarChanges: 0,
-        usernameChanges: 0,
-        usernameHistory: [],
-        
-        // Game Statistics
-        stats: {
-          totalGamesPlayed: 0,
-          totalPlayTime: 0, // in seconds
-          totalScore: 0,
-          averageScore: 0,
-          bestGame: null, // { gameName, score }
-          worstGame: null,
-          favoriteGame: null, // most played game
-          
-          // Achievement-relevant stats
-          perfectGames: 0, // games where score > 90% of best possible
-          comebacks: 0, // games where improved after bad round
-          consistency: 0, // low variance in scores
-          
-          // Time-based stats
-          longestPlaySession: 0,
-          shortestPlaySession: 0,
-          averagePlayTime: 0,
-          totalDaysPlayed: 0,
-          lastPlayedDate: null,
-          playStreak: 0, // consecutive days played
-          longestStreak: 0,
-          
-          // Performance stats
-          winRate: 0, // percentage of games in top 3
-          top1Count: 0,
-          top3Count: 0,
-          improvementRate: 0, // % of games where score improved
-          
-          // Engagement stats
-          gamesPerDay: 0,
-          uniqueGamesPlayed: 0,
-          completionRate: 0, // % of games where played to end
-          
-          // Seasonal stats
-          christmasSpiritScore: 0, // custom metric based on activity during advent
-          dailyLoginCount: 0,
-          doorsOpened: 0
-        },
-        
-        // Stars/Points System
-        stars: {
-          total: 0,
-          breakdown: {
-            gameScore: 0,      // from total game scores
-            achievements: 0,    // from unlocked achievements
-            consistency: 0,     // from regular play
-            improvement: 0,     // from improving scores
-            engagement: 0,      // from daily logins, doors opened
-            variety: 0,         // from playing different games
-            mastery: 0,         // from being top 3 in games
-            dedication: 0       // from long play sessions, streaks
-          }
-        },
-        
-        // Achievements
-        achievements: [],
-        
-        // Unlocked Items
-        unlockedItems: {
-          avatarStyles: ['adventurer'],
-          avatarOptions: {},
-          badges: [],
-          titles: []
-        },
-        
-        // Preferences
-        preferences: {
-          notifications: true,
-          soundEnabled: true,
-          theme: 'christmas'
-        }
-      };
-      
-      this.saveUsers(users);
-    } else {
-      // Update lastActive
-      users.users[username].lastActive = new Date().toISOString();
-      this.saveUsers(users);
+    // Check if display name is taken
+    if (!this.isDisplayNameAvailable(displayName)) {
+      return null;
     }
     
-    return users.users[username];
+    const userId = this.generateUserId();
+    const hashedPassword = this.hashPassword(password);
+    
+    users.users[userId] = {
+      userId: userId,
+      displayName: displayName,
+      password: hashedPassword,
+      createdAt: new Date().toISOString(),
+      lastActive: new Date().toISOString(),
+      
+      // Avatar Data
+      avatar: {
+        style: 'adventurer',
+        options: {},
+        lastChanged: new Date().toISOString()
+      },
+      avatarChanges: 0,
+      usernameChanges: 0,
+      usernameHistory: [],
+      
+      // Game Statistics
+      stats: {
+        totalGamesPlayed: 0,
+        totalPlayTime: 0,
+        totalScore: 0,
+        averageScore: 0,
+        bestGame: null,
+        worstGame: null,
+        favoriteGame: null,
+        perfectGames: 0,
+        comebacks: 0,
+        consistency: 0,
+        longestPlaySession: 0,
+        shortestPlaySession: 0,
+        averagePlayTime: 0,
+        totalDaysPlayed: 0,
+        lastPlayedDate: null,
+        playStreak: 0,
+        longestStreak: 0,
+        winRate: 0,
+        top1Count: 0,
+        top3Count: 0,
+        improvementRate: 0,
+        gamesPerDay: 0,
+        uniqueGamesPlayed: 0,
+        completionRate: 0,
+        christmasSpiritScore: 0,
+        dailyLoginCount: 0,
+        doorsOpened: 0
+      },
+      
+      // Stars/Points System
+      stars: {
+        total: 0,
+        breakdown: {
+          gameScore: 0,
+          achievements: 0,
+          consistency: 0,
+          improvement: 0,
+          engagement: 0,
+          variety: 0,
+          mastery: 0,
+          dedication: 0
+        }
+      },
+      
+      // Achievements
+      achievements: [],
+      
+      // Unlocked Items
+      unlockedItems: {
+        avatarStyles: ['adventurer'],
+        avatarOptions: {},
+        badges: [],
+        titles: []
+      },
+      
+      // Preferences
+      preferences: {
+        notifications: true,
+        soundEnabled: true,
+        theme: 'christmas'
+      }
+    };
+      
+      this.saveUsers(users);
+      
+      // Return user without password
+      const { password: _, ...userWithoutPassword } = users.users[userId];
+      return userWithoutPassword;
+  }
+
+  /**
+   * Login user
+   * @param {string} displayName - Display name
+   * @param {string} password - Password
+   * @returns {Object|null} User object (without password) or null if failed
+   */
+  loginUser(displayName, password) {
+    if (!displayName || !password) {
+      return null;
+    }
+    const users = this.loadUsers();
+    const normalizedName = displayName.toLowerCase().trim();
+    
+    for (const [userId, user] of Object.entries(users.users)) {
+      if (user.displayName.toLowerCase().trim() === normalizedName) {
+        if (this.verifyPassword(password, user.password)) {
+          // Update last active
+          user.lastActive = new Date().toISOString();
+          this.saveUsers(users);
+          
+          // Return user without password
+          const { password: _, ...userWithoutPassword } = user;
+          return userWithoutPassword;
+        }
+        return null; // Wrong password
+      }
+    }
+    return null; // User not found
+  }
+
+  /**
+   * Get user profile by ID
+   * @param {string} userId - User ID
+   * @returns {Object|null} User profile or null
+   */
+  getUserProfileById(userId) {
+    const users = this.loadUsers();
+    
+    if (users.users[userId]) {
+      // Update lastActive
+      users.users[userId].lastActive = new Date().toISOString();
+      this.saveUsers(users);
+      
+      // Return without password
+      const { password: _, ...userWithoutPassword } = users.users[userId];
+      return userWithoutPassword;
+    }
+    
+    return null;
+  }
+
+  /**
+   * Get user profile by display name
+   * @param {string} displayName - Display name
+   * @returns {Object|null} User profile or null
+   */
+  getUserProfileByDisplayName(displayName) {
+    const users = this.loadUsers();
+    const normalizedName = displayName.toLowerCase().trim();
+    
+    for (const [userId, user] of Object.entries(users.users)) {
+      if (user.displayName.toLowerCase().trim() === normalizedName) {
+        // Return without password
+        const { password: _, ...userWithoutPassword} = user;
+        return userWithoutPassword;
+      }
+    }
+    
+    return null;
   }
 
   /**
    * Update user profile
-   * @param {string} username - Username
+   * @param {string} userId - User ID
    * @param {Object} updates - Profile updates
    * @returns {boolean} Success status
    */
-  updateUserProfile(username, updates) {
+  updateUserProfile(userId, updates) {
     try {
       const users = this.loadUsers();
       
-      if (!users.users[username]) {
-        // Create if doesn't exist
-        this.getUserProfile(username);
+      if (!users.users[userId]) {
+        return false;
       }
       
-      users.users[username] = {
-        ...users.users[username],
+      users.users[userId] = {
+        ...users.users[userId],
         ...updates,
         lastActive: new Date().toISOString()
       };
@@ -475,11 +588,15 @@ class DataService {
 
   /**
    * Calculate and update user stars based on stats
-   * @param {string} username - Username
+   * @param {string} userId - User ID
    * @returns {Object} Updated stars object
    */
-  calculateUserStars(username) {
-    const user = this.getUserProfile(username);
+  calculateUserStars(userId) {
+    const user = this.getUserProfileById(userId);
+    if (!user) {
+      return null;
+    }
+    
     const stats = user.stats;
     const breakdown = {};
     
@@ -525,30 +642,33 @@ class DataService {
     const total = Object.values(breakdown).reduce((sum, val) => sum + val, 0);
     
     // Update user profile
-    user.stars = {
+    const updatedStars = {
       total: total,
       breakdown: breakdown,
       lastCalculated: new Date().toISOString()
     };
     
     const users = this.loadUsers();
-    users.users[username] = user;
+    users.users[userId].stars = updatedStars;
     this.saveUsers(users);
     
-    return user.stars;
+    return updatedStars;
   }
 
   /**
    * Update user stats after game completion
-   * @param {string} username - Username
+   * @param {string} userId - User ID
    * @param {string} gameName - Game name
    * @param {number} score - Game score
    * @param {number} playTime - Play time in seconds
    * @returns {boolean} Success status
    */
-  updateUserStats(username, gameName, score, playTime) {
+  updateUserStats(userId, gameName, score, playTime) {
     try {
-      const user = this.getUserProfile(username);
+      const user = this.getUserProfileById(userId);
+      if (!user) {
+        return false;
+      }
       const stats = user.stats;
       
       // Update basic stats
@@ -597,7 +717,7 @@ class DataService {
       
       // Update unique games played
       const gameStats = this.getGameStats(gameName);
-      const userGameStats = gameStats.find(g => g.username === username);
+      const userGameStats = gameStats.find(g => g.username === user.displayName);
       if (userGameStats && userGameStats.gamesPlayed === 1) {
         stats.uniqueGamesPlayed++;
       }
@@ -607,7 +727,7 @@ class DataService {
       let maxGamesPlayed = 0;
       let favoriteGame = null;
       for (const [game, players] of Object.entries(allGameStats)) {
-        const playerStats = players.find(p => p.username === username);
+        const playerStats = players.find(p => p.username === user.displayName);
         if (playerStats && playerStats.gamesPlayed > maxGamesPlayed) {
           maxGamesPlayed = playerStats.gamesPlayed;
           favoriteGame = game;
@@ -616,10 +736,10 @@ class DataService {
       stats.favoriteGame = favoriteGame;
       
       // Update user profile
-      this.updateUserProfile(username, { stats });
+      this.updateUserProfile(userId, { stats });
       
       // Recalculate stars
-      this.calculateUserStars(username);
+      this.calculateUserStars(userId);
       
       return true;
     } catch (error) {
@@ -629,23 +749,25 @@ class DataService {
   }
 
   /**
-   * Update avatar change count
-   * @param {string} username - Username
+   * Update avatar
+   * @param {string} userId - User ID
    * @param {Object} avatarData - Avatar data { style, options }
    * @returns {boolean} Success status
    */
-  updateUserAvatar(username, avatarData) {
+  updateUserAvatar(userId, avatarData) {
     try {
-      const user = this.getUserProfile(username);
+      const users = this.loadUsers();
       
-      user.avatar = {
+      if (!users.users[userId]) {
+        return false;
+      }
+      
+      users.users[userId].avatar = {
         ...avatarData,
         lastChanged: new Date().toISOString()
       };
-      user.avatarChanges++;
+      users.users[userId].avatarChanges++;
       
-      const users = this.loadUsers();
-      users.users[username] = user;
       return this.saveUsers(users);
     } catch (error) {
       console.error('Error updating user avatar:', error);
@@ -654,55 +776,80 @@ class DataService {
   }
 
   /**
-   * Update username
-   * @param {string} oldUsername - Old username
-   * @param {string} newUsername - New username
+   * Update display name
+   * @param {string} userId - User ID
+   * @param {string} newDisplayName - New display name
    * @returns {boolean} Success status
    */
-  updateUsername(oldUsername, newUsername) {
+  updateDisplayName(userId, newDisplayName) {
     try {
       const users = this.loadUsers();
       
-      if (!users.users[oldUsername]) {
+      if (!users.users[userId]) {
         return false;
       }
       
-      // Check if new username already exists
-      if (users.users[newUsername] && newUsername !== oldUsername) {
+      // Check if new display name is already taken
+      if (!this.isDisplayNameAvailable(newDisplayName, userId)) {
         return false;
       }
       
-      // Move user data to new username
-      const userData = users.users[oldUsername];
-      userData.username = newUsername;
-      userData.usernameChanges++;
-      userData.usernameHistory.push({
-        oldName: oldUsername,
-        newName: newUsername,
+      // Store old display name
+      const oldDisplayName = users.users[userId].displayName;
+      
+      // Update display name
+      users.users[userId].displayName = newDisplayName;
+      users.users[userId].usernameChanges++;
+      users.users[userId].usernameHistory.push({
+        oldName: oldDisplayName,
+        newName: newDisplayName,
         changedAt: new Date().toISOString()
       });
       
-      users.users[newUsername] = userData;
-      
-      // Delete old username entry if different
-      if (oldUsername !== newUsername) {
-        delete users.users[oldUsername];
-      }
-      
-      // Update username in stats.json
+      // Update display name in stats.json (using displayName as username field)
       const stats = this.loadStats();
       for (const gameName in stats.games) {
         const players = stats.games[gameName];
-        const playerIndex = players.findIndex(p => p.username === oldUsername);
+        const playerIndex = players.findIndex(p => p.username === oldDisplayName);
         if (playerIndex !== -1) {
-          players[playerIndex].username = newUsername;
+          players[playerIndex].username = newDisplayName;
         }
       }
       this.saveStats(stats);
       
       return this.saveUsers(users);
     } catch (error) {
-      console.error('Error updating username:', error);
+      console.error('Error updating display name:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Update user password
+   * @param {string} userId - User ID
+   * @param {string} currentPassword - Current password
+   * @param {string} newPassword - New password
+   * @returns {boolean} Success status
+   */
+  updatePassword(userId, currentPassword, newPassword) {
+    try {
+      const users = this.loadUsers();
+      
+      if (!users.users[userId]) {
+        return false;
+      }
+      
+      // Verify current password
+      if (!this.verifyPassword(currentPassword, users.users[userId].password)) {
+        return false;
+      }
+      
+      // Update password
+      users.users[userId].password = this.hashPassword(newPassword);
+      
+      return this.saveUsers(users);
+    } catch (error) {
+      console.error('Error updating password:', error);
       return false;
     }
   }
