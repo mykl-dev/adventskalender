@@ -18,6 +18,7 @@ class ChristmasMatch3Game {
         this.totalTilesCleared = 0; // Für Schwierigkeits-Scaling
         this.comboCounter = 0; // Für Kettenreaktionen
         this.touchControlsSetup = false; // Flag um doppelte Event-Listener zu vermeiden
+        this.difficultyLevel = 1; // Startet bei Level 1
         
         // Christbaumkugel Farben/Typen
         this.ornamentTypes = [
@@ -27,6 +28,12 @@ class ChristmasMatch3Game {
             { id: 3, emoji: '🟢', color: '#2ecc71' }, // Grün
             { id: 4, emoji: '🟣', color: '#9b59b6' }, // Lila
             { id: 5, emoji: '🟠', color: '#e67e22' }  // Orange
+        ];
+        
+        // Zusätzliche Farben für höhere Schwierigkeit
+        this.extraOrnamentTypes = [
+            { id: 6, emoji: '🟤', color: '#8b4513' }, // Braun
+            { id: 7, emoji: '⚪', color: '#ecf0f1' }  // Weiß
         ];
         
         // Bonus Geschenk (gibt Extrapunkte x2, KEINE Zeit!)
@@ -194,10 +201,12 @@ class ChristmasMatch3Game {
     }
     
     addTime(seconds) {
-        this.timeLeft = Math.min(this.maxTime, this.timeLeft + seconds); // Maximal 60 Sekunden
+        // Runde auf ganze Sekunden
+        const roundedSeconds = Math.round(seconds);
+        this.timeLeft = Math.min(this.maxTime, this.timeLeft + roundedSeconds); // Maximal 60 Sekunden
         
-        // Zeige Floating Text
-        this.showFloatingText(`+${seconds}s`, '#2ecc71');
+        // Zeige Floating Text ohne Kommastellen
+        this.showFloatingText(`+${roundedSeconds}s`, '#2ecc71');
     }
     
     async showHighscores() {
@@ -236,10 +245,41 @@ class ChristmasMatch3Game {
     }
     
     getRandomOrnamentType() {
-        const types = [...this.ornamentTypes];
+        // Wähle aus verfügbaren Farben basierend auf Score
+        const types = this.getActiveOrnamentTypes();
         const selected = types[Math.floor(Math.random() * types.length)];
         // Kopie zurückgeben um Referenz-Probleme zu vermeiden
         return { ...selected };
+    }
+    
+    getActiveOrnamentTypes() {
+        // Ab 500 Punkten: 7 Farben statt 6 (schwieriger!)
+        // Ab 1500 Punkten: Alle 8 Farben (sehr schwer!)
+        if (this.score >= 1500) {
+            return [...this.ornamentTypes, ...this.extraOrnamentTypes];
+        } else if (this.score >= 500) {
+            return [...this.ornamentTypes, this.extraOrnamentTypes[0]];
+        }
+        return this.ornamentTypes;
+    }
+    
+    updateDifficulty() {
+        // Update Schwierigkeits-Level basierend auf Score
+        const oldLevel = this.difficultyLevel;
+        
+        if (this.score >= 2000) this.difficultyLevel = 5;
+        else if (this.score >= 1500) this.difficultyLevel = 4;
+        else if (this.score >= 1000) this.difficultyLevel = 3;
+        else if (this.score >= 500) this.difficultyLevel = 2;
+        else this.difficultyLevel = 1;
+        
+        // Bei Level-Up Benachrichtigung anzeigen
+        if (this.difficultyLevel > oldLevel) {
+            this.showFloatingText(`🔥 Level ${this.difficultyLevel}!`, '#e74c3c');
+        }
+        
+        // Geschenk-Chance sinkt mit Schwierigkeit
+        this.giftSpawnChance = Math.max(0.01, 0.05 - (this.difficultyLevel * 0.008));
     }
     
     wouldCreateMatch(row, col, type) {
@@ -744,16 +784,18 @@ class ChristmasMatch3Game {
     async processMatches(matches, isCombo = false) {
         console.log(`🎯 processMatches aufgerufen mit ${matches.length} Matches (Combo: ${isCombo})`);
         
-        // === ZEIT-BONUS berechnen (SEHR AGGRESSIVES SCALING!) ===
+        // === ZEIT-BONUS berechnen (Score-basiertes Scaling!) ===
         const normalTiles = matches.filter(m => m.type.id !== 99).length;
         const giftCount = matches.filter(m => m.type.id === 99).length;
         
-        // VIEL härteres Time-Scaling: Schneller sinkend, niedrigeres Minimum
-        // Nach 50 Kugeln: ~50% Bonus
-        // Nach 100 Kugeln: ~33% Bonus
-        // Nach 150 Kugeln: ~25% Bonus (Minimum)
-        const scalingFactor = Math.max(0.25, 1 - (this.totalTilesCleared / 100)); // Min 25% bei 75+ Kugeln
-        const baseTimePerTile = 0.8; // 0.8 Sekunden pro Kugel (ausgeglichen)
+        // Progressive Schwierigkeit basierend auf Score:
+        // 0-200 Punkte: 100% Zeit-Bonus
+        // 200-500 Punkte: 80% Zeit-Bonus
+        // 500-1000 Punkte: 60% Zeit-Bonus
+        // 1000-2000 Punkte: 40% Zeit-Bonus
+        // 2000+ Punkte: 25% Zeit-Bonus (Maximum)
+        const scalingFactor = Math.max(0.25, 1 - (this.score / 800)); // Min 25% ab 600 Punkten
+        const baseTimePerTile = 0.8; // 0.8 Sekunden pro Kugel
         const timePerTile = baseTimePerTile * scalingFactor;
         const comboTimeBonus = isCombo ? 2.5 : 0; // 2.5 Sekunden Combo-Bonus
         
@@ -792,6 +834,7 @@ class ChristmasMatch3Game {
         
         this.score += totalPoints;
         document.getElementById('match3-score').textContent = this.score;
+        this.updateDifficulty();
         
         // Floating Score Text am ersten Match
         if (matches.length > 0) {
