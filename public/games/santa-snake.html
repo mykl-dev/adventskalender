@@ -197,6 +197,41 @@
             50% { transform: scale(1.2); }
         }
 
+        /* Bonus und Negative Items mit Pulsieren */
+        .bonus-item {
+            animation: pulse-bonus 1s ease-in-out infinite !important;
+            z-index: 5 !important;
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+        }
+        
+        .negative-item {
+            animation: pulse-negative 0.8s ease-in-out infinite !important;
+            z-index: 5 !important;
+            filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
+        }
+        
+        @keyframes pulse-bonus {
+            0%, 100% { 
+                transform: scale(1);
+                filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+            }
+            50% { 
+                transform: scale(1.3);
+                filter: drop-shadow(0 0 15px rgba(255, 215, 0, 1)) brightness(1.5);
+            }
+        }
+        
+        @keyframes pulse-negative {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg);
+                filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
+            }
+            50% { 
+                transform: scale(1.2) rotate(5deg);
+                filter: drop-shadow(0 0 15px rgba(255, 0, 0, 1));
+            }
+        }
+
         /* Touch D-Pad Controls */
         .touch-dpad {
             position: fixed;
@@ -511,6 +546,11 @@
                 this.direction = 'right';
                 this.nextDirection = 'right';
                 this.gift = null;
+                this.bonusItem = null; // Bonus-Item (erscheint nach X Geschenken)
+                this.negativeItem = null; // Negatives Item (erscheint ab höherem Level)
+                this.bonusTimer = null;
+                this.negativeTimer = null;
+                this.giftsCollected = 0; // Zähler für gesammelte Geschenke
                 this.score = 0;
                 this.gameActive = false;
                 this.gameLoop = null;
@@ -710,6 +750,115 @@
                 this.gift = newGift;
                 this.renderGift();
             }
+            
+            spawnBonusItem() {
+                if (this.bonusItem) return; // Nur ein Bonus gleichzeitig
+                
+                let validPosition = false;
+                let newBonus;
+
+                while (!validPosition) {
+                    newBonus = {
+                        x: Math.floor(Math.random() * this.gridSize),
+                        y: Math.floor(Math.random() * this.gridSize)
+                    };
+
+                    validPosition = !this.snake.some(segment =>
+                        segment.x === newBonus.x && segment.y === newBonus.y
+                    ) && !(this.gift.x === newBonus.x && this.gift.y === newBonus.y);
+                }
+
+                this.bonusItem = newBonus;
+                this.renderBonusItem();
+                
+                // Bonus verschwindet nach 5 Sekunden
+                this.bonusTimer = setTimeout(() => {
+                    this.removeBonusItem();
+                }, 5000);
+            }
+            
+            removeBonusItem() {
+                this.bonusItem = null;
+                if (this.bonusTimer) {
+                    clearTimeout(this.bonusTimer);
+                    this.bonusTimer = null;
+                }
+                const bonusEl = this.canvas.querySelector('.bonus-item');
+                if (bonusEl) bonusEl.remove();
+            }
+            
+            spawnNegativeItem() {
+                if (this.negativeItem) return; // Nur ein negatives Item gleichzeitig
+                
+                let validPosition = false;
+                let newNegative;
+
+                while (!validPosition) {
+                    newNegative = {
+                        x: Math.floor(Math.random() * this.gridSize),
+                        y: Math.floor(Math.random() * this.gridSize)
+                    };
+
+                    validPosition = !this.snake.some(segment =>
+                        segment.x === newNegative.x && segment.y === newNegative.y
+                    ) && !(this.gift.x === newNegative.x && this.gift.y === newNegative.y)
+                      && !(this.bonusItem && this.bonusItem.x === newNegative.x && this.bonusItem.y === newNegative.y);
+                }
+
+                this.negativeItem = newNegative;
+                this.renderNegativeItem();
+                
+                // Negatives Item verschwindet nach 4 Sekunden
+                this.negativeTimer = setTimeout(() => {
+                    this.removeNegativeItem();
+                }, 4000);
+            }
+            
+            removeNegativeItem() {
+                this.negativeItem = null;
+                if (this.negativeTimer) {
+                    clearTimeout(this.negativeTimer);
+                    this.negativeTimer = null;
+                }
+                const negativeEl = this.canvas.querySelector('.negative-item');
+                if (negativeEl) negativeEl.remove();
+            }
+
+            renderBonusItem() {
+                if (!this.bonusItem) return;
+                
+                // Entferne altes Bonus-Element falls vorhanden
+                const existingBonus = this.canvas.querySelector('.bonus-item');
+                if (existingBonus) existingBonus.remove();
+                
+                // Erstelle neues Bonus-Element
+                const bonusEl = document.createElement('div');
+                bonusEl.className = 'bonus-item snake-gift';
+                bonusEl.innerHTML = '⭐';
+                bonusEl.style.left = (this.bonusItem.x * this.tileSize + this.offsetX) + 'px';
+                bonusEl.style.top = (this.bonusItem.y * this.tileSize + this.offsetY) + 'px';
+                bonusEl.style.width = this.tileSize + 'px';
+                bonusEl.style.height = this.tileSize + 'px';
+                this.canvas.appendChild(bonusEl);
+            }
+
+            renderNegativeItem() {
+                if (!this.negativeItem) return;
+                
+                // Entferne altes negatives Element falls vorhanden
+                const existingNegative = this.canvas.querySelector('.negative-item');
+                if (existingNegative) existingNegative.remove();
+                
+                // Erstelle neues negatives Element
+                const negativeEl = document.createElement('div');
+                negativeEl.className = 'negative-item snake-gift';
+                negativeEl.innerHTML = '💣';
+                negativeEl.style.left = (this.negativeItem.x * this.tileSize + this.offsetX) + 'px';
+                negativeEl.style.top = (this.negativeItem.y * this.tileSize + this.offsetY) + 'px';
+                negativeEl.style.width = this.tileSize + 'px';
+                negativeEl.style.height = this.tileSize + 'px';
+                this.canvas.appendChild(negativeEl);
+            }
 
             update() {
                 if (!this.gameActive) return;
@@ -745,8 +894,10 @@
 
                 this.snake.unshift(head);
 
+                // Prüfe Kollision mit normalem Geschenk
                 if (head.x === this.gift.x && head.y === this.gift.y) {
                     this.score++;
+                    this.giftsCollected++;
                     document.getElementById('snake-score').textContent = this.score;
 
                     // Geschwindigkeit erhöhen: Alle 2 Geschenke schneller werden
@@ -761,8 +912,32 @@
                     const speedLevel = Math.max(1, Math.ceil((200 - this.speed) / 10));
                     document.getElementById('snake-speed').textContent = speedLevel;
 
+                    // Bonus-Item spawnen: Alle 5 Geschenke
+                    if (this.giftsCollected % 5 === 0 && !this.bonusItem) {
+                        this.spawnBonusItem();
+                    }
+                    
+                    // Negatives Item spawnen: Ab Level 10 (Score 20+), alle 3 Geschenke
+                    if (this.score >= 20 && this.giftsCollected % 3 === 0 && !this.negativeItem) {
+                        this.spawnNegativeItem();
+                    }
+
                     this.spawnGift();
-                } else {
+                } 
+                // Prüfe Kollision mit Bonus-Item
+                else if (this.bonusItem && head.x === this.bonusItem.x && head.y === this.bonusItem.y) {
+                    this.score += 5; // Bonus gibt 5 Punkte!
+                    document.getElementById('snake-score').textContent = this.score;
+                    this.removeBonusItem();
+                    // Snake wächst nicht bei Bonus
+                    this.snake.pop();
+                }
+                // Prüfe Kollision mit negativem Item
+                else if (this.negativeItem && head.x === this.negativeItem.x && head.y === this.negativeItem.y) {
+                    this.gameOver(); // Game Over bei Kollision!
+                    return;
+                }
+                else {
                     this.snake.pop();
                 }
 
@@ -805,6 +980,10 @@
             async endGame(reason) {
                 this.gameActive = false;
                 clearInterval(this.gameLoop);
+
+                // Bonus und negative Items aufräumen
+                this.removeBonusItem();
+                this.removeNegativeItem();
 
                 document.removeEventListener('keydown', this.keyHandler);
                 this.canvas.removeEventListener('touchstart', this.touchStartHandler);
