@@ -199,9 +199,10 @@
 
         /* Touch D-Pad Controls */
         .touch-dpad {
-            position: absolute;
+            position: fixed;
             bottom: 20px;
-            right: 20px;
+            right: 50%;
+            transform: translateX(50%);
             width: 140px;
             height: 140px;
             display: grid;
@@ -514,7 +515,7 @@
                 this.score = 0;
                 this.gameActive = false;
                 this.gameLoop = null;
-                this.speed = 200;
+                this.speed = 300; // Langsamer Start (war 200ms)
                 this.touchStartX = 0;
                 this.touchStartY = 0;
                 this.canvas = document.getElementById('snake-canvas');
@@ -572,7 +573,7 @@
                 this.gameActive = true;
                 this.direction = 'right';
                 this.nextDirection = 'right';
-                this.speed = 200;
+                this.speed = 300; // Langsamer Start
 
                 // Canvas-Größe anpassen - dynamische Berechnung basierend auf tatsächlicher Canvas-Größe
                 const canvasWidth = this.canvas.offsetWidth;
