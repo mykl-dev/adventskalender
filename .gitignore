@@ -25,4 +25,5 @@ Thumbs.db
 
 # stats
 data/stats.json
-data/stats.json
+data/stusers.json
+data/users.json
