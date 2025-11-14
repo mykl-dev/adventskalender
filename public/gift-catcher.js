@@ -6,7 +6,8 @@ class GiftCatcherGame3D {
         this.catcherX = 0; // Wird in resizeCanvas gesetzt
         this.fallingItems = [];
         this.gameSpeed = 2.5;
-        this.spawnDelay = 800; // Schnelleres Initial-Spawning
+        this.spawnDistance = 0; // Distanz zum nächsten Item
+        this.spawnSpacing = 0; // Wird basierend auf Bildschirmhöhe berechnet
         this.particles = [];
         this.touchActive = false;
         this.touchStartX = 0;
@@ -137,6 +138,9 @@ class GiftCatcherGame3D {
         this.catcherY = this.canvas.height - 120; // Weiter oben (war 80)
         this.catcherWidth = Math.min(80, this.canvas.width / 8);
         this.catcherHeight = Math.min(80, this.canvas.width / 8);
+        
+        // Spawn-Spacing basierend auf Canvas-Höhe (50% der Höhe zwischen Items)
+        this.spawnSpacing = Math.max(200, this.canvas.height * 0.5);
     }
     
     setupTouchControls() {
@@ -219,7 +223,8 @@ class GiftCatcherGame3D {
         this.fallingItems = [];
         this.particles = [];
         this.gameSpeed = 2.5;
-        this.spawnDelay = 800; // Schnelleres Spawning (war 1200ms)
+        this.spawnDistance = 0;
+        this.spawnSpacing = Math.max(200, this.canvas.height * 0.5); // 50% der Höhe zwischen Items
         this.catcherX = this.canvas.width / 2;
         this.startTime = Date.now();
         
@@ -235,33 +240,15 @@ class GiftCatcherGame3D {
     }
     
     startSpawning() {
-        const spawn = () => {
-            if (!this.gameActive) return;
-            this.spawnItem();
-            
-            // Schwierigkeitssteigerung und Level-Update (jetzt alle 100 Punkte statt 150)
-            if (this.score > 0 && this.score % 100 === 0) {
-                if (this.gameSpeed < 5) {
-                    this.gameSpeed += 0.3;
-                    if (this.spawnDelay > 400) {
-                        this.spawnDelay -= 60;
-                    }
-                    this.level = Math.floor(this.score / 100) + 1;
-                    this.updateBanner();
-                }
-            }
-            
-            this.spawnTimeout = setTimeout(spawn, this.spawnDelay);
-        };
-        spawn();
+        // Nichts mehr zu tun - Spawning erfolgt jetzt im update loop
     }
     
     spawnItem() {
         // 60% Geschenke, 40% Kohle (war 30/70 - jetzt viel mehr Geschenke!)
         const isGift = Math.random() < 0.6;
         
-        // Wenn Kohle, manchmal 2-3 Steine gleichzeitig für mehr Herausforderung
-        const coalCount = !isGift && Math.random() < 0.5 ? Math.floor(Math.random() * 2) + 2 : 1;
+        // Wenn Kohle, nur selten (20% statt 50%) 2 Steine gleichzeitig, nie 3
+        const coalCount = !isGift && Math.random() < 0.2 ? 2 : 1;
         
         for (let i = 0; i < coalCount; i++) {
             const item = {
@@ -295,6 +282,26 @@ class GiftCatcherGame3D {
     }
     
     update(deltaTime) {
+        // Spawning basierend auf Distanz
+        this.spawnDistance += this.gameSpeed;
+        if (this.spawnDistance >= this.spawnSpacing) {
+            this.spawnItem();
+            this.spawnDistance = 0;
+            
+            // Schwierigkeitssteigerung und Level-Update
+            if (this.score > 0 && this.score % 100 === 0) {
+                if (this.gameSpeed < 5) {
+                    this.gameSpeed += 0.3;
+                    // Spawn-Spacing etwas reduzieren bei höheren Levels
+                    if (this.spawnSpacing > this.canvas.height * 0.35) {
+                        this.spawnSpacing *= 0.95;
+                    }
+                    this.level = Math.floor(this.score / 100) + 1;
+                    this.updateBanner();
+                }
+            }
+        }
+        
         // Tastatur-Steuerung
         if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
             this.catcherX -= 8;
