@@ -478,7 +478,6 @@
             </div>
             
             <button class="game-button" id="snake-start-button">Spiel starten! 🎮</button>
-            <button class="highscore-button" id="show-highscore-button">🏆 Highscores anzeigen</button>
         </div>
     </div>
 
@@ -524,7 +523,6 @@
 
             init() {
                 document.getElementById('snake-start-button').addEventListener('click', () => this.start());
-                document.getElementById('show-highscore-button').addEventListener('click', () => showHighscoreModal());
                 this.loadHighscore();
                 this.setupDPad();
             }
