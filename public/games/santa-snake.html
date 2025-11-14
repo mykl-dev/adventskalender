@@ -197,6 +197,59 @@
             50% { transform: scale(1.2); }
         }
 
+        /* Touch D-Pad Controls */
+        .touch-dpad {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 140px;
+            height: 140px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            gap: 5px;
+            z-index: 50;
+        }
+
+        .dpad-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            backdrop-filter: blur(5px);
+            touch-action: none;
+            user-select: none;
+        }
+
+        .dpad-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0.95);
+        }
+
+        .dpad-up {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .dpad-left {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .dpad-right {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .dpad-down {
+            grid-column: 2;
+            grid-row: 3;
+        }
+
         /* Buttons */
         .game-button {
             padding: 15px 40px;
@@ -413,6 +466,14 @@
                     <p>⚠️ Berühre nicht die Wände oder dich selbst!</p>
                     <p><strong>Viel Erfolg!</strong></p>
                 </div>
+                
+                <!-- Touch Control D-Pad -->
+                <div class="touch-dpad" id="touch-dpad" style="display: none;">
+                    <button class="dpad-btn dpad-up" data-direction="up">▲</button>
+                    <button class="dpad-btn dpad-left" data-direction="left">◀</button>
+                    <button class="dpad-btn dpad-right" data-direction="right">▶</button>
+                    <button class="dpad-btn dpad-down" data-direction="down">▼</button>
+                </div>
             </div>
             
             <button class="game-button" id="snake-start-button">Spiel starten! 🎮</button>
@@ -443,7 +504,7 @@
         class SantaSnakeGame {
             constructor() {
                 this.gridSize = 18;
-                this.tileSize = 20;
+                this.tileSize = 30; // Größere Segmente
                 this.offsetX = 6;
                 this.offsetY = 6;
                 this.snake = [];
@@ -464,6 +525,38 @@
                 document.getElementById('snake-start-button').addEventListener('click', () => this.start());
                 document.getElementById('show-highscore-button').addEventListener('click', () => showHighscoreModal());
                 this.loadHighscore();
+                this.setupDPad();
+            }
+            
+            setupDPad() {
+                // Zeige D-Pad nur auf Touch-Geräten
+                const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+                const dpad = document.getElementById('touch-dpad');
+                
+                if (isTouchDevice) {
+                    dpad.style.display = 'grid';
+                    
+                    // Event-Listener für alle D-Pad Buttons
+                    document.querySelectorAll('.dpad-btn').forEach(btn => {
+                        btn.addEventListener('touchstart', (e) => {
+                            e.preventDefault();
+                            if (!this.gameActive) return;
+                            
+                            const direction = btn.getAttribute('data-direction');
+                            
+                            // Verhindere direkte 180-Grad-Wendungen
+                            if (direction === 'up' && this.direction !== 'down') {
+                                this.nextDirection = 'up';
+                            } else if (direction === 'down' && this.direction !== 'up') {
+                                this.nextDirection = 'down';
+                            } else if (direction === 'left' && this.direction !== 'right') {
+                                this.nextDirection = 'left';
+                            } else if (direction === 'right' && this.direction !== 'left') {
+                                this.nextDirection = 'right';
+                            }
+                        });
+                    });
+                }
             }
 
             async loadHighscore() {
@@ -486,30 +579,22 @@
                 const canvasHeight = this.canvas.offsetHeight;
                 const borderSize = 8; // 4px links + 4px rechts
                 
-                // Berechne optimale Tile-Größe basierend auf Canvas-Größe
+                // Berechne optimale Tile-Größe basierend auf Canvas-Breite (% statt feste Pixel)
                 const availableSpace = Math.min(canvasWidth, canvasHeight) - borderSize;
                 
-                if (availableSpace >= 580) {
-                    // Große Displays (600x600 Canvas)
-                    this.gridSize = 28;
-                    this.tileSize = 20;
-                } else if (availableSpace >= 480) {
-                    // Mittlere Displays
-                    this.gridSize = 24;
-                    this.tileSize = 20;
-                } else if (availableSpace >= 380) {
-                    // Tablets
-                    this.gridSize = 19;
-                    this.tileSize = 20;
+                // Gridsize basierend auf Bildschirmgröße: 15-20 Tiles
+                if (availableSpace >= 600) {
+                    this.gridSize = 20;
+                } else if (availableSpace >= 400) {
+                    this.gridSize = 18;
                 } else if (availableSpace >= 300) {
-                    // Kleine Tablets
                     this.gridSize = 16;
-                    this.tileSize = 18;
                 } else {
-                    // Mobile
                     this.gridSize = 14;
-                    this.tileSize = Math.floor(availableSpace / 14);
                 }
+                
+                // Tile-Größe: Teile verfügbaren Platz durch Grid-Größe
+                this.tileSize = Math.floor(availableSpace / this.gridSize);
                 
                 const playfield = this.gridSize * this.tileSize;
                 this.offsetX = Math.floor((availableSpace - playfield) / 2);
@@ -586,7 +671,7 @@
                     const deltaX = touchEndX - this.touchStartX;
                     const deltaY = touchEndY - this.touchStartY;
 
-                    if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30) return;
+                    if (Math.abs(deltaX) < 15 && Math.abs(deltaY) < 15) return; // Sensibler (war 30)
 
                     if (Math.abs(deltaX) > Math.abs(deltaY)) {
                         if (deltaX > 0 && this.direction !== 'left') {
