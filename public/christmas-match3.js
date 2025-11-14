@@ -295,9 +295,14 @@ class ChristmasMatch3Game {
         const board = document.getElementById('match3-board');
         if (!board) return;
         
-        board.innerHTML = '';
-        board.style.width = (this.gridSize * this.tileSize) + 'px';
-        board.style.height = (this.gridSize * this.tileSize) + 'px';
+        // Nur beim ersten Render Board initialisieren
+        const isFirstRender = board.children.length === 0;
+        
+        if (isFirstRender) {
+            board.innerHTML = '';
+            board.style.width = (this.gridSize * this.tileSize) + 'px';
+            board.style.height = (this.gridSize * this.tileSize) + 'px';
+        }
         
         // Screen Shake Effekt - nur auf tiles anwenden, nicht auf board-container
         let shakeTransform = '';
@@ -311,36 +316,51 @@ class ChristmasMatch3Game {
         
         for (let row = 0; row < this.gridSize; row++) {
             for (let col = 0; col < this.gridSize; col++) {
+                const index = row * this.gridSize + col;
                 const tileData = this.grid[row][col];
+                
+                // Hole existierendes Tile oder erstelle neues
+                let tile = board.children[index];
+                
+                if (!tile || isFirstRender) {
+                    tile = document.createElement('div');
+                    tile.dataset.row = row;
+                    tile.dataset.col = col;
+                    tile.addEventListener('click', () => this.handleTileClick(row, col));
+                    if (isFirstRender) {
+                        board.appendChild(tile);
+                    }
+                }
                 
                 // Skip null Felder (noch nicht nachgefüllt)
                 if (!tileData) {
-                    const tile = document.createElement('div');
                     tile.className = 'match3-tile match3-empty';
-                    tile.dataset.row = row;
-                    tile.dataset.col = col;
-                    board.appendChild(tile);
+                    tile.innerHTML = '';
+                    tile.style.transform = '';
+                    tile.style.removeProperty('--tile-color');
                     continue;
                 }
                 
-                const tile = document.createElement('div');
                 tile.className = 'match3-tile';
-                tile.dataset.row = row;
-                tile.dataset.col = col;
                 
                 // Shake-Effekt auf Tile anwenden
                 if (shakeTransform) {
                     tile.style.transform = shakeTransform;
+                } else {
+                    tile.style.transform = '';
                 }
                 
-                // 3D Kugel mit Gradient und Schatten
-                tile.innerHTML = `
-                    <div class="tile-inner">
-                        <div class="tile-shine"></div>
-                        <span class="tile-emoji">${tileData.emoji}</span>
-                        <div class="tile-shadow"></div>
-                    </div>
-                `;
+                // Nur innerHTML aktualisieren wenn sich Typ ändert
+                const currentEmoji = tile.querySelector('.tile-emoji')?.textContent;
+                if (currentEmoji !== tileData.emoji) {
+                    tile.innerHTML = `
+                        <div class="tile-inner">
+                            <div class="tile-shine"></div>
+                            <span class="tile-emoji">${tileData.emoji}</span>
+                            <div class="tile-shadow"></div>
+                        </div>
+                    `;
+                }
                 
                 // Gradient basierend auf Farbe
                 tile.style.setProperty('--tile-color', tileData.color);
@@ -348,11 +368,15 @@ class ChristmasMatch3Game {
                 // Aufleuchten wenn markiert (vor Explosion)
                 if (tileData.glowing) {
                     tile.setAttribute('data-glowing', 'true');
+                } else {
+                    tile.removeAttribute('data-glowing');
                 }
                 
                 // Explosion-Animation hinzufügen wenn markiert
                 if (tileData.exploding) {
                     tile.classList.add('matched');
+                } else {
+                    tile.classList.remove('matched');
                 }
                 
                 // Neu erscheinende Tiles bekommen Bounce-Animation
@@ -360,10 +384,6 @@ class ChristmasMatch3Game {
                     tile.classList.add('tile-bounce');
                     delete tileData.isNew;
                 }
-                
-                tile.addEventListener('click', () => this.handleTileClick(row, col));
-                
-                board.appendChild(tile);
             }
         }
         
