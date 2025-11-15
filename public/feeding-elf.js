@@ -488,16 +488,24 @@ class FeedingElfGame {
             this.ctx.stroke();
             this.ctx.setLineDash([]);
             
-            // Pfeil/Richtungslinie für seitliche Bewegung
+            // Pfeil/Richtungslinie für seitliche Bewegung - exakt wie Schuss berechnet
             const dragX = this.touchCurrentX - this.touchStartX;
-            if (Math.abs(dragX) > 5) {
+            const limitedDragY = Math.min(dragY, this.ball.maxDragDistance);
+            const shootPower = limitedDragY / this.ball.maxDragDistance;
+            const maxSpeed = 50;
+            
+            // Berechne tatsächliche Geschwindigkeiten (wie in shoot())
+            const vx = -(dragX / 60) * maxSpeed * shootPower;
+            const vy = -maxSpeed * shootPower;
+            
+            if (Math.abs(vx) > 0.5 || Math.abs(vy) > 0.5) {
                 this.ctx.strokeStyle = 'rgba(255, 200, 50, 0.8)';
-                this.ctx.lineWidth = 2;
+                this.ctx.lineWidth = 3;
                 this.ctx.setLineDash([10, 5]);
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.ball.x, this.ball.y);
-                // Richtung spiegeln: nach links ziehen = Pfeil zeigt rechts
-                this.ctx.lineTo(this.ball.x - dragX * 1.5, this.ball.y - dragY * 1.5);
+                // Zeige Flugbahn (multipliziert für bessere Sichtbarkeit)
+                this.ctx.lineTo(this.ball.x + vx * 8, this.ball.y + vy * 8);
                 this.ctx.stroke();
                 this.ctx.setLineDash([]);
             }
