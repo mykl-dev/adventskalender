@@ -630,6 +630,9 @@ class FlappySanta {
         // Negierte Rotation für korrekte Richtung (nach oben = nach oben geneigt)
         this.ctx.rotate(-rotation * Math.PI / 180);
         
+        // Schlitten horizontal spiegeln (nach rechts zeigend)
+        this.ctx.scale(-1, 1);
+        
         // Santa emoji
         this.ctx.font = '50px Arial';
         this.ctx.fillText('🛷', -25, 15);
