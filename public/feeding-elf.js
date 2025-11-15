@@ -157,9 +157,10 @@ class FeedingElfGame {
         
         // Ball-Eigenschaften
         this.ball.radius = Math.min(this.canvas.width / 15, 35);
-        this.ball.y = this.canvas.height - this.ball.radius - 120;
+        this.ball.y = this.canvas.height - this.ball.radius - 250;
         this.ball.x = this.canvas.width / 2;
         this.ball.maxDragDistance = this.canvas.height * 0.5;
+        this.ball.initialY = this.ball.y; // Speichere Startposition
     }
     
     setupControls() {
@@ -195,6 +196,10 @@ class FeedingElfGame {
             const rect = this.canvas.getBoundingClientRect();
             this.touchCurrentX = touch.clientX - rect.left;
             this.touchCurrentY = touch.clientY - rect.top;
+            
+            // Ball mitbewegen beim Ziehen
+            const dragY = Math.max(0, Math.min(this.touchCurrentY - this.touchStartY, this.ball.maxDragDistance));
+            this.ball.y = this.ball.initialY + dragY;
         });
         
         // Touch End
@@ -232,6 +237,10 @@ class FeedingElfGame {
             const rect = this.canvas.getBoundingClientRect();
             this.touchCurrentX = e.clientX - rect.left;
             this.touchCurrentY = e.clientY - rect.top;
+            
+            // Ball mitbewegen beim Ziehen
+            const dragY = Math.max(0, Math.min(this.touchCurrentY - this.touchStartY, this.ball.maxDragDistance));
+            this.ball.y = this.ball.initialY + dragY;
         });
         
         this.canvas.addEventListener('mouseup', (e) => {
@@ -303,7 +312,8 @@ class FeedingElfGame {
     
     resetBall() {
         this.ball.x = this.canvas.width / 2;
-        this.ball.y = this.canvas.height - this.ball.radius - 120;
+        this.ball.y = this.canvas.height - this.ball.radius - 250;
+        this.ball.initialY = this.ball.y;
         this.ball.vx = 0;
         this.ball.vy = 0;
         
@@ -464,18 +474,31 @@ class FeedingElfGame {
         
         // Ball
         if (this.isDragging) {
-            // Zeige Drag-Linie
-            const dragX = this.touchCurrentX - this.touchStartX;
+            // Zeige Drag-Linie von Startpunkt zum Ball
             const dragY = Math.max(0, Math.min(this.touchCurrentY - this.touchStartY, this.ball.maxDragDistance));
             
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-            this.ctx.lineWidth = 2;
+            // Linie vom Startpunkt (initialY) zum aktuellen Ball
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            this.ctx.lineWidth = 3;
             this.ctx.setLineDash([5, 5]);
             this.ctx.beginPath();
-            this.ctx.moveTo(this.ball.x, this.ball.y);
-            this.ctx.lineTo(this.ball.x + dragX * 0.5, this.ball.y + dragY * 0.5);
+            this.ctx.moveTo(this.ball.x, this.ball.initialY);
+            this.ctx.lineTo(this.ball.x, this.ball.y);
             this.ctx.stroke();
             this.ctx.setLineDash([]);
+            
+            // Pfeil/Richtungslinie für seitliche Bewegung
+            const dragX = this.touchCurrentX - this.touchStartX;
+            if (Math.abs(dragX) > 5) {
+                this.ctx.strokeStyle = 'rgba(255, 200, 50, 0.8)';
+                this.ctx.lineWidth = 2;
+                this.ctx.setLineDash([10, 5]);
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.ball.x, this.ball.y);
+                this.ctx.lineTo(this.ball.x + dragX * 1.5, this.ball.y - dragY * 1.5);
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+            }
             
             // Kraftanzeige
             const power = dragY / this.ball.maxDragDistance;
