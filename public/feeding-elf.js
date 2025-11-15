@@ -14,13 +14,16 @@ class FeedingElfGame {
         this.canvas = null;
         this.ctx = null;
         
-        // Bilder laden
+        // Bilder laden (von public/images/)
         this.wallImage = new Image();
-        this.wallImage.src = '../../data/img/mauer.jpg';
-        this.wallImage.onerror = () => console.warn('Mauer-Bild konnte nicht geladen werden');
+        this.wallImage.src = '../images/mauer.jpg';
+        this.wallImage.onload = () => console.log('Mauer-Bild geladen:', this.wallImage.width, 'x', this.wallImage.height);
+        this.wallImage.onerror = () => console.error('Mauer-Bild konnte nicht geladen werden:', this.wallImage.src);
+        
         this.ghostImage = new Image();
-        this.ghostImage.src = '../../data/img/suesser-geist.jpg';
-        this.ghostImage.onerror = () => console.warn('Geist-Bild konnte nicht geladen werden');
+        this.ghostImage.src = '../images/suesser-geist.svg';
+        this.ghostImage.onload = () => console.log('Geist-Bild geladen:', this.ghostImage.width, 'x', this.ghostImage.height);
+        this.ghostImage.onerror = () => console.error('Geist-Bild konnte nicht geladen werden:', this.ghostImage.src);
         
         // 8 verschiedene Farben optimiert für Farbschwache mit Symbolen
         this.colors = [
@@ -62,14 +65,15 @@ class FeedingElfGame {
         // Partikel-Effekte
         this.particles = [];
         
-        // Hindernis-Mauer
-        this.wall = {
+        // Hindernis-Lichterkette
+        this.lightsObstacle = {
             visible: false,
-            x: 0,
-            y: 0,
+            offsetX: 0,
+            offsetY: 0,
+            targetY: 0,
             width: 0,
-            height: 30,
             speed: 2,
+            moveSpeed: 2,
             direction: 1
         };
         
@@ -86,6 +90,18 @@ class FeedingElfGame {
         };
         
         this.hitCounter = 0; // Zählt Treffer für Hindernis-System
+        
+        // Fehltreffer-Animation
+        this.missAnimation = {
+            active: false,
+            startTime: 0,
+            duration: 500,
+            x: 0,
+            y: 0
+        };
+        
+        // Lichterkette
+        this.lights = [];
         
         // Timing
         this.startTime = 0;
@@ -181,6 +197,11 @@ class FeedingElfGame {
         
         this.canvas.width = container.offsetWidth;
         this.canvas.height = container.offsetHeight - headerHeight;
+        
+        // Lichterkette initialisieren (nach Canvas-Größe bekannt ist)
+        if (this.lights.length === 0) {
+            this.initLights();
+        }
         
         // Ziel-Positionen und Größen
         const targetCount = 4;
@@ -328,10 +349,10 @@ class FeedingElfGame {
         
         // Initialisiere Hindernisse
         this.hitCounter = 0;
-        this.wall.visible = false;
-        this.wall.width = this.canvas.width * 0.4;
-        this.wall.y = this.canvas.height * 0.3; // Höher positioniert
-        this.wall.x = this.canvas.width / 2 - this.wall.width / 2;
+        this.lightsObstacle.visible = false;
+        this.lightsObstacle.offsetY = 0;
+        this.lightsObstacle.width = this.canvas.width * 0.4;
+        this.lightsObstacle.offsetX = this.canvas.width / 2 - this.lightsObstacle.width / 2;
         
         this.ghost.visible = false;
         this.ghost.x = this.canvas.width / 2;
@@ -390,6 +411,9 @@ class FeedingElfGame {
         
         const dtMultiplier = this.deltaTime / 16.67;
         
+        // Update Lichterkette
+        this.updateLights();
+        
         // Ball-Physik
         if (this.ball.vy !== 0 || this.ball.vx !== 0) {
             this.ball.x += this.ball.vx * dtMultiplier;
@@ -427,25 +451,29 @@ class FeedingElfGame {
                         this.hitCounter++;
                         const cycle = this.hitCounter % 15; // 15er Zyklus
                         
-                        // Treffer 5: Mauer erscheint (1. Mal)
+                        // Treffer 5: Lichterkette als Hindernis (1. Mal)
                         if (cycle === 5) {
-                            this.wall.visible = true;
-                            this.wall.x = Math.random() * (this.canvas.width - this.wall.width);
+                            this.lightsObstacle.visible = true;
+                            this.lightsObstacle.targetY = this.canvas.height * 0.4;
+                            this.lightsObstacle.offsetX = Math.random() * (this.canvas.width - this.lightsObstacle.width);
                             this.ghost.visible = false;
                         }
-                        // Treffer 6: Mauer verschwindet
+                        // Treffer 6: Lichterkette verschwindet
                         else if (cycle === 6) {
-                            this.wall.visible = false;
+                            this.lightsObstacle.visible = false;
+                            this.lightsObstacle.offsetY = 0;
                         }
-                        // Treffer 10: Mauer erscheint (2. Mal)
+                        // Treffer 10: Lichterkette erscheint (2. Mal)
                         else if (cycle === 10) {
-                            this.wall.visible = true;
-                            this.wall.x = Math.random() * (this.canvas.width - this.wall.width);
+                            this.lightsObstacle.visible = true;
+                            this.lightsObstacle.targetY = this.canvas.height * 0.5;
+                            this.lightsObstacle.offsetX = Math.random() * (this.canvas.width - this.lightsObstacle.width);
                             this.ghost.visible = false;
                         }
-                        // Treffer 11: Mauer verschwindet
+                        // Treffer 11: Lichterkette verschwindet
                         else if (cycle === 11) {
-                            this.wall.visible = false;
+                            this.lightsObstacle.visible = false;
+                            this.lightsObstacle.offsetY = 0;
                         }
                         // Treffer 15 (oder 0): Geist erscheint (3. Mal) und bleibt 5 Treffer
                         else if (cycle === 0) {
@@ -453,7 +481,8 @@ class FeedingElfGame {
                             this.ghost.x = Math.random() * (this.canvas.width - this.ghost.size * 2) + this.ghost.size;
                             this.ghost.y = this.canvas.height * 0.25 + Math.random() * this.canvas.height * 0.2;
                             this.setGhostTarget();
-                            this.wall.visible = false;
+                            this.lightsObstacle.visible = false;
+                            this.lightsObstacle.offsetY = 0;
                         }
                         // Treffer 6 (= Treffer 21, 36, 51...): Geist verschwindet nach 5 Treffern
                         else if (cycle === 6 && this.hitCounter > 15) {
@@ -476,7 +505,12 @@ class FeedingElfGame {
                         
                         target.colorData = newColorData;
                     } else {
-                        // Falsche Farbe!
+                        // Falsche Farbe! - Starte Fehltreffer-Animation
+                        this.missAnimation.active = true;
+                        this.missAnimation.startTime = Date.now();
+                        this.missAnimation.x = target.x;
+                        this.missAnimation.y = target.y;
+                        
                         this.lives--;
                         document.getElementById('elf-lives').textContent = this.lives;
                         this.createHitParticles(target.x, target.y, this.ball.colorData.color, false);
@@ -493,25 +527,39 @@ class FeedingElfGame {
                 }
             }
             
-            // Kollision mit Mauer
-            if (this.wall.visible) {
-                if (this.ball.x + this.ball.radius > this.wall.x && 
-                    this.ball.x - this.ball.radius < this.wall.x + this.wall.width &&
-                    this.ball.y + this.ball.radius > this.wall.y && 
-                    this.ball.y - this.ball.radius < this.wall.y + this.wall.height) {
-                    // Ball prallt von Mauer ab
-                    if (this.ball.vy > 0) {
-                        this.ball.y = this.wall.y - this.ball.radius;
-                        this.ball.vy *= -0.7;
-                    } else {
-                        this.ball.y = this.wall.y + this.wall.height + this.ball.radius;
-                        this.ball.vy *= -0.7;
+            // Kollision mit Lichterkette
+            if (this.lightsObstacle.visible) {
+                // Berechne welche Lichter im sichtbaren Bereich sind
+                const startX = this.lightsObstacle.offsetX;
+                const endX = startX + this.lightsObstacle.width;
+                
+                this.lights.forEach(light => {
+                    // Nur Lichter im sichtbaren Bereich prüfen
+                    if (light.x >= startX && light.x <= endX) {
+                        const adjustedY = light.y + this.lightsObstacle.offsetY;
+                        const dx = this.ball.x - light.x;
+                        const dy = this.ball.y - adjustedY;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        const collisionDist = this.ball.radius + light.size * 2;
+                        
+                        if (distance < collisionDist) {
+                            // Ball prallt von Licht ab
+                            const angle = Math.atan2(dy, dx);
+                            this.ball.vx = Math.cos(angle) * 8;
+                            this.ball.vy = Math.sin(angle) * 8;
+                        }
                     }
-                }
+                });
             }
             
             // Ball fällt aus dem Bildschirm
             if (this.ball.y - this.ball.radius > this.canvas.height) {
+                // Starte Fehltreffer-Animation unten am Bildschirm
+                this.missAnimation.active = true;
+                this.missAnimation.startTime = Date.now();
+                this.missAnimation.x = this.ball.x;
+                this.missAnimation.y = this.canvas.height - 80;
+                
                 this.lives--;
                 document.getElementById('elf-lives').textContent = this.lives;
                 
@@ -524,18 +572,27 @@ class FeedingElfGame {
             }
         }
         
-        // Mauer bewegen
-        if (this.wall.visible) {
-            this.wall.x += this.wall.speed * this.wall.direction * dtMultiplier;
+        // Lichterkette als Hindernis bewegen
+        if (this.lightsObstacle.visible) {
+            // Bewege Lichterkette nach unten zur Zielposition
+            const diffY = this.lightsObstacle.targetY - this.lightsObstacle.offsetY;
+            if (Math.abs(diffY) > 2) {
+                this.lightsObstacle.offsetY += Math.sign(diffY) * this.lightsObstacle.speed * dtMultiplier;
+            } else {
+                this.lightsObstacle.offsetY = this.lightsObstacle.targetY;
+            }
+            
+            // Bewege Lichterkette horizontal (wie Mauer)
+            this.lightsObstacle.offsetX += this.lightsObstacle.moveSpeed * this.lightsObstacle.direction * dtMultiplier;
             
             // Richtung umkehren an den Rändern
-            if (this.wall.x <= 0) {
-                this.wall.x = 0;
-                this.wall.direction = 1;
+            if (this.lightsObstacle.offsetX <= 0) {
+                this.lightsObstacle.offsetX = 0;
+                this.lightsObstacle.direction = 1;
             }
-            if (this.wall.x + this.wall.width >= this.canvas.width) {
-                this.wall.x = this.canvas.width - this.wall.width;
-                this.wall.direction = -1;
+            if (this.lightsObstacle.offsetX + this.lightsObstacle.width >= this.canvas.width) {
+                this.lightsObstacle.offsetX = this.canvas.width - this.lightsObstacle.width;
+                this.lightsObstacle.direction = -1;
             }
         }
         
@@ -557,12 +614,13 @@ class FeedingElfGame {
                 this.ghost.y += this.ghost.vy * dtMultiplier;
             }
             
-            // Kollision mit Ball
+            // Kollision mit Ball (nur auf sichtbaren Geist-Bereich - 60% der Größe)
             const ballDx = this.ball.x - this.ghost.x;
             const ballDy = this.ball.y - this.ghost.y;
             const ballDist = Math.sqrt(ballDx * ballDx + ballDy * ballDy);
+            const ghostHitboxRadius = this.ghost.size * 0.6; // Kleinere Hitbox
             
-            if (ballDist < this.ball.radius + this.ghost.size / 2) {
+            if (ballDist < this.ball.radius + ghostHitboxRadius) {
                 // Ball prallt vom Geist ab
                 const angle = Math.atan2(ballDy, ballDx);
                 this.ball.vx = Math.cos(angle) * 8;
@@ -582,6 +640,255 @@ class FeedingElfGame {
                 this.particles.splice(i, 1);
             }
         }
+    }
+    
+    drawGlassBall(x, y, radius, color) {
+        this.ctx.save();
+        
+        // Farbiger Schweif (Orbit-Ring)
+        const time = Date.now() / 1000;
+        const orbitRadius = radius * 1.4;
+        
+        // Leuchtender Schweif mit mehreren Ringen
+        for (let i = 0; i < 3; i++) {
+            const offset = i * 0.2;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, orbitRadius - i * 5, 0, Math.PI * 2);
+            this.ctx.strokeStyle = this.hexToRgba(color, 0.15 - i * 0.05);
+            this.ctx.lineWidth = 3;
+            this.ctx.stroke();
+        }
+        
+        // Rotierende Partikel im Orbit
+        for (let i = 0; i < 5; i++) {
+            const angle = (time + i * 0.4) * 2;
+            const px = x + Math.cos(angle) * orbitRadius;
+            const py = y + Math.sin(angle) * orbitRadius;
+            
+            const particleGradient = this.ctx.createRadialGradient(px, py, 0, px, py, 6);
+            particleGradient.addColorStop(0, this.hexToRgba(color, 0.8));
+            particleGradient.addColorStop(1, this.hexToRgba(color, 0));
+            
+            this.ctx.fillStyle = particleGradient;
+            this.ctx.beginPath();
+            this.ctx.arc(px, py, 6, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        
+        // Schatten der Kugel
+        this.ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        this.ctx.shadowBlur = 20;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 10;
+        
+        // Basis-Kreis (Glaskugel Hintergrund)
+        const baseGradient = this.ctx.createRadialGradient(
+            x - radius * 0.3, y - radius * 0.3, radius * 0.1,
+            x, y, radius
+        );
+        baseGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+        baseGradient.addColorStop(0.5, this.hexToRgba(color, 0.3));
+        baseGradient.addColorStop(1, this.hexToRgba(color, 0.5));
+        
+        this.ctx.fillStyle = baseGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        this.ctx.shadowColor = 'transparent';
+        
+        // Glanz-Highlight (oben links)
+        const highlightGradient = this.ctx.createRadialGradient(
+            x - radius * 0.4, y - radius * 0.4, 0,
+            x - radius * 0.4, y - radius * 0.4, radius * 0.6
+        );
+        highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+        highlightGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.3)');
+        highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        this.ctx.fillStyle = highlightGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Frostiger Rand-Effekt
+        const frostGradient = this.ctx.createRadialGradient(x, y, radius * 0.7, x, y, radius);
+        frostGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        frostGradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.1)');
+        frostGradient.addColorStop(1, 'rgba(255, 255, 255, 0.3)');
+        
+        this.ctx.fillStyle = frostGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Äußerer Leucht-Ring
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.strokeStyle = this.hexToRgba(color, 0.6);
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+        
+        // Innerer Glow
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius - 3, 0, Math.PI * 2);
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        this.ctx.lineWidth = 1.5;
+        this.ctx.stroke();
+        
+        this.ctx.restore();
+    }
+    
+    hexToRgba(hex, alpha) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    
+    initLights() {
+        // Erstelle Lichterkette entlang einer Wellenform
+        const lightCount = 25;
+        const lightColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#95E1D3', '#FFA07A', '#98D8C8'];
+        
+        for (let i = 0; i < lightCount; i++) {
+            this.lights.push({
+                x: (i / (lightCount - 1)) * this.canvas.width,
+                baseY: 50,
+                amplitude: 30,
+                frequency: 0.5,
+                phase: (i / lightCount) * Math.PI * 2,
+                color: lightColors[i % lightColors.length],
+                brightness: Math.random(),
+                pulseSpeed: 0.02 + Math.random() * 0.03,
+                size: 6 + Math.random() * 4
+            });
+        }
+    }
+    
+    updateLights() {
+        const time = Date.now() / 1000;
+        this.lights.forEach(light => {
+            // Wellenförmige Bewegung
+            light.y = light.baseY + Math.sin(time * light.frequency + light.phase) * light.amplitude;
+            
+            // Pulsierendes Leuchten
+            light.brightness = 0.5 + Math.sin(time * light.pulseSpeed * Math.PI * 2) * 0.5;
+        });
+    }
+    
+    drawLights() {
+        this.ctx.save();
+        
+        // Zeichne nur den sichtbaren Teil der Lichterkette
+        const yOffset = this.lightsObstacle.offsetY;
+        const xOffset = this.lightsObstacle.offsetX;
+        const startX = xOffset;
+        const endX = xOffset + this.lightsObstacle.width;
+        
+        // Zeichne Verbindungskabel nur für sichtbaren Bereich
+        this.ctx.beginPath();
+        let firstPoint = true;
+        
+        this.lights.forEach(light => {
+            if (light.x >= startX && light.x <= endX) {
+                if (firstPoint) {
+                    this.ctx.moveTo(light.x, light.y + yOffset);
+                    firstPoint = false;
+                } else {
+                    this.ctx.lineTo(light.x, light.y + yOffset);
+                }
+            }
+        });
+        
+        this.ctx.strokeStyle = 'rgba(100, 100, 100, 0.3)';
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+        
+        // Zeichne nur Lichter im sichtbaren Bereich
+        this.lights.forEach(light => {
+            if (light.x < startX || light.x > endX) return;
+            
+            const adjustedY = light.y + yOffset;
+            // Glow-Effekt
+            const glowSize = light.size * (2 + light.brightness);
+            const glowGradient = this.ctx.createRadialGradient(
+                light.x, adjustedY, 0,
+                light.x, adjustedY, glowSize
+            );
+            glowGradient.addColorStop(0, this.hexToRgba(light.color, light.brightness * 0.8));
+            glowGradient.addColorStop(0.5, this.hexToRgba(light.color, light.brightness * 0.4));
+            glowGradient.addColorStop(1, this.hexToRgba(light.color, 0));
+            
+            this.ctx.fillStyle = glowGradient;
+            this.ctx.beginPath();
+            this.ctx.arc(light.x, adjustedY, glowSize, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Lichtkern
+            const coreGradient = this.ctx.createRadialGradient(
+                light.x - light.size * 0.3, adjustedY - light.size * 0.3, 0,
+                light.x, adjustedY, light.size
+            );
+            coreGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            coreGradient.addColorStop(0.3, this.hexToRgba(light.color, 1));
+            coreGradient.addColorStop(1, this.hexToRgba(light.color, 0.8));
+            
+            this.ctx.fillStyle = coreGradient;
+            this.ctx.beginPath();
+            this.ctx.arc(light.x, adjustedY, light.size, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Glanz-Highlight
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.ctx.beginPath();
+            this.ctx.arc(light.x - light.size * 0.3, adjustedY - light.size * 0.3, light.size * 0.3, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+        
+        this.ctx.restore();
+    }
+    
+    drawMissAnimation() {
+        if (!this.missAnimation.active) return;
+        
+        const elapsed = Date.now() - this.missAnimation.startTime;
+        const progress = elapsed / this.missAnimation.duration;
+        
+        if (progress >= 1) {
+            this.missAnimation.active = false;
+            return;
+        }
+        
+        // Roter Blitz-Effekt mit Fade-out
+        const alpha = 1 - progress;
+        const size = 60 + progress * 40;
+        
+        this.ctx.save();
+        this.ctx.strokeStyle = `rgba(255, 0, 0, ${alpha})`;
+        this.ctx.lineWidth = 8;
+        this.ctx.lineCap = 'round';
+        
+        // Rotes X (erste Linie)
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.missAnimation.x - size/2, this.missAnimation.y - size/2);
+        this.ctx.lineTo(this.missAnimation.x + size/2, this.missAnimation.y + size/2);
+        this.ctx.stroke();
+        
+        // Rotes X (zweite Linie)
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.missAnimation.x + size/2, this.missAnimation.y - size/2);
+        this.ctx.lineTo(this.missAnimation.x - size/2, this.missAnimation.y + size/2);
+        this.ctx.stroke();
+        
+        // Roter Kreis drumherum
+        this.ctx.beginPath();
+        this.ctx.arc(this.missAnimation.x, this.missAnimation.y, size/2, 0, Math.PI * 2);
+        this.ctx.strokeStyle = `rgba(255, 50, 50, ${alpha * 0.6})`;
+        this.ctx.lineWidth = 4;
+        this.ctx.stroke();
+        
+        this.ctx.restore();
     }
     
     createHitParticles(x, y, color, isSuccess) {
@@ -610,68 +917,20 @@ class FeedingElfGame {
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Ziel-Kreise
+        // Ziel-Kreise mit Glassmorphismus
         this.targets.forEach(target => {
-            // Schatten
-            this.ctx.shadowColor = 'rgba(0,0,0,0.3)';
-            this.ctx.shadowBlur = 10;
-            this.ctx.shadowOffsetX = 0;
-            this.ctx.shadowOffsetY = 5;
-            
-            this.ctx.fillStyle = target.colorData.color;
-            this.ctx.beginPath();
-            this.ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
-            this.ctx.fill();
-            
-            // Outline
-            this.ctx.shadowColor = 'transparent';
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-            this.ctx.lineWidth = 3;
-            this.ctx.stroke();
-            
-            // Symbol in der Mitte
-            this.ctx.fillStyle = 'white';
-            this.ctx.font = `bold ${target.radius * 0.8}px Arial`;
-            this.ctx.textAlign = 'center';
-            this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(target.colorData.symbol, target.x, target.y);
+            this.drawGlassBall(target.x, target.y, target.radius, target.colorData.color);
         });
         
         // Reset Shadow
         this.ctx.shadowColor = 'transparent';
         
-        // Hindernis-Mauer
-        if (this.wall.visible) {
-            // Schatten
-            this.ctx.shadowColor = 'rgba(0,0,0,0.4)';
-            this.ctx.shadowBlur = 10;
-            this.ctx.shadowOffsetX = 0;
-            this.ctx.shadowOffsetY = 5;
-            
-            // Zeichne Mauer-Bild
-            if (this.wallImage.complete && this.wallImage.naturalWidth > 0) {
-                this.ctx.drawImage(this.wallImage, this.wall.x, this.wall.y, this.wall.width, this.wall.height);
-            } else {
-                // Fallback falls Bild noch nicht geladen
-                this.ctx.fillStyle = '#8B4513';
-                this.ctx.fillRect(this.wall.x, this.wall.y, this.wall.width, this.wall.height);
-                
-                // Mauer-Muster (Steine)
-                this.ctx.fillStyle = '#654321';
-                this.ctx.fillRect(this.wall.x, this.wall.y + this.wall.height - 5, this.wall.width, 5);
-                
-                this.ctx.strokeStyle = '#654321';
-                this.ctx.lineWidth = 2;
-                const brickWidth = 40;
-                for (let x = this.wall.x; x < this.wall.x + this.wall.width; x += brickWidth) {
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(x, this.wall.y);
-                    this.ctx.lineTo(x, this.wall.y + this.wall.height);
-                    this.ctx.stroke();
-                }
-            }
-            
-            this.ctx.shadowColor = 'transparent';
+        // Zeichne Fehltreffer-Animation
+        this.drawMissAnimation();
+        
+        // Lichterkette als Hindernis
+        if (this.lightsObstacle.visible) {
+            this.drawLights();
         }
         
         // Geist
@@ -685,16 +944,22 @@ class FeedingElfGame {
             this.ctx.shadowOffsetY = 5;
             
             // Zeichne Geist-Bild
-            if (this.ghostImage.complete && this.ghostImage.naturalWidth > 0) {
+            const imageLoaded = this.ghostImage.complete && this.ghostImage.naturalWidth > 0;
+            
+            if (imageLoaded) {
                 // Leichtes Schweben (Sinus-Bewegung)
                 const hover = Math.sin(Date.now() / 500) * 5;
-                this.ctx.drawImage(
-                    this.ghostImage, 
-                    this.ghost.x - size, 
-                    this.ghost.y - size + hover, 
-                    size * 2, 
-                    size * 2
-                );
+                try {
+                    this.ctx.drawImage(
+                        this.ghostImage, 
+                        this.ghost.x - size, 
+                        this.ghost.y - size + hover, 
+                        size * 2, 
+                        size * 2
+                    );
+                } catch (e) {
+                    console.error('Fehler beim Zeichnen des Geist-Bildes:', e);
+                }
             } else {
                 // Fallback falls Bild noch nicht geladen
                 this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
@@ -785,29 +1050,8 @@ class FeedingElfGame {
             this.ctx.fill();
         }
         
-        // Schatten
-        this.ctx.shadowColor = 'rgba(0,0,0,0.3)';
-        this.ctx.shadowBlur = 15;
-        this.ctx.shadowOffsetX = 0;
-        this.ctx.shadowOffsetY = 8;
-        
-        this.ctx.fillStyle = this.ball.colorData.color;
-        this.ctx.beginPath();
-        this.ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        // Outline
-        this.ctx.shadowColor = 'transparent';
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-        this.ctx.lineWidth = 3;
-        this.ctx.stroke();
-        
-        // Symbol im Ball
-        this.ctx.fillStyle = 'white';
-        this.ctx.font = `bold ${this.ball.radius * 0.7}px Arial`;
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(this.ball.colorData.symbol, this.ball.x, this.ball.y);
+        // Zeichne Ball mit Glassmorphismus
+        this.drawGlassBall(this.ball.x, this.ball.y, this.ball.radius, this.ball.colorData.color);
     }
     
     gameLoop(currentTime = 0) {
