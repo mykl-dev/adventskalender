@@ -496,7 +496,8 @@ class FeedingElfGame {
                 this.ctx.setLineDash([10, 5]);
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.ball.x, this.ball.y);
-                this.ctx.lineTo(this.ball.x + dragX * 1.5, this.ball.y - dragY * 1.5);
+                // Richtung spiegeln: nach links ziehen = Pfeil zeigt rechts
+                this.ctx.lineTo(this.ball.x - dragX * 1.5, this.ball.y - dragY * 1.5);
                 this.ctx.stroke();
                 this.ctx.setLineDash([]);
             }
