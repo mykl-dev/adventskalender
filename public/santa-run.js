@@ -131,17 +131,29 @@ class SantaRunGame {
         this.canvas.width = rect.width;
         this.canvas.height = rect.height;
         
-        // Boden-Position (75% der Höhe)
-        this.groundY = this.canvas.height * 0.75;
+        // Boden-Position (80% der Höhe - mehr Platz oben)
+        this.groundY = this.canvas.height * 0.80;
         
-        // Santa Größe bleibt proportional zur Canvas-Höhe
-        const scale = this.canvas.height / 300;
-        this.santaWidth = 50 * scale;
-        this.santaHeight = 65 * scale;
+        // Mobile Detection
+        const isMobile = this.canvas.width < 768;
+        
+        // Santa Größe - auf Mobile deutlich kleiner
+        if (isMobile) {
+            this.santaWidth = 35;
+            this.santaHeight = 45;
+            // Reduzierte Sprungkraft für Mobile
+            this.jumpPower = 12;
+            this.gravity = 0.6;
+        } else {
+            this.santaWidth = 50;
+            this.santaHeight = 65;
+            // Normale Sprungkraft für Desktop
+            this.jumpPower = 18;
+            this.gravity = 0.8;
+        }
         
         // Santa Position: Auf Mobile weiter links (20% vom linken Rand)
-        // Auf Desktop in der Mitte-Links (15% vom linken Rand)
-        const isMobile = this.canvas.width < 768;
+        // Auf Desktop in der Mitte-Links (12% vom linken Rand)
         this.santaX = this.canvas.width * (isMobile ? 0.20 : 0.12);
     }
     
@@ -334,23 +346,27 @@ class SantaRunGame {
         const types = ['tree', 'rock', 'snowman', 'gift'];
         const type = types[Math.floor(Math.random() * types.length)];
         
+        // Skaliere Hindernisse basierend auf Bildschirmgröße
+        const isMobile = this.canvas.width < 768;
+        const scale = isMobile ? 0.6 : 1.0; // 60% auf Mobile
+        
         let width, height;
         switch (type) {
             case 'tree':
-                width = 40;
-                height = 80;
+                width = 40 * scale;
+                height = 80 * scale;
                 break;
             case 'rock':
-                width = 50;
-                height = 40;
+                width = 50 * scale;
+                height = 40 * scale;
                 break;
             case 'snowman':
-                width = 45;
-                height = 70;
+                width = 45 * scale;
+                height = 70 * scale;
                 break;
             case 'gift':
-                width = 35;
-                height = 35;
+                width = 35 * scale;
+                height = 35 * scale;
                 break;
         }
         
