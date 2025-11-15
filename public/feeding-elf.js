@@ -157,9 +157,9 @@ class FeedingElfGame {
         
         // Ball-Eigenschaften
         this.ball.radius = Math.min(this.canvas.width / 15, 35);
-        this.ball.y = this.canvas.height - this.ball.radius - 30;
+        this.ball.y = this.canvas.height - this.ball.radius - 120;
         this.ball.x = this.canvas.width / 2;
-        this.ball.maxDragDistance = this.canvas.height * 0.3;
+        this.ball.maxDragDistance = this.canvas.height * 0.5;
     }
     
     setupControls() {
@@ -303,7 +303,7 @@ class FeedingElfGame {
     
     resetBall() {
         this.ball.x = this.canvas.width / 2;
-        this.ball.y = this.canvas.height - this.ball.radius - 30;
+        this.ball.y = this.canvas.height - this.ball.radius - 120;
         this.ball.vx = 0;
         this.ball.vy = 0;
         
