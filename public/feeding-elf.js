@@ -14,16 +14,16 @@ class FeedingElfGame {
         this.canvas = null;
         this.ctx = null;
         
-        // 8 verschiedene Farben mit gutem Kontrast
+        // 8 verschiedene Farben optimiert für Farbschwache mit Symbolen
         this.colors = [
-            '#FF1744', // Rot
-            '#2196F3', // Blau
-            '#4CAF50', // Grün
-            '#FFD700', // Gold
-            '#FF6D00', // Orange
-            '#9C27B0', // Lila
-            '#00BCD4', // Cyan
-            '#E91E63'  // Pink
+            { color: '#FF0000', symbol: '●', name: 'Rot' },      // Rot - Kreis
+            { color: '#0066FF', symbol: '■', name: 'Blau' },     // Blau - Quadrat
+            { color: '#00CC00', symbol: '▲', name: 'Grün' },    // Grün - Dreieck
+            { color: '#FFD700', symbol: '★', name: 'Gold' },     // Gold - Stern
+            { color: '#FF6600', symbol: '◆', name: 'Orange' },   // Orange - Raute
+            { color: '#9900FF', symbol: '✖', name: 'Lila' },     // Lila - Kreuz
+            { color: '#00CCCC', symbol: '▼', name: 'Cyan' },     // Cyan - umgedrehtes Dreieck
+            { color: '#FF1493', symbol: '•', name: 'Pink' }      // Pink - Punkt
         ];
         
         // Ziel-Kreise oben
@@ -301,12 +301,22 @@ class FeedingElfGame {
         const targetCount = 4;
         const spacing = this.canvas.width / (targetCount + 1);
         
+        // Wähle 4 verschiedene Farben aus
+        const availableColors = [...this.colors];
+        const selectedColors = [];
+        
+        for (let i = 0; i < targetCount; i++) {
+            const randomIndex = Math.floor(Math.random() * availableColors.length);
+            selectedColors.push(availableColors[randomIndex]);
+            availableColors.splice(randomIndex, 1); // Entferne verwendete Farbe
+        }
+        
         for (let i = 0; i < targetCount; i++) {
             this.targets.push({
                 x: spacing * (i + 1),
                 y: this.targetY,
                 radius: this.targetRadius,
-                color: this.colors[Math.floor(Math.random() * this.colors.length)]
+                colorData: selectedColors[i]
             });
         }
     }
@@ -320,7 +330,7 @@ class FeedingElfGame {
         
         // Wähle eine der Ziel-Farben
         const randomTarget = this.targets[Math.floor(Math.random() * this.targets.length)];
-        this.ball.color = randomTarget.color;
+        this.ball.colorData = randomTarget.colorData;
     }
     
     update() {
@@ -355,24 +365,32 @@ class FeedingElfGame {
                 
                 if (distance < this.ball.radius + target.radius) {
                     // Treffer!
-                    if (this.ball.color === target.color) {
+                    if (this.ball.colorData.color === target.colorData.color) {
                         // Richtige Farbe!
                         this.score += 10;
                         document.getElementById('elf-score').textContent = this.score;
-                        this.createHitParticles(target.x, target.y, target.color, true);
+                        this.createHitParticles(target.x, target.y, target.colorData.color, true);
                         
-                        // Neues Ziel mit anderer Farbe
-                        let newColor;
-                        do {
-                            newColor = this.colors[Math.floor(Math.random() * this.colors.length)];
-                        } while (newColor === target.color && this.colors.length > 1);
+                        // Neues Ziel mit anderer Farbe (nicht bei anderen Zielen vorhanden)
+                        const usedColors = this.targets.map(t => t.colorData.color);
+                        const availableColors = this.colors.filter(c => !usedColors.includes(c.color));
                         
-                        target.color = newColor;
+                        let newColorData;
+                        if (availableColors.length > 0) {
+                            newColorData = availableColors[Math.floor(Math.random() * availableColors.length)];
+                        } else {
+                            // Falls alle Farben verwendet, wähle eine die nicht die aktuelle ist
+                            do {
+                                newColorData = this.colors[Math.floor(Math.random() * this.colors.length)];
+                            } while (newColorData.color === target.colorData.color && this.colors.length > 1);
+                        }
+                        
+                        target.colorData = newColorData;
                     } else {
                         // Falsche Farbe!
                         this.lives--;
                         document.getElementById('elf-lives').textContent = this.lives;
-                        this.createHitParticles(target.x, target.y, this.ball.color, false);
+                        this.createHitParticles(target.x, target.y, this.ball.colorData.color, false);
                         
                         if (this.lives <= 0) {
                             this.gameOver();
@@ -448,16 +466,23 @@ class FeedingElfGame {
             this.ctx.shadowOffsetX = 0;
             this.ctx.shadowOffsetY = 5;
             
-            this.ctx.fillStyle = target.color;
+            this.ctx.fillStyle = target.colorData.color;
             this.ctx.beginPath();
             this.ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
             this.ctx.fill();
             
             // Outline
             this.ctx.shadowColor = 'transparent';
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
             this.ctx.lineWidth = 3;
             this.ctx.stroke();
+            
+            // Symbol in der Mitte
+            this.ctx.fillStyle = 'white';
+            this.ctx.font = `bold ${target.radius * 0.8}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(target.colorData.symbol, target.x, target.y);
         });
         
         // Reset Shadow
@@ -524,7 +549,7 @@ class FeedingElfGame {
         this.ctx.shadowOffsetX = 0;
         this.ctx.shadowOffsetY = 8;
         
-        this.ctx.fillStyle = this.ball.color;
+        this.ctx.fillStyle = this.ball.colorData.color;
         this.ctx.beginPath();
         this.ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
         this.ctx.fill();
@@ -534,6 +559,13 @@ class FeedingElfGame {
         this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
         this.ctx.lineWidth = 3;
         this.ctx.stroke();
+        
+        // Symbol im Ball
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = `bold ${this.ball.radius * 0.7}px Arial`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(this.ball.colorData.symbol, this.ball.x, this.ball.y);
     }
     
     gameLoop(currentTime = 0) {
