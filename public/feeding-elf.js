@@ -54,6 +54,18 @@ class FeedingElfGame {
         // Partikel-Effekte
         this.particles = [];
         
+        // Hindernis-Mauer
+        this.wall = {
+            visible: false,
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 15,
+            speed: 2,
+            direction: 1
+        };
+        this.hitCounter = 0; // Zählt Treffer für Mauer-System
+        
         // Timing
         this.startTime = 0;
         this.lastFrameTime = 0;
@@ -293,6 +305,13 @@ class FeedingElfGame {
         // Initialisiere Ball
         this.resetBall();
         
+        // Initialisiere Mauer
+        this.hitCounter = 0;
+        this.wall.visible = false;
+        this.wall.width = this.canvas.width * 0.4;
+        this.wall.y = this.canvas.height / 2;
+        this.wall.x = this.canvas.width / 2 - this.wall.width / 2;
+        
         this.gameLoop();
     }
     
@@ -371,6 +390,19 @@ class FeedingElfGame {
                         document.getElementById('elf-score').textContent = this.score;
                         this.createHitParticles(target.x, target.y, target.colorData.color, true);
                         
+                        // Mauer-System: Treffer zählen
+                        this.hitCounter++;
+                        
+                        // Mauer erscheint bei Treffer 5, 10, 15, 20, 25...
+                        if (this.hitCounter % 5 === 0) {
+                            this.wall.visible = true;
+                            this.wall.x = Math.random() * (this.canvas.width - this.wall.width);
+                        }
+                        // Mauer verschwindet bei Treffer 6, 11, 16, 21, 26...
+                        else if (this.hitCounter % 5 === 1) {
+                            this.wall.visible = false;
+                        }
+                        
                         // Neues Ziel mit anderer Farbe (nicht bei anderen Zielen vorhanden)
                         const usedColors = this.targets.map(t => t.colorData.color);
                         const availableColors = this.colors.filter(c => !usedColors.includes(c.color));
@@ -404,6 +436,23 @@ class FeedingElfGame {
                 }
             }
             
+            // Kollision mit Mauer
+            if (this.wall.visible) {
+                if (this.ball.x + this.ball.radius > this.wall.x && 
+                    this.ball.x - this.ball.radius < this.wall.x + this.wall.width &&
+                    this.ball.y + this.ball.radius > this.wall.y && 
+                    this.ball.y - this.ball.radius < this.wall.y + this.wall.height) {
+                    // Ball prallt von Mauer ab
+                    if (this.ball.vy > 0) {
+                        this.ball.y = this.wall.y - this.ball.radius;
+                        this.ball.vy *= -0.7;
+                    } else {
+                        this.ball.y = this.wall.y + this.wall.height + this.ball.radius;
+                        this.ball.vy *= -0.7;
+                    }
+                }
+            }
+            
             // Ball fällt aus dem Bildschirm
             if (this.ball.y - this.ball.radius > this.canvas.height) {
                 this.lives--;
@@ -415,6 +464,21 @@ class FeedingElfGame {
                 }
                 
                 this.resetBall();
+            }
+        }
+        
+        // Mauer bewegen
+        if (this.wall.visible) {
+            this.wall.x += this.wall.speed * this.wall.direction * dtMultiplier;
+            
+            // Richtung umkehren an den Rändern
+            if (this.wall.x <= 0) {
+                this.wall.x = 0;
+                this.wall.direction = 1;
+            }
+            if (this.wall.x + this.wall.width >= this.canvas.width) {
+                this.wall.x = this.canvas.width - this.wall.width;
+                this.wall.direction = -1;
             }
         }
         
@@ -487,6 +551,27 @@ class FeedingElfGame {
         
         // Reset Shadow
         this.ctx.shadowColor = 'transparent';
+        
+        // Hindernis-Mauer
+        if (this.wall.visible) {
+            this.ctx.fillStyle = '#8B4513';
+            this.ctx.fillRect(this.wall.x, this.wall.y, this.wall.width, this.wall.height);
+            
+            // Schatten/3D-Effekt
+            this.ctx.fillStyle = '#654321';
+            this.ctx.fillRect(this.wall.x, this.wall.y + this.wall.height - 3, this.wall.width, 3);
+            
+            // Mauer-Muster (Steine)
+            this.ctx.strokeStyle = '#654321';
+            this.ctx.lineWidth = 1;
+            const brickWidth = 30;
+            for (let x = this.wall.x; x < this.wall.x + this.wall.width; x += brickWidth) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, this.wall.y);
+                this.ctx.lineTo(x, this.wall.y + this.wall.height);
+                this.ctx.stroke();
+            }
+        }
         
         // Particles
         this.particles.forEach(p => {
