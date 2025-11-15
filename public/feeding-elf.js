@@ -16,9 +16,11 @@ class FeedingElfGame {
         
         // Bilder laden
         this.wallImage = new Image();
-        this.wallImage.src = '../data/img/mauer.jpg';
+        this.wallImage.src = '../../data/img/mauer.jpg';
+        this.wallImage.onerror = () => console.warn('Mauer-Bild konnte nicht geladen werden');
         this.ghostImage = new Image();
-        this.ghostImage.src = '../data/img/suesser-geist.jpg';
+        this.ghostImage.src = '../../data/img/suesser-geist.jpg';
+        this.ghostImage.onerror = () => console.warn('Geist-Bild konnte nicht geladen werden');
         
         // 8 verschiedene Farben optimiert für Farbschwache mit Symbolen
         this.colors = [
@@ -647,12 +649,26 @@ class FeedingElfGame {
             this.ctx.shadowOffsetY = 5;
             
             // Zeichne Mauer-Bild
-            if (this.wallImage.complete) {
+            if (this.wallImage.complete && this.wallImage.naturalWidth > 0) {
                 this.ctx.drawImage(this.wallImage, this.wall.x, this.wall.y, this.wall.width, this.wall.height);
             } else {
                 // Fallback falls Bild noch nicht geladen
                 this.ctx.fillStyle = '#8B4513';
                 this.ctx.fillRect(this.wall.x, this.wall.y, this.wall.width, this.wall.height);
+                
+                // Mauer-Muster (Steine)
+                this.ctx.fillStyle = '#654321';
+                this.ctx.fillRect(this.wall.x, this.wall.y + this.wall.height - 5, this.wall.width, 5);
+                
+                this.ctx.strokeStyle = '#654321';
+                this.ctx.lineWidth = 2;
+                const brickWidth = 40;
+                for (let x = this.wall.x; x < this.wall.x + this.wall.width; x += brickWidth) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, this.wall.y);
+                    this.ctx.lineTo(x, this.wall.y + this.wall.height);
+                    this.ctx.stroke();
+                }
             }
             
             this.ctx.shadowColor = 'transparent';
@@ -669,7 +685,7 @@ class FeedingElfGame {
             this.ctx.shadowOffsetY = 5;
             
             // Zeichne Geist-Bild
-            if (this.ghostImage.complete) {
+            if (this.ghostImage.complete && this.ghostImage.naturalWidth > 0) {
                 // Leichtes Schweben (Sinus-Bewegung)
                 const hover = Math.sin(Date.now() / 500) * 5;
                 this.ctx.drawImage(
@@ -683,7 +699,31 @@ class FeedingElfGame {
                 // Fallback falls Bild noch nicht geladen
                 this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 this.ctx.beginPath();
-                this.ctx.arc(this.ghost.x, this.ghost.y, size * 0.5, 0, Math.PI * 2);
+                this.ctx.arc(this.ghost.x, this.ghost.y - size * 0.2, size * 0.5, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Geist-Schwanz
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.ghost.x - size * 0.4, this.ghost.y);
+                this.ctx.bezierCurveTo(
+                    this.ghost.x - size * 0.3, this.ghost.y + size * 0.3,
+                    this.ghost.x, this.ghost.y + size * 0.2,
+                    this.ghost.x, this.ghost.y + size * 0.4
+                );
+                this.ctx.bezierCurveTo(
+                    this.ghost.x, this.ghost.y + size * 0.2,
+                    this.ghost.x + size * 0.3, this.ghost.y + size * 0.3,
+                    this.ghost.x + size * 0.4, this.ghost.y
+                );
+                this.ctx.arc(this.ghost.x, this.ghost.y - size * 0.2, size * 0.4, 0, Math.PI);
+                this.ctx.closePath();
+                this.ctx.fill();
+                
+                // Augen
+                this.ctx.fillStyle = '#000';
+                this.ctx.beginPath();
+                this.ctx.arc(this.ghost.x - size * 0.15, this.ghost.y - size * 0.25, size * 0.08, 0, Math.PI * 2);
+                this.ctx.arc(this.ghost.x + size * 0.15, this.ghost.y - size * 0.25, size * 0.08, 0, Math.PI * 2);
                 this.ctx.fill();
             }
             
