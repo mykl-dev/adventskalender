@@ -261,9 +261,10 @@ class FeedingElfGame {
         
         // Schuss-Kraft basierend auf Drag-Distanz
         const power = limitedDragY / this.ball.maxDragDistance;
-        const maxSpeed = 35;
+        const maxSpeed = 50;
         
-        this.ball.vx = (dragX / 80) * maxSpeed * power;
+        // Richtung spiegeln: nach links ziehen = Ball fliegt rechts
+        this.ball.vx = -(dragX / 60) * maxSpeed * power;
         this.ball.vy = -maxSpeed * power;
     }
     
