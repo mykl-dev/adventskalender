@@ -25,8 +25,10 @@ class SantaRunGame {
         // Sprung-Physik
         this.isJumping = false;
         this.jumpVelocity = 0;
-        this.jumpPower = 18;
-        this.gravity = 0.8;
+        this.jumpPower = 10;
+        this.gravity = 0.6;
+        this.jumpPressed = false; // Für variable Sprunghöhe
+        this.minJumpHeight = false;
         
         // Animation
         this.animationFrame = 0;
@@ -134,27 +136,57 @@ class SantaRunGame {
     }
     
     setupControls() {
-        // Leertaste oder Pfeiltaste nach oben
+        // Leertaste oder Pfeiltaste nach oben - DRÜCKEN
         document.addEventListener('keydown', (e) => {
             if ((e.code === 'Space' || e.code === 'ArrowUp') && this.gameActive) {
                 e.preventDefault();
-                this.jump();
+                if (!this.isJumping && this.santaY === 0) {
+                    this.jump();
+                    this.jumpPressed = true;
+                }
             }
         });
         
-        // Touch/Click auf gesamten Bildschirm
-        document.addEventListener('click', (e) => {
-            if (this.gameActive) {
-                this.jump();
+        // Leertaste oder Pfeiltaste nach oben - LOSLASSEN
+        document.addEventListener('keyup', (e) => {
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && this.gameActive) {
+                this.jumpPressed = false;
             }
         });
         
+        // Touch/Click auf gesamten Bildschirm - START
         document.addEventListener('touchstart', (e) => {
             if (this.gameActive) {
                 e.preventDefault();
-                this.jump();
+                if (!this.isJumping && this.santaY === 0) {
+                    this.jump();
+                    this.jumpPressed = true;
+                }
             }
         }, { passive: false });
+        
+        // Touch/Click auf gesamten Bildschirm - ENDE
+        document.addEventListener('touchend', (e) => {
+            if (this.gameActive) {
+                this.jumpPressed = false;
+            }
+        });
+        
+        // Mouse Click
+        document.addEventListener('mousedown', (e) => {
+            if (this.gameActive) {
+                if (!this.isJumping && this.santaY === 0) {
+                    this.jump();
+                    this.jumpPressed = true;
+                }
+            }
+        });
+        
+        document.addEventListener('mouseup', (e) => {
+            if (this.gameActive) {
+                this.jumpPressed = false;
+            }
+        });
     }
     
     async start() {
@@ -169,6 +201,7 @@ class SantaRunGame {
         this.santaY = 0;
         this.jumpVelocity = 0;
         this.isJumping = false;
+        this.jumpPressed = false;
         this.nextObstacleDistance = 200;
         this.startTime = Date.now();
         this.lastFrameTime = 0;
@@ -254,10 +287,21 @@ class SantaRunGame {
         const scoreText = Math.floor(this.distance).toString().padStart(5, '0');
         document.getElementById('santa-distance').textContent = scoreText;
         
-        // Sprung-Physik
+        // Sprung-Physik mit variabler Höhe
         if (this.isJumping || this.santaY > 0) {
             this.santaY += this.jumpVelocity * dtMultiplier;
-            this.jumpVelocity -= this.gravity * dtMultiplier;
+            
+            // Variable Sprunghöhe: Wenn Taste losgelassen und nach oben, reduziere Velocity
+            if (!this.jumpPressed && this.jumpVelocity > 0 && this.santaY > 15) {
+                this.jumpVelocity *= 0.5; // Schneller Stopp für kurze Sprünge
+            }
+            
+            // Dynamische Schwerkraft basierend auf Geschwindigkeit
+            // Je schneller das Spiel, desto höher die Schwerkraft
+            const speedFactor = 1 + (this.gameSpeed - this.baseSpeed) / this.baseSpeed * 0.5;
+            const dynamicGravity = this.gravity * speedFactor;
+            
+            this.jumpVelocity -= dynamicGravity * dtMultiplier;
             
             // Landung
             if (this.santaY <= 0) {
@@ -322,26 +366,44 @@ class SantaRunGame {
     }
     
     spawnObstacle() {
-        // Nur 2 Typen wie Chrome Dino (Kaktus klein/groß)
-        const types = ['cactus-small', 'cactus-large'];
+        // Verschiedene Hindernistypen
+        const types = ['cactus-small', 'cactus-large', 'cactus-double'];
         const type = types[Math.floor(Math.random() * types.length)];
         
-        let width, height;
-        if (type === 'cactus-small') {
-            width = 17;
-            height = 35;
+        if (type === 'cactus-double') {
+            // Doppel-Kaktus: Spawne 2 kleine Kakteen nebeneinander
+            this.obstacles.push({
+                x: this.canvas.width,
+                y: 0,
+                width: 17,
+                height: 35,
+                type: 'cactus-small'
+            });
+            this.obstacles.push({
+                x: this.canvas.width + 22, // 22px Abstand
+                y: 0,
+                width: 17,
+                height: 35,
+                type: 'cactus-small'
+            });
         } else {
-            width = 25;
-            height = 50;
+            let width, height;
+            if (type === 'cactus-small') {
+                width = 17;
+                height = 35;
+            } else {
+                width = 25;
+                height = 50;
+            }
+            
+            this.obstacles.push({
+                x: this.canvas.width,
+                y: 0,
+                width: width,
+                height: height,
+                type: type
+            });
         }
-        
-        this.obstacles.push({
-            x: this.canvas.width,
-            y: 0,
-            width: width,
-            height: height,
-            type: type
-        });
     }
     
     checkCollision(obstacle) {
