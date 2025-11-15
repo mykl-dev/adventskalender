@@ -157,7 +157,7 @@ class FeedingElfGame {
         
         // Ball-Eigenschaften
         this.ball.radius = Math.min(this.canvas.width / 15, 35);
-        this.ball.y = this.canvas.height - this.ball.radius - 250;
+        this.ball.y = this.canvas.height - this.ball.radius - 350;
         this.ball.x = this.canvas.width / 2;
         this.ball.maxDragDistance = this.canvas.height * 0.5;
         this.ball.initialY = this.ball.y; // Speichere Startposition
@@ -261,9 +261,9 @@ class FeedingElfGame {
         
         // Schuss-Kraft basierend auf Drag-Distanz
         const power = limitedDragY / this.ball.maxDragDistance;
-        const maxSpeed = 20;
+        const maxSpeed = 35;
         
-        this.ball.vx = (dragX / 100) * maxSpeed * power;
+        this.ball.vx = (dragX / 80) * maxSpeed * power;
         this.ball.vy = -maxSpeed * power;
     }
     
@@ -312,7 +312,7 @@ class FeedingElfGame {
     
     resetBall() {
         this.ball.x = this.canvas.width / 2;
-        this.ball.y = this.canvas.height - this.ball.radius - 250;
+        this.ball.y = this.canvas.height - this.ball.radius - 350;
         this.ball.initialY = this.ball.y;
         this.ball.vx = 0;
         this.ball.vy = 0;
