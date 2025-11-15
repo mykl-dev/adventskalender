@@ -15,7 +15,7 @@ class SantaRunGame {
         this.maxSpeed = 14;
         
         // Santa Eigenschaften
-        this.santaX = 150;
+        this.santaX = 0; // Wird in resizeCanvas gesetzt
         this.santaY = 0; // Höhe über dem Boden
         this.santaWidth = 60;
         this.santaHeight = 80;
@@ -124,7 +124,7 @@ class SantaRunGame {
     }
     
     resizeCanvas() {
-        // Canvas hat feste Höhe von 300px über CSS
+        // Canvas hat feste Höhe über CSS (300px Desktop, 200px Mobile)
         // Breite passt sich an (max 1200px)
         const rect = this.canvas.getBoundingClientRect();
         
@@ -138,6 +138,11 @@ class SantaRunGame {
         const scale = this.canvas.height / 300;
         this.santaWidth = 50 * scale;
         this.santaHeight = 65 * scale;
+        
+        // Santa Position: Auf Mobile weiter links (20% vom linken Rand)
+        // Auf Desktop in der Mitte-Links (15% vom linken Rand)
+        const isMobile = this.canvas.width < 768;
+        this.santaX = this.canvas.width * (isMobile ? 0.20 : 0.12);
     }
     
     setupControls() {
