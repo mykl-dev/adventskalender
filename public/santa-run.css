@@ -1,0 +1,225 @@
+/* === Santa Run Game Styles === */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.santa-run-game {
+    width: 600px;
+    max-width: 95vw;
+    margin: 20px auto;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    border-radius: 20px;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    position: relative;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.score-display {
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    flex: 1;
+    min-width: 150px;
+    text-align: center;
+}
+
+.fullscreen-button {
+    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+    transition: all 0.3s ease;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(156, 39, 176, 0.5);
+}
+
+.run-canvas {
+    width: 100%;
+    height: 600px;
+    background: linear-gradient(180deg, #87CEEB 0%, #E0F7FA 100%);
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.run-lane {
+    position: absolute;
+    width: 3px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    top: 0;
+}
+
+.santa-runner {
+    position: absolute;
+    font-size: 60px;
+    transition: left 0.2s ease;
+    z-index: 10;
+    animation: santaRun 0.3s infinite;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes santaRun {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.obstacle-runner,
+.present-runner {
+    position: absolute;
+    font-size: 50px;
+    transition: top 0.05s linear;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.present-runner {
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.run-controls {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.run-control-btn {
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+    transition: all 0.3s ease;
+    min-width: 70px;
+}
+
+.run-control-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.5);
+}
+
+.run-control-btn:active {
+    transform: translateY(0);
+}
+
+.game-button {
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    transition: all 0.3s ease;
+    flex: 1;
+    max-width: 250px;
+}
+
+.game-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+}
+
+.game-button:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .santa-run-game {
+        width: 100%;
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .run-canvas {
+        height: 500px;
+    }
+    
+    .score-display {
+        font-size: 1rem;
+        padding: 10px 15px;
+        min-width: 120px;
+    }
+    
+    .run-control-btn {
+        padding: 12px 20px;
+        font-size: 1.3rem;
+        min-width: 60px;
+    }
+    
+    .game-button {
+        font-size: 1rem;
+        padding: 12px 20px;
+    }
+    
+    .santa-runner {
+        font-size: 50px;
+    }
+    
+    .obstacle-runner,
+    .present-runner {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .run-canvas {
+        height: 400px;
+    }
+    
+    .score-display {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+    
+    .run-controls {
+        gap: 10px;
+    }
+}

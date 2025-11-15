@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎅 Santa Run - Adventskalender</title>
+    <link rel="stylesheet" href="game-overlay.css">
+    <link rel="stylesheet" href="santa-run.css">
+</head>
+<body>
+    <div id="santa-run-container"></div>
+
+    <!-- Scripts werden synchron nacheinander geladen -->
+    <script src="stats-manager.js?v=3"></script>
+    <script src="santa-run.js?v=3"></script>
+    <script>
+        console.log('🔍 Inline Script wird ausgeführt');
+        console.log('🔍 Ist SantaRunGame definiert?', typeof SantaRunGame);
+        console.log('🔍 Window Objekt:', Object.keys(window).filter(k => k.includes('Santa')));
+        
+        // Spiel sofort initialisieren - alle Scripts sind bereits geladen
+        if (typeof SantaRunGame !== 'undefined') {
+            console.log('✅ SantaRunGame gefunden, initialisiere...');
+            new SantaRunGame('santa-run-container');
+        } else {
+            console.error('❌ SantaRunGame ist nicht definiert!');
+        }
+    </script>
+</body>
+</html>
