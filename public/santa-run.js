@@ -38,6 +38,8 @@ class SantaRunGame {
         this.maxObstacleGap = 700;
         
         this.startTime = 0;
+        this.lastFrameTime = 0;
+        this.deltaTime = 0;
         
         this.init();
     }
@@ -171,6 +173,8 @@ class SantaRunGame {
         this.isJumping = false;
         this.nextObstacleDistance = 400;
         this.startTime = Date.now();
+        this.lastFrameTime = 0;
+        this.deltaTime = 16.67;
         
         // Verstecke Start-Button
         document.getElementById('start-button-overlay').style.display = 'none';
@@ -238,8 +242,11 @@ class SantaRunGame {
     update() {
         if (!this.gameActive) return;
         
+        // Normalisiere deltaTime auf 60 FPS (1/60 = 0.0167)
+        const dtMultiplier = this.deltaTime / 16.67;
+        
         // Distanz erhöhen
-        this.distance += this.gameSpeed * 0.1;
+        this.distance += this.gameSpeed * 0.1 * dtMultiplier;
         
         // Geschwindigkeit erhöhen basierend auf Distanz
         const speedMultiplier = 1 + Math.floor(this.distance / 100) * 0.1;
@@ -251,8 +258,8 @@ class SantaRunGame {
         
         // Sprung-Physik
         if (this.isJumping || this.santaY > 0) {
-            this.santaY += this.jumpVelocity;
-            this.jumpVelocity -= this.gravity;
+            this.santaY += this.jumpVelocity * dtMultiplier;
+            this.jumpVelocity -= this.gravity * dtMultiplier;
             
             // Landung
             if (this.santaY <= 0) {
@@ -267,7 +274,7 @@ class SantaRunGame {
         
         // Animation
         if (this.santaY === 0) {
-            this.animationFrame += this.animationSpeed * (this.gameSpeed / this.baseSpeed);
+            this.animationFrame += this.animationSpeed * (this.gameSpeed / this.baseSpeed) * dtMultiplier;
         }
         
         // Obstacle Spawning
@@ -275,12 +282,12 @@ class SantaRunGame {
             this.spawnObstacle();
             this.nextObstacleDistance = this.minObstacleGap + Math.random() * (this.maxObstacleGap - this.minObstacleGap);
         }
-        this.nextObstacleDistance -= this.gameSpeed;
+        this.nextObstacleDistance -= this.gameSpeed * dtMultiplier;
         
         // Update Obstacles
         for (let i = this.obstacles.length - 1; i >= 0; i--) {
             const obstacle = this.obstacles[i];
-            obstacle.x -= this.gameSpeed;
+            obstacle.x -= this.gameSpeed * dtMultiplier;
             
             // Entferne Hindernisse außerhalb des Bildschirms
             if (obstacle.x + obstacle.width < 0) {
@@ -302,10 +309,10 @@ class SantaRunGame {
         // Update Particles
         for (let i = this.particles.length - 1; i >= 0; i--) {
             const p = this.particles[i];
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vy += 0.3; // Gravity
-            p.life -= 0.02;
+            p.x += p.vx * dtMultiplier;
+            p.y += p.vy * dtMultiplier;
+            p.vy += 0.3 * dtMultiplier; // Gravity
+            p.life -= 0.02 * dtMultiplier;
             
             if (p.life <= 0) {
                 this.particles.splice(i, 1);
@@ -637,13 +644,25 @@ class SantaRunGame {
         this.ctx.restore();
     }
     
-    gameLoop() {
+    gameLoop(currentTime = 0) {
         if (!this.gameActive) return;
+        
+        // Berechne deltaTime in Millisekunden
+        if (this.lastFrameTime === 0) {
+            this.lastFrameTime = currentTime;
+        }
+        this.deltaTime = currentTime - this.lastFrameTime;
+        this.lastFrameTime = currentTime;
+        
+        // Begrenze deltaTime um Spikes zu vermeiden (max 100ms = 10 FPS minimum)
+        if (this.deltaTime > 100) {
+            this.deltaTime = 16.67; // Reset to ~60 FPS
+        }
         
         this.update();
         this.render();
         
-        requestAnimationFrame(() => this.gameLoop());
+        requestAnimationFrame((time) => this.gameLoop(time));
     }
     
     async gameOver() {
