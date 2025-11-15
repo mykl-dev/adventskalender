@@ -38,9 +38,12 @@
             flex-direction: column;
             position: relative;
             background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #FFFFFF 100%);
+            align-items: center;
         }
 
         .santa-run-header {
+            width: 100%;
+            max-width: 1200px;
             padding: 10px 20px;
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -65,10 +68,13 @@
         }
 
         .santa-run-canvas {
-            flex: 1;
             width: 100%;
+            max-width: 1200px;
+            height: 300px;
+            margin: auto 0;
             display: block;
             cursor: pointer;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
         }
 
         /* Instructions Overlay */
