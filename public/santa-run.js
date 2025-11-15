@@ -12,7 +12,8 @@ class SantaRunGame {
         this.particles = [];
         this.gameSpeed = 6;
         this.baseSpeed = 6;
-        this.maxSpeed = 14;
+        this.maxSpeed = 13;
+        this.acceleration = 0.001; // Langsame Beschleunigung wie Chrome Dino
         
         // Santa Eigenschaften
         this.santaX = 0; // Wird in resizeCanvas gesetzt
@@ -32,10 +33,10 @@ class SantaRunGame {
         this.animationSpeed = 0.15;
         this.runCycle = 0;
         
-        // Spawn-System
+        // Spawn-System (wie Chrome Dino)
         this.nextObstacleDistance = 0;
-        this.minObstacleGap = 400;
-        this.maxObstacleGap = 700;
+        this.minObstacleGap = 200;
+        this.maxObstacleGap = 400;
         
         this.startTime = 0;
         this.lastFrameTime = 0;
@@ -133,27 +134,27 @@ class SantaRunGame {
     }
     
     setupControls() {
-        // Leertaste
+        // Leertaste oder Pfeiltaste nach oben
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && this.gameActive) {
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && this.gameActive) {
                 e.preventDefault();
                 this.jump();
             }
         });
         
-        // Touch/Click
-        this.canvas.addEventListener('click', () => {
+        // Touch/Click auf gesamten Bildschirm
+        document.addEventListener('click', (e) => {
             if (this.gameActive) {
                 this.jump();
             }
         });
         
-        this.canvas.addEventListener('touchstart', (e) => {
+        document.addEventListener('touchstart', (e) => {
             if (this.gameActive) {
                 e.preventDefault();
                 this.jump();
             }
-        });
+        }, { passive: false });
     }
     
     async start() {
@@ -168,7 +169,7 @@ class SantaRunGame {
         this.santaY = 0;
         this.jumpVelocity = 0;
         this.isJumping = false;
-        this.nextObstacleDistance = 400;
+        this.nextObstacleDistance = 200;
         this.startTime = Date.now();
         this.lastFrameTime = 0;
         this.deltaTime = 16.67;
@@ -241,12 +242,13 @@ class SantaRunGame {
         // Normalisiere deltaTime auf 60 FPS (1/60 = 0.0167)
         const dtMultiplier = this.deltaTime / 16.67;
         
-        // Distanz erhöhen
+        // Distanz erhöhen (wie Chrome Dino: 0.1 Meter pro Frame bei 60 FPS)
         this.distance += this.gameSpeed * 0.1 * dtMultiplier;
         
-        // Geschwindigkeit erhöhen basierend auf Distanz
-        const speedMultiplier = 1 + Math.floor(this.distance / 100) * 0.1;
-        this.gameSpeed = Math.min(this.baseSpeed * speedMultiplier, this.maxSpeed);
+        // Geschwindigkeit erhöhen kontinuierlich (wie Chrome Dino)
+        if (this.gameSpeed < this.maxSpeed) {
+            this.gameSpeed += this.acceleration * dtMultiplier;
+        }
         
         // Update Display (5-stellig mit führenden Nullen)
         const scoreText = Math.floor(this.distance).toString().padStart(5, '0');
@@ -273,10 +275,13 @@ class SantaRunGame {
             this.animationFrame += this.animationSpeed * (this.gameSpeed / this.baseSpeed) * dtMultiplier;
         }
         
-        // Obstacle Spawning
+        // Obstacle Spawning (wie Chrome Dino: zufälliger Abstand)
         if (this.nextObstacleDistance <= 0) {
             this.spawnObstacle();
-            this.nextObstacleDistance = this.minObstacleGap + Math.random() * (this.maxObstacleGap - this.minObstacleGap);
+            // Abstand verringert sich mit höherer Geschwindigkeit
+            const minGap = this.minObstacleGap + (this.gameSpeed - this.baseSpeed) * 10;
+            const maxGap = this.maxObstacleGap + (this.gameSpeed - this.baseSpeed) * 10;
+            this.nextObstacleDistance = minGap + Math.random() * (maxGap - minGap);
         }
         this.nextObstacleDistance -= this.gameSpeed * dtMultiplier;
         
