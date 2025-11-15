@@ -60,11 +60,24 @@ class FeedingElfGame {
             x: 0,
             y: 0,
             width: 0,
-            height: 15,
+            height: 30,
             speed: 2,
             direction: 1
         };
-        this.hitCounter = 0; // Zählt Treffer für Mauer-System
+        
+        // Geist-Hindernis
+        this.ghost = {
+            visible: false,
+            x: 0,
+            y: 0,
+            size: 40,
+            vx: 0,
+            vy: 0,
+            targetX: 0,
+            targetY: 0
+        };
+        
+        this.hitCounter = 0; // Zählt Treffer für Hindernis-System
         
         // Timing
         this.startTime = 0;
@@ -305,14 +318,26 @@ class FeedingElfGame {
         // Initialisiere Ball
         this.resetBall();
         
-        // Initialisiere Mauer
+        // Initialisiere Hindernisse
         this.hitCounter = 0;
         this.wall.visible = false;
         this.wall.width = this.canvas.width * 0.4;
         this.wall.y = this.canvas.height / 2;
         this.wall.x = this.canvas.width / 2 - this.wall.width / 2;
         
+        this.ghost.visible = false;
+        this.ghost.x = this.canvas.width / 2;
+        this.ghost.y = this.canvas.height * 0.3;
+        this.setGhostTarget();
+        
         this.gameLoop();
+    }
+    
+    setGhostTarget() {
+        // Wähle zufälligen Punkt im oberen Bereich
+        const margin = this.ghost.size;
+        this.ghost.targetX = margin + Math.random() * (this.canvas.width - margin * 2);
+        this.ghost.targetY = this.canvas.height * 0.15 + Math.random() * this.canvas.height * 0.3;
     }
     
     initTargets() {
@@ -390,17 +415,41 @@ class FeedingElfGame {
                         document.getElementById('elf-score').textContent = this.score;
                         this.createHitParticles(target.x, target.y, target.colorData.color, true);
                         
-                        // Mauer-System: Treffer zählen
+                        // Hindernis-System: Treffer zählen
                         this.hitCounter++;
+                        const cycle = this.hitCounter % 15; // 15er Zyklus
                         
-                        // Mauer erscheint bei Treffer 5, 10, 15, 20, 25...
-                        if (this.hitCounter % 5 === 0) {
+                        // Treffer 5: Mauer erscheint (1. Mal)
+                        if (cycle === 5) {
                             this.wall.visible = true;
                             this.wall.x = Math.random() * (this.canvas.width - this.wall.width);
+                            this.ghost.visible = false;
                         }
-                        // Mauer verschwindet bei Treffer 6, 11, 16, 21, 26...
-                        else if (this.hitCounter % 5 === 1) {
+                        // Treffer 6: Mauer verschwindet
+                        else if (cycle === 6) {
                             this.wall.visible = false;
+                        }
+                        // Treffer 10: Mauer erscheint (2. Mal)
+                        else if (cycle === 10) {
+                            this.wall.visible = true;
+                            this.wall.x = Math.random() * (this.canvas.width - this.wall.width);
+                            this.ghost.visible = false;
+                        }
+                        // Treffer 11: Mauer verschwindet
+                        else if (cycle === 11) {
+                            this.wall.visible = false;
+                        }
+                        // Treffer 15 (oder 0): Geist erscheint (3. Mal)
+                        else if (cycle === 0) {
+                            this.ghost.visible = true;
+                            this.ghost.x = Math.random() * (this.canvas.width - this.ghost.size * 2) + this.ghost.size;
+                            this.ghost.y = this.canvas.height * 0.25 + Math.random() * this.canvas.height * 0.2;
+                            this.setGhostTarget();
+                            this.wall.visible = false;
+                        }
+                        // Treffer 1 (nach 15): Geist verschwindet
+                        else if (cycle === 1 && this.hitCounter > 1) {
+                            this.ghost.visible = false;
                         }
                         
                         // Neues Ziel mit anderer Farbe (nicht bei anderen Zielen vorhanden)
@@ -479,6 +528,37 @@ class FeedingElfGame {
             if (this.wall.x + this.wall.width >= this.canvas.width) {
                 this.wall.x = this.canvas.width - this.wall.width;
                 this.wall.direction = -1;
+            }
+        }
+        
+        // Geist bewegen
+        if (this.ghost.visible) {
+            // Bewegung zum Zielpunkt
+            const dx = this.ghost.targetX - this.ghost.x;
+            const dy = this.ghost.targetY - this.ghost.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 5) {
+                // Neues Ziel erreicht, wähle neues
+                this.setGhostTarget();
+            } else {
+                // Bewege zum Ziel
+                this.ghost.vx = (dx / distance) * 1.5;
+                this.ghost.vy = (dy / distance) * 1.5;
+                this.ghost.x += this.ghost.vx * dtMultiplier;
+                this.ghost.y += this.ghost.vy * dtMultiplier;
+            }
+            
+            // Kollision mit Ball
+            const ballDx = this.ball.x - this.ghost.x;
+            const ballDy = this.ball.y - this.ghost.y;
+            const ballDist = Math.sqrt(ballDx * ballDx + ballDy * ballDy);
+            
+            if (ballDist < this.ball.radius + this.ghost.size / 2) {
+                // Ball prallt vom Geist ab
+                const angle = Math.atan2(ballDy, ballDx);
+                this.ball.vx = Math.cos(angle) * 8;
+                this.ball.vy = Math.sin(angle) * 8;
             }
         }
         
@@ -571,6 +651,47 @@ class FeedingElfGame {
                 this.ctx.lineTo(x, this.wall.y + this.wall.height);
                 this.ctx.stroke();
             }
+        }
+        
+        // Geist
+        if (this.ghost.visible) {
+            const size = this.ghost.size;
+            
+            // Schatten
+            this.ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            this.ctx.shadowBlur = 15;
+            
+            // Geist-Körper (halbtransparent weiß)
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.ctx.beginPath();
+            this.ctx.arc(this.ghost.x, this.ghost.y - size * 0.2, size * 0.5, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Geist-Schwanz (wellig)
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.ghost.x - size * 0.4, this.ghost.y);
+            this.ctx.bezierCurveTo(
+                this.ghost.x - size * 0.3, this.ghost.y + size * 0.3,
+                this.ghost.x - size * 0.1, this.ghost.y + size * 0.2,
+                this.ghost.x, this.ghost.y + size * 0.4
+            );
+            this.ctx.bezierCurveTo(
+                this.ghost.x + size * 0.1, this.ghost.y + size * 0.2,
+                this.ghost.x + size * 0.3, this.ghost.y + size * 0.3,
+                this.ghost.x + size * 0.4, this.ghost.y
+            );
+            this.ctx.arc(this.ghost.x, this.ghost.y - size * 0.2, size * 0.4, 0, Math.PI);
+            this.ctx.closePath();
+            this.ctx.fill();
+            
+            this.ctx.shadowColor = 'transparent';
+            
+            // Augen
+            this.ctx.fillStyle = '#000';
+            this.ctx.beginPath();
+            this.ctx.arc(this.ghost.x - size * 0.15, this.ghost.y - size * 0.25, size * 0.08, 0, Math.PI * 2);
+            this.ctx.arc(this.ghost.x + size * 0.15, this.ghost.y - size * 0.25, size * 0.08, 0, Math.PI * 2);
+            this.ctx.fill();
         }
         
         // Particles
