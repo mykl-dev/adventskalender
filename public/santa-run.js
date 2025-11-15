@@ -128,11 +128,27 @@ class SantaRunGame {
         const header = document.querySelector('.santa-run-header');
         const headerHeight = header ? header.offsetHeight : 50;
         
-        this.canvas.width = container.offsetWidth;
-        this.canvas.height = container.offsetHeight - headerHeight;
+        // Begrenze Canvas-Höhe auf Maximum (wie Chrome Dino)
+        const maxHeight = 400;
+        const availableHeight = container.offsetHeight - headerHeight;
         
-        // Boden-Position (80% der Höhe)
-        this.groundY = this.canvas.height * 0.8;
+        this.canvas.width = container.offsetWidth;
+        this.canvas.height = Math.min(availableHeight, maxHeight);
+        
+        // Zentriere Canvas vertikal wenn kleiner als Container
+        if (this.canvas.height < availableHeight) {
+            this.canvas.style.marginTop = ((availableHeight - this.canvas.height) / 2) + 'px';
+        } else {
+            this.canvas.style.marginTop = '0';
+        }
+        
+        // Boden-Position (75% der Höhe für mehr Luftraum)
+        this.groundY = this.canvas.height * 0.75;
+        
+        // Skaliere Santa relativ zur Canvas-Höhe (aber nicht zu klein)
+        const heightScale = Math.min(1, this.canvas.height / 300);
+        this.santaWidth = Math.max(40, 60 * heightScale);
+        this.santaHeight = Math.max(50, 80 * heightScale);
     }
     
     setupControls() {
