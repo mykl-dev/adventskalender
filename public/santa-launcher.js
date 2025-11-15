@@ -214,7 +214,7 @@ class SantaLauncherGame {
     
     async start() {
         // Spielername sicherstellen
-        await statsManager.ensureUsername();
+        await window.statsManager.ensureUsername();
         
         this.gameActive = true;
         this.phase = 'angle';
@@ -1040,7 +1040,7 @@ class SantaLauncherGame {
         
         // Speichere Statistik
         try {
-            await statsManager.saveStats('santa-launcher', this.maxDistance, playTime);
+            await window.statsManager.saveStats('santa-launcher', this.maxDistance, playTime);
         } catch (error) {
             console.error('Fehler beim Speichern der Stats:', error);
         }
@@ -1053,7 +1053,7 @@ class SantaLauncherGame {
     
     async showGameOver() {
         // Bestenliste laden
-        const highscores = await statsManager.getHighscores('santa-launcher', 10);
+        const highscores = await window.statsManager.getHighscores('santa-launcher', 10);
         
         const highscoresHTML = highscores.map((entry, index) => `
             <li class="highscore-item">

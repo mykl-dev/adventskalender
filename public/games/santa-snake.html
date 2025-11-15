@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>🎅 Santa Snake - Adventskalender</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../stats.css">
     <link rel="stylesheet" href="../game-overlay.css">
     <style>
         * {
@@ -531,8 +532,11 @@
         </div>
     </div>
 
+    <script src="../avatarManager.js"></script>
     <script src="../stats-manager.js"></script>
     <script>
+        if (!window.avatarManager) window.avatarManager = new AvatarManager();
+        if (!window.statsManager) window.statsManager = new StatsManager();
         const GAME_NAME = 'santa-snake';
         let gameStartTime = null;
 
@@ -1010,7 +1014,7 @@
                     : '💥 Du hast dich selbst gebissen!';
 
                 // Highscores laden
-                const highscores = await statsManager.getHighscores(GAME_NAME, 10);
+                const highscores = await window.statsManager.getHighscores(GAME_NAME, 10);
                 const highscoresHTML = highscores && highscores.length > 0
                     ? highscores.map((entry, index) => `
                         <li class="highscore-item">
@@ -1066,7 +1070,7 @@
             const modal = document.getElementById('highscore-modal');
             const list = document.getElementById('highscore-list');
 
-            const highscores = await statsManager.getHighscores(GAME_NAME, 10);
+            const highscores = await window.statsManager.getHighscores(GAME_NAME, 10);
 
             if (highscores && highscores.length > 0) {
                 list.innerHTML = highscores.map((entry, index) => `

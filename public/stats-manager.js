@@ -9,12 +9,7 @@ class StatsManager {
     // Initialisierung beim Laden
     init() {
         this.username = this.getCookie('playerName');
-        
-        // Wenn kein Name vorhanden, frage beim ersten Spielstart
-        if (!this.username) {
-            // Wird später beim Spielstart abgefragt
-            console.log('Kein Spielername gefunden - wird beim ersten Spiel abgefragt');
-        }
+        // Benutzername wird bei Bedarf beim Spielstart abgefragt
     }
     
     // Cookie setzen
@@ -38,18 +33,32 @@ class StatsManager {
     
     // Spielername abfragen (falls noch nicht vorhanden)
     async ensureUsername() {
-        // Prüfe IMMER zuerst ob Avatar-System einen Namen hat (hat Priorität!)
-        if (typeof avatarManager !== 'undefined') {
-            const profile = avatarManager.getProfile();
+        // 1. Prüfe Backend-Session (höchste Priorität)
+        try {
+            const response = await fetch('/api/auth/session');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.authenticated && data.user && data.user.username) {
+                    this.username = data.user.username;
+                    this.setCookie('playerName', this.username);
+                    return this.username;
+                }
+            }
+        } catch (error) {
+            console.warn('Session check failed:', error);
+        }
+        
+        // 2. Prüfe Avatar-System
+        if (typeof window.avatarManager !== 'undefined' && window.avatarManager) {
+            const profile = window.avatarManager.getProfile();
             if (profile && profile.username) {
-                // Avatar-Name hat Priorität - überschreibt Cookie
                 this.username = profile.username;
                 this.setCookie('playerName', this.username);
                 return this.username;
             }
         }
         
-        // Falls kein Avatar-Name, verwende bestehenden Username
+        // 3. Falls kein Avatar-Name, verwende bestehenden Username aus Cookie
         if (this.username) {
             return this.username;
         }

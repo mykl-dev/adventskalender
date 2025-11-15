@@ -135,7 +135,7 @@ class ChristmasMatch3Game {
 
     async start() {
         // Spielername sicherstellen (wird ggf. abgefragt)
-        await statsManager.ensureUsername();
+        await window.statsManager.ensureUsername();
         
         this.score = 0;
         this.movesLeft = 30;
@@ -1263,10 +1263,10 @@ class ChristmasMatch3Game {
         const playTime = Math.floor((Date.now() - this.startTime) / 1000); // in Sekunden
         
         // Speichere Statistik
-        await statsManager.saveStats('christmas-match3', this.score, playTime);
+        await window.statsManager.saveStats('christmas-match3', this.score, playTime);
         
         // Lade Highscores
-        const highscores = await statsManager.getHighscores('christmas-match3', 10);
+        const highscores = await window.statsManager.getHighscores('christmas-match3', 10);
         let highscoresHTML = '<div class="no-highscores">Noch keine Highscores vorhanden</div>';
         
         if (highscores && highscores.length > 0) {

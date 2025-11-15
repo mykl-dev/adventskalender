@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>🎄 Christmas Match-3</title>
+    <link rel="stylesheet" href="../stats.css">
     <link rel="stylesheet" href="../game-overlay.css">
     <link rel="stylesheet" href="../christmas-match3.css">
     <style>
@@ -78,7 +79,13 @@
         <div id="game-root"></div>
     </div>
     
+    <script src="../avatarManager.js"></script>
     <script src="../stats-manager.js"></script>
+    <script>
+        // Initialize managers
+        if (!window.avatarManager) window.avatarManager = new AvatarManager();
+        if (!window.statsManager) window.statsManager = new StatsManager();
+    </script>
     <script src="../christmas-match3.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {

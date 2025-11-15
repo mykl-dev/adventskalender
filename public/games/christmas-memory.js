@@ -237,7 +237,7 @@ class ChristmasMemoryGame {
         // Save stats
         if (typeof statsManager !== 'undefined') {
             try {
-                await statsManager.saveStats(this.gameName, result.score, result.playTime);
+                await window.statsManager.saveStats(this.gameName, result.score, result.playTime);
                 await this.loadHighscore();
             } catch (error) {
                 console.error('Fehler beim Speichern der Stats:', error);
@@ -255,7 +255,7 @@ class ChristmasMemoryGame {
         let highscoresHTML = '<div class="no-highscores">Noch keine Highscores vorhanden</div>';
         
         if (typeof statsManager !== 'undefined') {
-            const highscores = await statsManager.getHighscores(this.gameName, 10);
+            const highscores = await window.statsManager.getHighscores(this.gameName, 10);
             if (highscores && highscores.length > 0) {
                 highscoresHTML = highscores.map((entry, index) => `
                     <li class="highscore-item">

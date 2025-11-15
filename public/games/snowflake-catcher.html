@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>❄️ Schneeflocken Fangen 3D</title>
     <link rel="stylesheet" href="../snowflake-catcher.css">
+        <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../stats.css">
     <link rel="stylesheet" href="../game-overlay.css">
     <style>
         body {
@@ -120,7 +122,12 @@
         }
     </script>
     
+    <script src="../avatarManager.js"></script>
     <script src="../stats-manager.js"></script>
+    <script>
+        if (!window.avatarManager) window.avatarManager = new AvatarManager();
+        if (!window.statsManager) window.statsManager = new StatsManager();
+    </script>
     <script src="../snowflake-catcher.js"></script>
     <script>
         // Initialisiere das Spiel

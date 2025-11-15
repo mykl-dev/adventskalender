@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🛷 Flappy Santa - Adventskalender</title>
     <link rel="stylesheet" href="../flappy-santa.css">
+        <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../stats.css">
     <link rel="stylesheet" href="../game-overlay.css">
     <style>
         * {
@@ -137,10 +139,12 @@
     
     <div id="game-root"></div>
     
+    <script src="../avatarManager.js"></script>
     <script src="../stats-manager.js"></script>
     <script>
-        // Initialize global stats manager
-        const statsManager = new StatsManager();
+        // Initialize managers
+        if (!window.avatarManager) window.avatarManager = new AvatarManager();
+        if (!window.statsManager) window.statsManager = new StatsManager();
     </script>
     <script src="flappy-santa.js"></script>
 </body>

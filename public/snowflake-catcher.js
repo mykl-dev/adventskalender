@@ -152,7 +152,7 @@ class SnowflakeCatcherGame3D {
     
     async start() {
         // Spielername sicherstellen
-        await statsManager.ensureUsername();
+        await window.statsManager.ensureUsername();
         
         this.score = 0;
         this.timeLeft = 30;
@@ -669,7 +669,7 @@ class SnowflakeCatcherGame3D {
         
         // Stats speichern
         try {
-            await statsManager.saveStats('snowflake-catcher', this.score, playTime);
+            await window.statsManager.saveStats('snowflake-catcher', this.score, playTime);
         } catch (error) {
             console.error('Fehler beim Speichern der Stats:', error);
         }
@@ -682,7 +682,7 @@ class SnowflakeCatcherGame3D {
     
     async showGameOver() {
         // Bestenliste laden
-        const highscores = await statsManager.getHighscores('snowflake-catcher', 10);
+        const highscores = await window.statsManager.getHighscores('snowflake-catcher', 10);
         
         const highscoresHTML = highscores.map((entry, index) => `
             <li class="highscore-item">

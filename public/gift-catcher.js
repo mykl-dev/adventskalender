@@ -215,7 +215,7 @@ class GiftCatcherGame3D {
     
     async start() {
         // Spielername sicherstellen
-        await statsManager.ensureUsername();
+        await window.statsManager.ensureUsername();
         
         this.score = 0;
         this.level = 1;
@@ -613,7 +613,7 @@ class GiftCatcherGame3D {
         // Stats speichern
         const playTime = Math.floor((Date.now() - this.startTime) / 1000);
         try {
-            await statsManager.saveStats('gift-catcher', this.score, playTime);
+            await window.statsManager.saveStats('gift-catcher', this.score, playTime);
         } catch (error) {
             console.error('Fehler beim Speichern der Stats:', error);
         }
@@ -628,7 +628,7 @@ class GiftCatcherGame3D {
         const giftsCount = Math.floor(this.score / 10);
         
         // Bestenliste laden
-        const highscores = await statsManager.getHighscores('gift-catcher', 10);
+        const highscores = await window.statsManager.getHighscores('gift-catcher', 10);
         
         const highscoresHTML = highscores.map((entry, index) => `
             <li class="highscore-item">

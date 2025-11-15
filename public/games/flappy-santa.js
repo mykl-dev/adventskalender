@@ -234,9 +234,9 @@ class FlappySanta {
     
     async start() {
         // Ensure username
-        if (typeof statsManager !== 'undefined') {
+        if (typeof window.statsManager !== 'undefined') {
             try {
-                await statsManager.ensureUsername();
+                await window.statsManager.ensureUsername();
             } catch (error) {
                 console.warn('Username prompt failed:', error);
             }
@@ -693,7 +693,7 @@ class FlappySanta {
         // Save stats
         if (typeof statsManager !== 'undefined') {
             try {
-                await statsManager.saveStats(this.gameName, this.score, playTime);
+                await window.statsManager.saveStats(this.gameName, this.score, playTime);
             } catch (error) {
                 console.error('Fehler beim Speichern der Stats:', error);
             }
@@ -711,7 +711,7 @@ class FlappySanta {
         existingOverlays.forEach(el => el.remove());
         
         // Bestenliste laden
-        const highscores = await statsManager.getHighscores(this.gameName, 10);
+        const highscores = await window.statsManager.getHighscores(this.gameName, 10);
         
         const highscoresHTML = highscores.map((entry, index) => `
             <li class="highscore-item">
