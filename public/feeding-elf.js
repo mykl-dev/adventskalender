@@ -14,6 +14,12 @@ class FeedingElfGame {
         this.canvas = null;
         this.ctx = null;
         
+        // Bilder laden
+        this.wallImage = new Image();
+        this.wallImage.src = '../data/img/mauer.jpg';
+        this.ghostImage = new Image();
+        this.ghostImage.src = '../data/img/suesser-geist.jpg';
+        
         // 8 verschiedene Farben optimiert für Farbschwache mit Symbolen
         this.colors = [
             { color: '#FF0000', symbol: '●', name: 'Rot' },      // Rot - Kreis
@@ -322,7 +328,7 @@ class FeedingElfGame {
         this.hitCounter = 0;
         this.wall.visible = false;
         this.wall.width = this.canvas.width * 0.4;
-        this.wall.y = this.canvas.height / 2;
+        this.wall.y = this.canvas.height * 0.3; // Höher positioniert
         this.wall.x = this.canvas.width / 2 - this.wall.width / 2;
         
         this.ghost.visible = false;
@@ -439,7 +445,7 @@ class FeedingElfGame {
                         else if (cycle === 11) {
                             this.wall.visible = false;
                         }
-                        // Treffer 15 (oder 0): Geist erscheint (3. Mal)
+                        // Treffer 15 (oder 0): Geist erscheint (3. Mal) und bleibt 5 Treffer
                         else if (cycle === 0) {
                             this.ghost.visible = true;
                             this.ghost.x = Math.random() * (this.canvas.width - this.ghost.size * 2) + this.ghost.size;
@@ -447,8 +453,8 @@ class FeedingElfGame {
                             this.setGhostTarget();
                             this.wall.visible = false;
                         }
-                        // Treffer 1 (nach 15): Geist verschwindet
-                        else if (cycle === 1 && this.hitCounter > 1) {
+                        // Treffer 6 (= Treffer 21, 36, 51...): Geist verschwindet nach 5 Treffern
+                        else if (cycle === 6 && this.hitCounter > 15) {
                             this.ghost.visible = false;
                         }
                         
@@ -634,23 +640,22 @@ class FeedingElfGame {
         
         // Hindernis-Mauer
         if (this.wall.visible) {
-            this.ctx.fillStyle = '#8B4513';
-            this.ctx.fillRect(this.wall.x, this.wall.y, this.wall.width, this.wall.height);
+            // Schatten
+            this.ctx.shadowColor = 'rgba(0,0,0,0.4)';
+            this.ctx.shadowBlur = 10;
+            this.ctx.shadowOffsetX = 0;
+            this.ctx.shadowOffsetY = 5;
             
-            // Schatten/3D-Effekt
-            this.ctx.fillStyle = '#654321';
-            this.ctx.fillRect(this.wall.x, this.wall.y + this.wall.height - 3, this.wall.width, 3);
-            
-            // Mauer-Muster (Steine)
-            this.ctx.strokeStyle = '#654321';
-            this.ctx.lineWidth = 1;
-            const brickWidth = 30;
-            for (let x = this.wall.x; x < this.wall.x + this.wall.width; x += brickWidth) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(x, this.wall.y);
-                this.ctx.lineTo(x, this.wall.y + this.wall.height);
-                this.ctx.stroke();
+            // Zeichne Mauer-Bild
+            if (this.wallImage.complete) {
+                this.ctx.drawImage(this.wallImage, this.wall.x, this.wall.y, this.wall.width, this.wall.height);
+            } else {
+                // Fallback falls Bild noch nicht geladen
+                this.ctx.fillStyle = '#8B4513';
+                this.ctx.fillRect(this.wall.x, this.wall.y, this.wall.width, this.wall.height);
             }
+            
+            this.ctx.shadowColor = 'transparent';
         }
         
         // Geist
@@ -659,39 +664,30 @@ class FeedingElfGame {
             
             // Schatten
             this.ctx.shadowColor = 'rgba(0,0,0,0.3)';
-            this.ctx.shadowBlur = 15;
+            this.ctx.shadowBlur = 20;
+            this.ctx.shadowOffsetX = 0;
+            this.ctx.shadowOffsetY = 5;
             
-            // Geist-Körper (halbtransparent weiß)
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            this.ctx.beginPath();
-            this.ctx.arc(this.ghost.x, this.ghost.y - size * 0.2, size * 0.5, 0, Math.PI * 2);
-            this.ctx.fill();
-            
-            // Geist-Schwanz (wellig)
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.ghost.x - size * 0.4, this.ghost.y);
-            this.ctx.bezierCurveTo(
-                this.ghost.x - size * 0.3, this.ghost.y + size * 0.3,
-                this.ghost.x - size * 0.1, this.ghost.y + size * 0.2,
-                this.ghost.x, this.ghost.y + size * 0.4
-            );
-            this.ctx.bezierCurveTo(
-                this.ghost.x + size * 0.1, this.ghost.y + size * 0.2,
-                this.ghost.x + size * 0.3, this.ghost.y + size * 0.3,
-                this.ghost.x + size * 0.4, this.ghost.y
-            );
-            this.ctx.arc(this.ghost.x, this.ghost.y - size * 0.2, size * 0.4, 0, Math.PI);
-            this.ctx.closePath();
-            this.ctx.fill();
+            // Zeichne Geist-Bild
+            if (this.ghostImage.complete) {
+                // Leichtes Schweben (Sinus-Bewegung)
+                const hover = Math.sin(Date.now() / 500) * 5;
+                this.ctx.drawImage(
+                    this.ghostImage, 
+                    this.ghost.x - size, 
+                    this.ghost.y - size + hover, 
+                    size * 2, 
+                    size * 2
+                );
+            } else {
+                // Fallback falls Bild noch nicht geladen
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                this.ctx.beginPath();
+                this.ctx.arc(this.ghost.x, this.ghost.y, size * 0.5, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
             
             this.ctx.shadowColor = 'transparent';
-            
-            // Augen
-            this.ctx.fillStyle = '#000';
-            this.ctx.beginPath();
-            this.ctx.arc(this.ghost.x - size * 0.15, this.ghost.y - size * 0.25, size * 0.08, 0, Math.PI * 2);
-            this.ctx.arc(this.ghost.x + size * 0.15, this.ghost.y - size * 0.25, size * 0.08, 0, Math.PI * 2);
-            this.ctx.fill();
         }
         
         // Particles
