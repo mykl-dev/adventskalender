@@ -1,0 +1,739 @@
+/**
+ * Santa Run Game - Chrome Dino Style Endless Runner
+ * 3D Canvas Rendering mit realistischen Animationen
+ */
+
+class SantaRunGame {
+    constructor(containerId) {
+        this.container = document.getElementById(containerId);
+        this.distance = 0;
+        this.gameActive = false;
+        this.obstacles = [];
+        this.particles = [];
+        this.gameSpeed = 6;
+        this.baseSpeed = 6;
+        this.maxSpeed = 14;
+        
+        // Santa Eigenschaften
+        this.santaX = 150;
+        this.santaY = 0; // Höhe über dem Boden
+        this.santaWidth = 60;
+        this.santaHeight = 80;
+        this.groundY = 0; // Wird in resizeCanvas gesetzt
+        
+        // Sprung-Physik
+        this.isJumping = false;
+        this.jumpVelocity = 0;
+        this.jumpPower = 18;
+        this.gravity = 0.8;
+        
+        // Animation
+        this.animationFrame = 0;
+        this.animationSpeed = 0.15;
+        this.runCycle = 0;
+        
+        // Spawn-System
+        this.nextObstacleDistance = 0;
+        this.minObstacleGap = 400;
+        this.maxObstacleGap = 700;
+        
+        this.startTime = 0;
+        
+        this.init();
+    }
+    
+    init() {
+        this.container.innerHTML = `
+            <div class="santa-run-container">
+                <div class="santa-run-header">
+                    <div class="score-display">
+                        <span>🏃</span>
+                        <span class="distance-value" id="santa-distance">0m</span>
+                    </div>
+                    <div class="score-display">
+                        <span>⚡</span>
+                        <span class="distance-value" id="santa-speed">1.0x</span>
+                    </div>
+                </div>
+                
+                <canvas id="santa-run-canvas" class="santa-run-canvas"></canvas>
+                
+                <!-- Instructions Overlay -->
+                <div class="santa-instructions-overlay" id="santa-instructions-overlay">
+                    <div class="instructions-content">
+                        <h2>🎅 Santa Run! 🏃</h2>
+                        <div class="instruction-items">
+                            <div class="instruction-item">
+                                <span class="item-icon">⬆️</span>
+                                <span>Springe über Hindernisse!</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">📱</span>
+                                <span>Tippe auf den Bildschirm</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">⌨️</span>
+                                <span>oder drücke LEERTASTE</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">🚀</span>
+                                <span>Je weiter du läufst, desto schneller!</span>
+                            </div>
+                        </div>
+                        <p class="difficulty-info">⚠️ Berühre kein Hindernis!</p>
+                        <button class="instruction-ok-button" id="instruction-ok-button">
+                            ✓ Okay, verstanden!
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Start Button (erscheint nach OK) -->
+                <div class="start-button-overlay" id="start-button-overlay" style="display: none;">
+                    <button class="santa-start-button pulse" id="santa-start-button">
+                        <span class="button-icon">🎮</span>
+                        <span>Spiel starten!</span>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        this.canvas = document.getElementById('santa-run-canvas');
+        this.ctx = this.canvas.getContext('2d', { alpha: false });
+        
+        // Anti-Aliasing
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+        
+        // Responsive Canvas
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+        
+        // OK Button
+        document.getElementById('instruction-ok-button').addEventListener('click', () => {
+            document.getElementById('santa-instructions-overlay').style.display = 'none';
+            document.getElementById('start-button-overlay').style.display = 'flex';
+        });
+        
+        // Start Button
+        document.getElementById('santa-start-button').addEventListener('click', () => this.start());
+        
+        // Controls
+        this.setupControls();
+    }
+    
+    resizeCanvas() {
+        const container = this.canvas.parentElement;
+        const header = document.querySelector('.santa-run-header');
+        const headerHeight = header ? header.offsetHeight : 50;
+        
+        this.canvas.width = container.offsetWidth;
+        this.canvas.height = container.offsetHeight - headerHeight;
+        
+        // Boden-Position (80% der Höhe)
+        this.groundY = this.canvas.height * 0.8;
+    }
+    
+    setupControls() {
+        // Leertaste
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && this.gameActive) {
+                e.preventDefault();
+                this.jump();
+            }
+        });
+        
+        // Touch/Click
+        this.canvas.addEventListener('click', () => {
+            if (this.gameActive) {
+                this.jump();
+            }
+        });
+        
+        this.canvas.addEventListener('touchstart', (e) => {
+            if (this.gameActive) {
+                e.preventDefault();
+                this.jump();
+            }
+        });
+    }
+    
+    async start() {
+        // Spielername sicherstellen
+        await window.statsManager.ensureUsername();
+        
+        this.distance = 0;
+        this.gameActive = true;
+        this.obstacles = [];
+        this.particles = [];
+        this.gameSpeed = this.baseSpeed;
+        this.santaY = 0;
+        this.jumpVelocity = 0;
+        this.isJumping = false;
+        this.nextObstacleDistance = 400;
+        this.startTime = Date.now();
+        
+        // Verstecke Start-Button
+        document.getElementById('start-button-overlay').style.display = 'none';
+        
+        // Update Distance Display
+        document.getElementById('santa-distance').textContent = '0m';
+        document.getElementById('santa-speed').textContent = '1.0x';
+        
+        this.gameLoop();
+    }
+    
+    jump() {
+        if (!this.isJumping && this.santaY === 0) {
+            this.isJumping = true;
+            this.jumpVelocity = this.jumpPower;
+            
+            // Jump particles
+            this.createJumpParticles();
+        }
+    }
+    
+    createJumpParticles() {
+        for (let i = 0; i < 5; i++) {
+            this.particles.push({
+                x: this.santaX + this.santaWidth / 2,
+                y: this.groundY,
+                vx: (Math.random() - 0.5) * 3,
+                vy: -Math.random() * 3,
+                size: Math.random() * 4 + 2,
+                life: 1,
+                color: `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.5})`
+            });
+        }
+    }
+    
+    createLandingParticles() {
+        for (let i = 0; i < 8; i++) {
+            this.particles.push({
+                x: this.santaX + this.santaWidth / 2 + (Math.random() - 0.5) * 40,
+                y: this.groundY,
+                vx: (Math.random() - 0.5) * 4,
+                vy: -Math.random() * 5 - 2,
+                size: Math.random() * 5 + 3,
+                life: 1,
+                color: Math.random() > 0.5 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(200, 230, 255, 0.8)'
+            });
+        }
+    }
+    
+    createCollisionParticles(x, y) {
+        for (let i = 0; i < 15; i++) {
+            const angle = (Math.PI * 2 * i) / 15;
+            this.particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * (Math.random() * 4 + 2),
+                vy: Math.sin(angle) * (Math.random() * 4 + 2) - 3,
+                size: Math.random() * 6 + 4,
+                life: 1,
+                color: Math.random() > 0.5 ? 'rgba(255, 0, 0, 0.8)' : 'rgba(255, 255, 0, 0.8)'
+            });
+        }
+    }
+    
+    update() {
+        if (!this.gameActive) return;
+        
+        // Distanz erhöhen
+        this.distance += this.gameSpeed * 0.1;
+        
+        // Geschwindigkeit erhöhen basierend auf Distanz
+        const speedMultiplier = 1 + Math.floor(this.distance / 100) * 0.1;
+        this.gameSpeed = Math.min(this.baseSpeed * speedMultiplier, this.maxSpeed);
+        
+        // Update Display
+        document.getElementById('santa-distance').textContent = Math.floor(this.distance) + 'm';
+        document.getElementById('santa-speed').textContent = speedMultiplier.toFixed(1) + 'x';
+        
+        // Sprung-Physik
+        if (this.isJumping || this.santaY > 0) {
+            this.santaY += this.jumpVelocity;
+            this.jumpVelocity -= this.gravity;
+            
+            // Landung
+            if (this.santaY <= 0) {
+                this.santaY = 0;
+                this.jumpVelocity = 0;
+                if (this.isJumping) {
+                    this.isJumping = false;
+                    this.createLandingParticles();
+                }
+            }
+        }
+        
+        // Animation
+        if (this.santaY === 0) {
+            this.animationFrame += this.animationSpeed * (this.gameSpeed / this.baseSpeed);
+        }
+        
+        // Obstacle Spawning
+        if (this.nextObstacleDistance <= 0) {
+            this.spawnObstacle();
+            this.nextObstacleDistance = this.minObstacleGap + Math.random() * (this.maxObstacleGap - this.minObstacleGap);
+        }
+        this.nextObstacleDistance -= this.gameSpeed;
+        
+        // Update Obstacles
+        for (let i = this.obstacles.length - 1; i >= 0; i--) {
+            const obstacle = this.obstacles[i];
+            obstacle.x -= this.gameSpeed;
+            
+            // Entferne Hindernisse außerhalb des Bildschirms
+            if (obstacle.x + obstacle.width < 0) {
+                this.obstacles.splice(i, 1);
+                continue;
+            }
+            
+            // Kollisionserkennung
+            if (this.checkCollision(obstacle)) {
+                this.createCollisionParticles(
+                    this.santaX + this.santaWidth / 2,
+                    this.groundY - this.santaY - this.santaHeight / 2
+                );
+                this.gameOver();
+                return;
+            }
+        }
+        
+        // Update Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            const p = this.particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.3; // Gravity
+            p.life -= 0.02;
+            
+            if (p.life <= 0) {
+                this.particles.splice(i, 1);
+            }
+        }
+    }
+    
+    spawnObstacle() {
+        const types = ['tree', 'rock', 'snowman', 'gift'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        
+        let width, height;
+        switch (type) {
+            case 'tree':
+                width = 40;
+                height = 80;
+                break;
+            case 'rock':
+                width = 50;
+                height = 40;
+                break;
+            case 'snowman':
+                width = 45;
+                height = 70;
+                break;
+            case 'gift':
+                width = 35;
+                height = 35;
+                break;
+        }
+        
+        this.obstacles.push({
+            x: this.canvas.width,
+            y: 0,
+            width: width,
+            height: height,
+            type: type
+        });
+    }
+    
+    checkCollision(obstacle) {
+        const santaBottom = this.groundY - this.santaY;
+        const santaTop = santaBottom - this.santaHeight;
+        const santaLeft = this.santaX;
+        const santaRight = this.santaX + this.santaWidth;
+        
+        const obstacleBottom = this.groundY;
+        const obstacleTop = this.groundY - obstacle.height;
+        const obstacleLeft = obstacle.x;
+        const obstacleRight = obstacle.x + obstacle.width;
+        
+        // Hitbox mit etwas Toleranz
+        const tolerance = 5;
+        
+        return (
+            santaRight - tolerance > obstacleLeft &&
+            santaLeft + tolerance < obstacleRight &&
+            santaBottom > obstacleTop &&
+            santaTop < obstacleBottom
+        );
+    }
+    
+    render() {
+        // Himmel mit Verlauf
+        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+        gradient.addColorStop(0, '#87CEEB');
+        gradient.addColorStop(0.5, '#E0F6FF');
+        gradient.addColorStop(1, '#FFFFFF');
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Wolken
+        this.drawClouds();
+        
+        // Boden
+        this.drawGround();
+        
+        // Particles
+        this.particles.forEach(p => {
+            this.ctx.fillStyle = p.color;
+            this.ctx.globalAlpha = p.life;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.globalAlpha = 1;
+        });
+        
+        // Santa
+        this.drawSanta();
+        
+        // Obstacles
+        this.obstacles.forEach(obstacle => {
+            this.drawObstacle(obstacle);
+        });
+    }
+    
+    drawClouds() {
+        const cloudOffset = (this.distance * 0.3) % 400;
+        
+        for (let i = 0; i < 5; i++) {
+            const x = i * 400 - cloudOffset;
+            const y = 50 + Math.sin(i * 2) * 30;
+            
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, 30, 0, Math.PI * 2);
+            this.ctx.arc(x + 25, y, 35, 0, Math.PI * 2);
+            this.ctx.arc(x + 50, y, 30, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+    }
+    
+    drawGround() {
+        // Schnee-Boden
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(0, this.groundY, this.canvas.width, this.canvas.height - this.groundY);
+        
+        // Boden-Linie
+        this.ctx.strokeStyle = '#B0E0E6';
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, this.groundY);
+        this.ctx.lineTo(this.canvas.width, this.groundY);
+        this.ctx.stroke();
+        
+        // Schnee-Textur (bewegende Punkte)
+        const snowOffset = (this.distance * 2) % 50;
+        this.ctx.fillStyle = 'rgba(176, 224, 230, 0.3)';
+        for (let i = 0; i < 20; i++) {
+            const x = (i * 50 - snowOffset) % this.canvas.width;
+            const y = this.groundY + 10 + Math.sin(i) * 5;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, 3, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+    }
+    
+    drawSanta() {
+        const santaBottom = this.groundY - this.santaY;
+        const santaTop = santaBottom - this.santaHeight;
+        
+        this.ctx.save();
+        
+        // Schatten
+        if (this.santaY > 0) {
+            const shadowSize = Math.max(0.3, 1 - (this.santaY / 200));
+            const shadowAlpha = Math.max(0.2, shadowSize);
+            this.ctx.fillStyle = `rgba(0, 0, 0, ${shadowAlpha * 0.3})`;
+            this.ctx.beginPath();
+            this.ctx.ellipse(
+                this.santaX + this.santaWidth / 2,
+                this.groundY + 5,
+                Math.max(5, this.santaWidth / 2 * shadowSize),
+                Math.max(3, 10 * shadowSize),
+                0, 0, Math.PI * 2
+            );
+            this.ctx.fill();
+        }
+        
+        // Körper (Rot)
+        this.ctx.fillStyle = '#D32F2F';
+        this.ctx.beginPath();
+        this.ctx.roundRect(this.santaX + 10, santaTop + 30, 40, 45, 10);
+        this.ctx.fill();
+        
+        // Gürtel
+        this.ctx.fillStyle = '#000000';
+        this.ctx.fillRect(this.santaX + 10, santaTop + 50, 40, 8);
+        this.ctx.fillStyle = '#FFD700';
+        this.ctx.fillRect(this.santaX + 27, santaTop + 48, 12, 12);
+        
+        // Kopf
+        this.ctx.fillStyle = '#FFDAB9';
+        this.ctx.beginPath();
+        this.ctx.arc(this.santaX + 30, santaTop + 20, 18, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Mütze
+        this.ctx.fillStyle = '#D32F2F';
+        this.ctx.beginPath();
+        this.ctx.arc(this.santaX + 30, santaTop + 12, 18, Math.PI, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(this.santaX + 12, santaTop + 12, 36, 6);
+        this.ctx.beginPath();
+        this.ctx.arc(this.santaX + 42, santaTop + 8, 5, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Bart
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.beginPath();
+        this.ctx.arc(this.santaX + 30, santaTop + 28, 10, 0, Math.PI);
+        this.ctx.fill();
+        
+        // Augen
+        this.ctx.fillStyle = '#000000';
+        this.ctx.beginPath();
+        this.ctx.arc(this.santaX + 25, santaTop + 18, 2, 0, Math.PI * 2);
+        this.ctx.arc(this.santaX + 35, santaTop + 18, 2, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Beine (Lauf-Animation)
+        if (this.santaY === 0) {
+            const legSwing = Math.sin(this.animationFrame) * 10;
+            
+            // Linkes Bein
+            this.ctx.fillStyle = '#D32F2F';
+            this.ctx.fillRect(this.santaX + 15, santaTop + 75, 12, 5 + Math.abs(legSwing));
+            this.ctx.fillStyle = '#000000';
+            this.ctx.fillRect(this.santaX + 15, santaTop + 75 + Math.abs(legSwing), 12, 5);
+            
+            // Rechtes Bein
+            this.ctx.fillStyle = '#D32F2F';
+            this.ctx.fillRect(this.santaX + 33, santaTop + 75, 12, 5 + Math.abs(-legSwing));
+            this.ctx.fillStyle = '#000000';
+            this.ctx.fillRect(this.santaX + 33, santaTop + 75 + Math.abs(-legSwing), 12, 5);
+        } else {
+            // Beine in Sprung-Position
+            this.ctx.fillStyle = '#D32F2F';
+            this.ctx.fillRect(this.santaX + 15, santaTop + 75, 12, 10);
+            this.ctx.fillRect(this.santaX + 33, santaTop + 75, 12, 10);
+            this.ctx.fillStyle = '#000000';
+            this.ctx.fillRect(this.santaX + 15, santaTop + 85, 12, 5);
+            this.ctx.fillRect(this.santaX + 33, santaTop + 85, 12, 5);
+        }
+        
+        // Arme (bewegen sich beim Laufen)
+        const armSwing = this.santaY === 0 ? Math.sin(this.animationFrame + Math.PI) * 8 : -5;
+        this.ctx.fillStyle = '#D32F2F';
+        this.ctx.fillRect(this.santaX + 5, santaTop + 35 + armSwing, 8, 20);
+        this.ctx.fillRect(this.santaX + 47, santaTop + 35 - armSwing, 8, 20);
+        
+        this.ctx.restore();
+    }
+    
+    drawObstacle(obstacle) {
+        const obstacleBottom = this.groundY;
+        const obstacleTop = obstacleBottom - obstacle.height;
+        
+        this.ctx.save();
+        
+        switch (obstacle.type) {
+            case 'tree':
+                // Stamm
+                this.ctx.fillStyle = '#8B4513';
+                this.ctx.fillRect(obstacle.x + 15, obstacleTop + 50, 10, 30);
+                
+                // Baum (Dreieck)
+                this.ctx.fillStyle = '#228B22';
+                this.ctx.beginPath();
+                this.ctx.moveTo(obstacle.x + 20, obstacleTop);
+                this.ctx.lineTo(obstacle.x, obstacleTop + 50);
+                this.ctx.lineTo(obstacle.x + 40, obstacleTop + 50);
+                this.ctx.closePath();
+                this.ctx.fill();
+                
+                // Stern
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.beginPath();
+                this.ctx.arc(obstacle.x + 20, obstacleTop + 5, 4, 0, Math.PI * 2);
+                this.ctx.fill();
+                break;
+                
+            case 'rock':
+                // Stein
+                this.ctx.fillStyle = '#808080';
+                this.ctx.beginPath();
+                this.ctx.ellipse(obstacle.x + 25, obstacleTop + 20, 25, 20, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Schatten
+                this.ctx.fillStyle = '#696969';
+                this.ctx.beginPath();
+                this.ctx.ellipse(obstacle.x + 25, obstacleTop + 25, 20, 15, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                break;
+                
+            case 'snowman':
+                // Unterer Ball
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.beginPath();
+                this.ctx.arc(obstacle.x + 22, obstacleTop + 50, 22, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Mittlerer Ball
+                this.ctx.beginPath();
+                this.ctx.arc(obstacle.x + 22, obstacleTop + 30, 16, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Kopf
+                this.ctx.beginPath();
+                this.ctx.arc(obstacle.x + 22, obstacleTop + 12, 12, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Augen
+                this.ctx.fillStyle = '#000000';
+                this.ctx.beginPath();
+                this.ctx.arc(obstacle.x + 18, obstacleTop + 10, 2, 0, Math.PI * 2);
+                this.ctx.arc(obstacle.x + 26, obstacleTop + 10, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Nase (Karotte)
+                this.ctx.fillStyle = '#FF8C00';
+                this.ctx.beginPath();
+                this.ctx.moveTo(obstacle.x + 22, obstacleTop + 13);
+                this.ctx.lineTo(obstacle.x + 30, obstacleTop + 14);
+                this.ctx.lineTo(obstacle.x + 22, obstacleTop + 15);
+                this.ctx.closePath();
+                this.ctx.fill();
+                break;
+                
+            case 'gift':
+                // Geschenk
+                this.ctx.fillStyle = '#FF1744';
+                this.ctx.fillRect(obstacle.x, obstacleTop, 35, 35);
+                
+                // Band
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.fillRect(obstacle.x, obstacleTop + 15, 35, 5);
+                this.ctx.fillRect(obstacle.x + 15, obstacleTop, 5, 35);
+                
+                // Schleife
+                this.ctx.beginPath();
+                this.ctx.arc(obstacle.x + 17, obstacleTop - 3, 5, 0, Math.PI * 2);
+                this.ctx.fill();
+                break;
+        }
+        
+        this.ctx.restore();
+    }
+    
+    gameLoop() {
+        if (!this.gameActive) return;
+        
+        this.update();
+        this.render();
+        
+        requestAnimationFrame(() => this.gameLoop());
+    }
+    
+    async gameOver() {
+        this.gameActive = false;
+        
+        const playTime = Math.floor((Date.now() - this.startTime) / 1000);
+        const finalDistance = Math.floor(this.distance);
+        
+        // Stats speichern
+        await window.statsManager.saveStats('santa-run', finalDistance, playTime);
+        
+        // Game Over Overlay
+        setTimeout(() => {
+            this.showGameOverScreen(finalDistance, playTime);
+        }, 500);
+    }
+    
+    async showGameOverScreen(distance, playTime) {
+        const overlay = document.createElement('div');
+        overlay.className = 'username-overlay';
+        overlay.innerHTML = `
+            <div class="username-dialog" style="max-width: 500px;">
+                <h2>🎅 Game Over! 🏃</h2>
+                <div style="margin: 30px 0; font-size: 24px;">
+                    <p style="margin: 10px 0;">
+                        <span style="font-size: 32px;">🏃</span>
+                        <strong>${distance}m</strong> gelaufen
+                    </p>
+                    <p style="margin: 10px 0;">
+                        <span style="font-size: 32px;">⏱️</span>
+                        <strong>${playTime}s</strong> gespielt
+                    </p>
+                </div>
+                
+                <div id="highscore-list-container" style="margin: 20px 0;"></div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="restart-button" style="flex: 1; padding: 15px; font-size: 18px; background: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
+                        🔄 Nochmal
+                    </button>
+                    <button id="menu-button" style="flex: 1; padding: 15px; font-size: 18px; background: #2196F3; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
+                        🏠 Menü
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        
+        // Highscores laden
+        const highscores = await window.statsManager.getHighscores('santa-run', 10);
+        const container = document.getElementById('highscore-list-container');
+        
+        if (highscores && highscores.length > 0) {
+            container.innerHTML = `
+                <h3 style="margin-bottom: 15px;">🏆 Top 10 Highscores</h3>
+                <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.1); border-radius: 10px; padding: 10px;">
+                    ${highscores.map((entry, index) => `
+                        <div style="display: flex; justify-content: space-between; padding: 8px; margin: 5px 0; background: ${entry.username === window.statsManager.username ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255,255,255,0.1)'}; border-radius: 5px;">
+                            <span><strong>${index + 1}.</strong> ${entry.username}</span>
+                            <span><strong>${entry.highscore}m</strong></span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // Event Listeners
+        document.getElementById('restart-button').addEventListener('click', () => {
+            overlay.remove();
+            this.start();
+        });
+        
+        document.getElementById('menu-button').addEventListener('click', () => {
+            window.location.href = '../index.html';
+        });
+    }
+}
+
+// Polyfill für roundRect (falls nicht vorhanden)
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+        this.moveTo(x + radius, y);
+        this.lineTo(x + width - radius, y);
+        this.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.lineTo(x + width, y + height - radius);
+        this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.lineTo(x + radius, y + height);
+        this.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.lineTo(x, y + radius);
+        this.quadraticCurveTo(x, y, x + radius, y);
+    };
+}
