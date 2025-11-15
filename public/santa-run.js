@@ -47,17 +47,7 @@ class SantaRunGame {
     init() {
         this.container.innerHTML = `
             <div class="santa-run-container">
-                <div class="santa-run-header">
-                    <div class="score-display">
-                        <span>🏃</span>
-                        <span class="distance-value" id="santa-distance">0m</span>
-                    </div>
-                    <div class="score-display">
-                        <span>⚡</span>
-                        <span class="distance-value" id="santa-speed">1.0x</span>
-                    </div>
-                </div>
-                
+                <div class="score-display" id="santa-distance">00000</div>
                 <canvas id="santa-run-canvas" class="santa-run-canvas"></canvas>
                 
                 <!-- Instructions Overlay -->
@@ -124,37 +114,22 @@ class SantaRunGame {
     }
     
     resizeCanvas() {
-        // Canvas hat feste Höhe über CSS (300px Desktop, 200px Mobile)
-        // Breite passt sich an (max 1200px)
         const rect = this.canvas.getBoundingClientRect();
         
         this.canvas.width = rect.width;
         this.canvas.height = rect.height;
         
-        // Boden-Position (80% der Höhe - mehr Platz oben)
-        this.groundY = this.canvas.height * 0.80;
+        // Boden-Position (wie Chrome Dino: ~75% der Höhe)
+        this.groundY = this.canvas.height * 0.75;
         
-        // Mobile Detection
-        const isMobile = this.canvas.width < 768;
+        // Feste Größen wie Chrome Dino
+        this.santaWidth = 44;
+        this.santaHeight = 47;
+        this.santaX = 25; // Feste Position links
         
-        // Santa Größe - auf Mobile deutlich kleiner
-        if (isMobile) {
-            this.santaWidth = 35;
-            this.santaHeight = 45;
-            // Reduzierte Sprungkraft für Mobile
-            this.jumpPower = 12;
-            this.gravity = 0.6;
-        } else {
-            this.santaWidth = 50;
-            this.santaHeight = 65;
-            // Normale Sprungkraft für Desktop
-            this.jumpPower = 18;
-            this.gravity = 0.8;
-        }
-        
-        // Santa Position: Auf Mobile weiter links (20% vom linken Rand)
-        // Auf Desktop in der Mitte-Links (12% vom linken Rand)
-        this.santaX = this.canvas.width * (isMobile ? 0.20 : 0.12);
+        // Sprungphysik wie Chrome Dino
+        this.jumpPower = 10;
+        this.gravity = 0.6;
     }
     
     setupControls() {
@@ -202,8 +177,7 @@ class SantaRunGame {
         document.getElementById('start-button-overlay').style.display = 'none';
         
         // Update Distance Display
-        document.getElementById('santa-distance').textContent = '0m';
-        document.getElementById('santa-speed').textContent = '1.0x';
+        document.getElementById('santa-distance').textContent = '00000';
         
         this.gameLoop();
     }
@@ -274,9 +248,9 @@ class SantaRunGame {
         const speedMultiplier = 1 + Math.floor(this.distance / 100) * 0.1;
         this.gameSpeed = Math.min(this.baseSpeed * speedMultiplier, this.maxSpeed);
         
-        // Update Display
-        document.getElementById('santa-distance').textContent = Math.floor(this.distance) + 'm';
-        document.getElementById('santa-speed').textContent = speedMultiplier.toFixed(1) + 'x';
+        // Update Display (5-stellig mit führenden Nullen)
+        const scoreText = Math.floor(this.distance).toString().padStart(5, '0');
+        document.getElementById('santa-distance').textContent = scoreText;
         
         // Sprung-Physik
         if (this.isJumping || this.santaY > 0) {
@@ -343,31 +317,17 @@ class SantaRunGame {
     }
     
     spawnObstacle() {
-        const types = ['tree', 'rock', 'snowman', 'gift'];
+        // Nur 2 Typen wie Chrome Dino (Kaktus klein/groß)
+        const types = ['cactus-small', 'cactus-large'];
         const type = types[Math.floor(Math.random() * types.length)];
         
-        // Skaliere Hindernisse basierend auf Bildschirmgröße
-        const isMobile = this.canvas.width < 768;
-        const scale = isMobile ? 0.6 : 1.0; // 60% auf Mobile
-        
         let width, height;
-        switch (type) {
-            case 'tree':
-                width = 40 * scale;
-                height = 80 * scale;
-                break;
-            case 'rock':
-                width = 50 * scale;
-                height = 40 * scale;
-                break;
-            case 'snowman':
-                width = 45 * scale;
-                height = 70 * scale;
-                break;
-            case 'gift':
-                width = 35 * scale;
-                height = 35 * scale;
-                break;
+        if (type === 'cactus-small') {
+            width = 17;
+            height = 35;
+        } else {
+            width = 25;
+            height = 50;
         }
         
         this.obstacles.push({
@@ -402,19 +362,17 @@ class SantaRunGame {
     }
     
     render() {
-        // Himmel mit Verlauf
-        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        gradient.addColorStop(0, '#87CEEB');
-        gradient.addColorStop(0.5, '#E0F6FF');
-        gradient.addColorStop(1, '#FFFFFF');
-        this.ctx.fillStyle = gradient;
+        // Hintergrund (weiß/hellgrau)
+        this.ctx.fillStyle = '#f7f7f7';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Wolken
-        this.drawClouds();
-        
-        // Boden
-        this.drawGround();
+        // Boden-Linie (schwarz, einfach)
+        this.ctx.strokeStyle = '#535353';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, this.groundY);
+        this.ctx.lineTo(this.canvas.width, this.groundY);
+        this.ctx.stroke();
         
         // Particles
         this.particles.forEach(p => {
@@ -480,101 +438,59 @@ class SantaRunGame {
         const santaBottom = this.groundY - this.santaY;
         const santaTop = santaBottom - this.santaHeight;
         
-        this.ctx.save();
+        this.ctx.fillStyle = '#535353';
         
-        // Schatten
-        if (this.santaY > 0) {
-            const shadowSize = Math.max(0.3, 1 - (this.santaY / 200));
-            const shadowAlpha = Math.max(0.2, shadowSize);
-            this.ctx.fillStyle = `rgba(0, 0, 0, ${shadowAlpha * 0.3})`;
-            this.ctx.beginPath();
-            this.ctx.ellipse(
-                this.santaX + this.santaWidth / 2,
-                this.groundY + 5,
-                Math.max(5, this.santaWidth / 2 * shadowSize),
-                Math.max(3, 10 * shadowSize),
-                0, 0, Math.PI * 2
-            );
-            this.ctx.fill();
-        }
+        // Einfache Santa-Silhouette (wie Dino)
+        // Körper
+        this.ctx.fillRect(this.santaX + 10, santaTop + 15, 24, 24);
         
-        // Körper (Rot)
-        this.ctx.fillStyle = '#D32F2F';
-        this.ctx.beginPath();
-        this.ctx.roundRect(this.santaX + 10, santaTop + 30, 40, 45, 10);
-        this.ctx.fill();
+        // Kopf mit Mütze
+        this.ctx.fillRect(this.santaX + 14, santaTop + 5, 16, 16);
         
-        // Gürtel
-        this.ctx.fillStyle = '#000000';
-        this.ctx.fillRect(this.santaX + 10, santaTop + 50, 40, 8);
-        this.ctx.fillStyle = '#FFD700';
-        this.ctx.fillRect(this.santaX + 27, santaTop + 48, 12, 12);
+        // Mützen-Spitze
+        this.ctx.fillRect(this.santaX + 16, santaTop, 8, 8);
         
-        // Kopf
-        this.ctx.fillStyle = '#FFDAB9';
-        this.ctx.beginPath();
-        this.ctx.arc(this.santaX + 30, santaTop + 20, 18, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        // Mütze
-        this.ctx.fillStyle = '#D32F2F';
-        this.ctx.beginPath();
-        this.ctx.arc(this.santaX + 30, santaTop + 12, 18, Math.PI, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.fillRect(this.santaX + 12, santaTop + 12, 36, 6);
-        this.ctx.beginPath();
-        this.ctx.arc(this.santaX + 42, santaTop + 8, 5, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        // Bart
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.beginPath();
-        this.ctx.arc(this.santaX + 30, santaTop + 28, 10, 0, Math.PI);
-        this.ctx.fill();
-        
-        // Augen
-        this.ctx.fillStyle = '#000000';
-        this.ctx.beginPath();
-        this.ctx.arc(this.santaX + 25, santaTop + 18, 2, 0, Math.PI * 2);
-        this.ctx.arc(this.santaX + 35, santaTop + 18, 2, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        // Beine (Lauf-Animation)
+        // Beine (animiert beim Laufen)
         if (this.santaY === 0) {
-            const legSwing = Math.sin(this.animationFrame) * 10;
-            
-            // Linkes Bein
-            this.ctx.fillStyle = '#D32F2F';
-            this.ctx.fillRect(this.santaX + 15, santaTop + 75, 12, 5 + Math.abs(legSwing));
-            this.ctx.fillStyle = '#000000';
-            this.ctx.fillRect(this.santaX + 15, santaTop + 75 + Math.abs(legSwing), 12, 5);
-            
-            // Rechtes Bein
-            this.ctx.fillStyle = '#D32F2F';
-            this.ctx.fillRect(this.santaX + 33, santaTop + 75, 12, 5 + Math.abs(-legSwing));
-            this.ctx.fillStyle = '#000000';
-            this.ctx.fillRect(this.santaX + 33, santaTop + 75 + Math.abs(-legSwing), 12, 5);
+            const legSwing = Math.floor(this.animationFrame) % 2;
+            if (legSwing === 0) {
+                this.ctx.fillRect(this.santaX + 12, santaTop + 39, 8, 8);
+                this.ctx.fillRect(this.santaX + 24, santaTop + 39, 8, 8);
+            } else {
+                this.ctx.fillRect(this.santaX + 12, santaTop + 41, 8, 6);
+                this.ctx.fillRect(this.santaX + 24, santaTop + 37, 8, 10);
+            }
         } else {
-            // Beine in Sprung-Position
-            this.ctx.fillStyle = '#D32F2F';
-            this.ctx.fillRect(this.santaX + 15, santaTop + 75, 12, 10);
-            this.ctx.fillRect(this.santaX + 33, santaTop + 75, 12, 10);
-            this.ctx.fillStyle = '#000000';
-            this.ctx.fillRect(this.santaX + 15, santaTop + 85, 12, 5);
-            this.ctx.fillRect(this.santaX + 33, santaTop + 85, 12, 5);
+            // Beide Beine zusammen beim Springen
+            this.ctx.fillRect(this.santaX + 12, santaTop + 39, 20, 8);
         }
         
-        // Arme (bewegen sich beim Laufen)
-        const armSwing = this.santaY === 0 ? Math.sin(this.animationFrame + Math.PI) * 8 : -5;
-        this.ctx.fillStyle = '#D32F2F';
-        this.ctx.fillRect(this.santaX + 5, santaTop + 35 + armSwing, 8, 20);
-        this.ctx.fillRect(this.santaX + 47, santaTop + 35 - armSwing, 8, 20);
-        
-        this.ctx.restore();
+        // Arme
+        this.ctx.fillRect(this.santaX + 6, santaTop + 20, 6, 12);
+        this.ctx.fillRect(this.santaX + 32, santaTop + 20, 6, 12);
     }
     
     drawObstacle(obstacle) {
+        const obstacleBottom = this.groundY;
+        const obstacleTop = obstacleBottom - obstacle.height;
+        
+        this.ctx.fillStyle = '#535353';
+        
+        // Einfache Kaktus-Silhouetten
+        if (obstacle.type === 'cactus-small') {
+            // Kleiner Kaktus
+            this.ctx.fillRect(obstacle.x + 4, obstacleTop, 9, 35);
+            this.ctx.fillRect(obstacle.x, obstacleTop + 8, 4, 12);
+            this.ctx.fillRect(obstacle.x + 13, obstacleTop + 12, 4, 10);
+        } else {
+            // Großer Kaktus
+            this.ctx.fillRect(obstacle.x + 6, obstacleTop, 13, 50);
+            this.ctx.fillRect(obstacle.x, obstacleTop + 12, 6, 20);
+            this.ctx.fillRect(obstacle.x + 19, obstacleTop + 15, 6, 18);
+        }
+    }
+    
+    drawObstacleOLD(obstacle) {
         const obstacleBottom = this.groundY;
         const obstacleTop = obstacleBottom - obstacle.height;
         
