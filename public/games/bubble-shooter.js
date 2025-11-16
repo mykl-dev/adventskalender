@@ -48,7 +48,10 @@ function initLights() {
     gameState.lights = [];
     const lightCount = 30;
     const lightColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#95E1D3', '#FFA07A', '#98D8C8'];
-    const lightY = canvas.height - CONFIG.SHOOTER_Y_OFFSET + 10;
+    
+    // Position at the bottom of the last allowed row (row 6, since row 7 is game over)
+    const lastAllowedRow = CONFIG.ROWS - 2;
+    const lightY = CONFIG.BUBBLE_RADIUS + lastAllowedRow * (CONFIG.BUBBLE_RADIUS * 2 + CONFIG.BUBBLE_SPACING) + (CONFIG.BUBBLE_RADIUS * 2) + 15;
     
     for (let i = 0; i < lightCount; i++) {
         gameState.lights.push({
