@@ -158,45 +158,108 @@ class DashboardManager {
 
     renderGamesOverview() {
         const container = document.getElementById('games-overview');
+        const currentUser = localStorage.getItem('username') || '';
         
-        container.innerHTML = this.games.map(game => {
+        // Filtere nur Spiele die gespielt wurden (haben Scores)
+        const playedGames = this.games.filter(game => {
             const scores = this.allScores[game.id] || [];
-            // Sortiere nach highscore (bereits von API sortiert, aber sicherheitshalber nochmal)
-            const sortedScores = [...scores]
-                .sort((a, b) => (b.highscore || 0) - (a.highscore || 0))
-                .slice(0, 3);
-
+            return scores.length > 0;
+        });
+        
+        if (playedGames.length === 0) {
+            container.innerHTML = '<div class="no-games">Noch keine Spiele gespielt</div>';
+            return;
+        }
+        
+        container.innerHTML = playedGames.map(game => {
+            const scores = this.allScores[game.id] || [];
+            // Sortiere nach highscore
+            const sortedScores = [...scores].sort((a, b) => (b.highscore || 0) - (a.highscore || 0));
+            const top3 = sortedScores.slice(0, 3);
+            
             return `
-                <div class="game-card">
-                    <div class="game-header">
-                        <div class="game-icon">${game.icon}</div>
-                        <div class="game-title">${game.name}</div>
+                <div class="game-card-compact">
+                    <div class="game-card-header">
+                        <span class="game-card-icon">${game.icon}</span>
+                        <span class="game-card-title">${game.name}</span>
                     </div>
-                    <div class="game-top3">
-                        ${sortedScores.length > 0 ? this.renderTop3(sortedScores, game) : 
-                          '<div class="no-scores">Noch keine Highscores vorhanden</div>'}
+                    <div class="game-top3-row">
+                        ${this.renderTop3Players(top3, game, currentUser)}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    renderTop3Players(top3, game, currentUser) {
+        const medals = ['🥇', '🥈', '🥉'];
+        
+        if (top3.length === 0) {
+            return '<div class="no-players">Keine Spieler</div>';
+        }
+        
+        return top3.map((player, index) => {
+            const avatar = this.getAvatarIcon(player.username);
+            const score = player.highscore || 0;
+            const scoreUnit = game.scoreUnit || '';
+            const isCurrentUser = player.username === currentUser;
+            
+            return `
+                <div class="top3-player ${isCurrentUser ? 'current-user' : ''}">
+                    <div class="player-medal">${medals[index]}</div>
+                    <div class="player-avatar-circle">${avatar}</div>
+                    <div class="player-score-info">
+                        <div class="player-username">${this.escapeHtml(player.username)}</div>
+                        <div class="player-score-value">${score.toLocaleString()}${scoreUnit}</div>
                     </div>
                 </div>
             `;
         }).join('');
     }
 
-    renderTop3(scores, game) {
-        const medals = ['🥇', '🥈', '🥉'];
-        return scores.map((entry, index) => {
-            const score = entry.highscore || 0;
-            const scoreDisplay = game.scoreUnit ? `${score.toLocaleString()}${game.scoreUnit}` : score.toLocaleString();
-            
+    renderGameStats(userEntry, firstPlace, userRank, game) {
+        const userScore = userEntry ? (userEntry.highscore || 0) : 0;
+        const firstScore = firstPlace ? (firstPlace.highscore || 0) : 0;
+        const scoreUnit = game.scoreUnit || '';
+        
+        // Wenn User das Spiel nicht gespielt hat, zeige andere Spieler
+        if (!userEntry && firstPlace) {
+            const firstAvatar = this.getAvatarIcon(firstPlace.username);
             return `
-                <div class="top-player">
-                    <div class="top-player-left">
-                        <span class="top-medal">${medals[index]}</span>
-                        <span class="top-player-name">${this.escapeHtml(entry.username)}</span>
-                    </div>
-                    <span class="top-player-score">${scoreDisplay}</span>
-                </div>
+                <span class="other-player">🥇 ${firstAvatar} ${firstScore.toLocaleString()}${scoreUnit}</span>
             `;
-        }).join('');
+        }
+        
+        const rankMedal = userRank === 1 ? '🥇' : userRank === 2 ? '🥈' : userRank === 3 ? '🥉' : `${userRank}.`;
+        
+        let html = `
+            <span class="rank-badge">${rankMedal}</span>
+            <span class="user-score">${userScore.toLocaleString()}${scoreUnit}</span>
+        `;
+        
+        // Zeige Platz 1 Punkte nur wenn man nicht selbst Platz 1 ist
+        if (userRank > 1 && firstPlace) {
+            const diff = firstScore - userScore;
+            const firstAvatar = this.getAvatarIcon(firstPlace.username);
+            html += ` <span class="first-score">(🥇 ${firstAvatar} ${firstScore.toLocaleString()}${scoreUnit} · -${diff.toLocaleString()})</span>`;
+        }
+        
+        return html;
+    }
+    
+    getAvatarIcon(username) {
+        // Avatar-Icons basierend auf dem ersten Buchstaben
+        const avatars = {
+            'A': '🧑', 'B': '👨', 'C': '👩', 'D': '🧒', 'E': '👶',
+            'F': '👴', 'G': '👵', 'H': '👨‍💼', 'I': '👩‍💼', 'J': '👨‍🔬',
+            'K': '👩‍🔬', 'L': '👨‍🎓', 'M': '👩‍🎓', 'N': '👨‍🏫', 'O': '👩‍🏫',
+            'P': '👨‍⚕️', 'Q': '👩‍⚕️', 'R': '👨‍🌾', 'S': '👩‍🌾', 'T': '👨‍🍳',
+            'U': '👩‍🍳', 'V': '👨‍🎤', 'W': '👩‍🎤', 'X': '👨‍🎨', 'Y': '👩‍🎨',
+            'Z': '🧙'
+        };
+        
+        const firstLetter = (username || 'X')[0].toUpperCase();
+        return avatars[firstLetter] || '👤';
     }
 
     checkWinnerDate() {
