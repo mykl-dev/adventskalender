@@ -439,9 +439,65 @@ function createLevel() {
     }
 }
 
+// Get Available Colors (only colors that exist on the field)
+function getAvailableColors() {
+    if (gameState.bubbles.length === 0) {
+        return [...Array(CONFIG.COLORS.length).keys()];
+    }
+    
+    const colorsOnField = new Set();
+    gameState.bubbles.forEach(bubble => {
+        colorsOnField.add(bubble.colorIndex);
+    });
+    
+    return Array.from(colorsOnField);
+}
+
+// Get Smart Color (prefer colors from lower rows)
+function getSmartColor() {
+    const availableColors = getAvailableColors();
+    
+    if (availableColors.length === 0) {
+        return Math.floor(Math.random() * CONFIG.COLORS.length);
+    }
+    
+    // Count colors in lower rows (row 4-6, which are closer to the danger zone)
+    const colorWeights = new Map();
+    availableColors.forEach(color => colorWeights.set(color, 0));
+    
+    gameState.bubbles.forEach(bubble => {
+        if (bubble.row >= 4 && bubble.row <= 6) {
+            // Higher weight for bubbles in lower rows
+            const weight = (bubble.row - 3) * 2; // Row 4=2, Row 5=4, Row 6=6
+            colorWeights.set(bubble.colorIndex, (colorWeights.get(bubble.colorIndex) || 0) + weight);
+        }
+    });
+    
+    // 70% chance to pick a weighted color, 30% random from available
+    if (Math.random() < 0.7) {
+        // Calculate total weight
+        let totalWeight = 0;
+        colorWeights.forEach(weight => totalWeight += weight);
+        
+        if (totalWeight > 0) {
+            // Pick weighted random color
+            let random = Math.random() * totalWeight;
+            for (let [color, weight] of colorWeights.entries()) {
+                random -= weight;
+                if (random <= 0) {
+                    return color;
+                }
+            }
+        }
+    }
+    
+    // Fallback: random from available colors
+    return availableColors[Math.floor(Math.random() * availableColors.length)];
+}
+
 // Load Next Bubble
 function loadNextBubble() {
-    const colorIndex = Math.floor(Math.random() * CONFIG.COLORS.length);
+    const colorIndex = getSmartColor();
     gameState.shooter.currentBubble = new Bubble(0, 0, colorIndex);
     gameState.shooter.currentBubble.x = gameState.shooter.x;
     gameState.shooter.currentBubble.y = gameState.shooter.y;
