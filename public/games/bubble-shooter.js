@@ -9,9 +9,10 @@ const ctx = canvas.getContext('2d');
 const CONFIG = {
     BUBBLE_RADIUS: 20,
     BUBBLE_SPACING: 5,
-    ROWS: 8,
+    ROWS: 6, // Reduced from 7 to 6 to make room for HUD
     COLS: 9, // Reduced from 11 to 9 for larger bubbles that fit
     GRID_OFFSET_X: 0,
+    GRID_OFFSET_Y: 100, // Larger offset from top for HUD (score, time, level)
     SHOOTER_Y_OFFSET: 80,
     AIM_LINE_LENGTH: 150,
     AIM_SPEED: 0.02,
@@ -49,9 +50,9 @@ function initLights() {
     const lightCount = 30;
     const lightColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#95E1D3', '#FFA07A', '#98D8C8'];
     
-    // Position at the bottom of the last allowed row (row 6, since row 7 is game over)
+    // Position at the bottom of the last allowed row (row 5, since row 6 is game over)
     const lastAllowedRow = CONFIG.ROWS - 2;
-    const lightY = CONFIG.BUBBLE_RADIUS + lastAllowedRow * (CONFIG.BUBBLE_RADIUS * 2 + CONFIG.BUBBLE_SPACING) + (CONFIG.BUBBLE_RADIUS * 2) + 15;
+    const lightY = CONFIG.GRID_OFFSET_Y + CONFIG.BUBBLE_RADIUS + lastAllowedRow * (CONFIG.BUBBLE_RADIUS * 2 + CONFIG.BUBBLE_SPACING) + (CONFIG.BUBBLE_RADIUS * 2) + 15;
     
     for (let i = 0; i < lightCount; i++) {
         gameState.lights.push({
@@ -236,7 +237,7 @@ class Bubble {
     }
 
     calculateY() {
-        return CONFIG.BUBBLE_RADIUS + this.row * (CONFIG.BUBBLE_RADIUS * 2 + CONFIG.BUBBLE_SPACING);
+        return CONFIG.GRID_OFFSET_Y + CONFIG.BUBBLE_RADIUS + this.row * (CONFIG.BUBBLE_RADIUS * 2 + CONFIG.BUBBLE_SPACING);
     }
 
     draw(ctx) {
@@ -461,14 +462,14 @@ function getSmartColor() {
         return Math.floor(Math.random() * CONFIG.COLORS.length);
     }
     
-    // Count colors in lower rows (row 4-6, which are closer to the danger zone)
+    // Count colors in lower rows (row 3-4, which are closer to the danger zone)
     const colorWeights = new Map();
     availableColors.forEach(color => colorWeights.set(color, 0));
     
     gameState.bubbles.forEach(bubble => {
-        if (bubble.row >= 4 && bubble.row <= 6) {
+        if (bubble.row >= 3 && bubble.row <= 4) {
             // Higher weight for bubbles in lower rows
-            const weight = (bubble.row - 3) * 2; // Row 4=2, Row 5=4, Row 6=6
+            const weight = (bubble.row - 2) * 3; // Row 3=3, Row 4=6
             colorWeights.set(bubble.colorIndex, (colorWeights.get(bubble.colorIndex) || 0) + weight);
         }
     });
