@@ -35,41 +35,6 @@
             <p>Lade Dashboard-Daten...</p>
         </div>
 
-        <!-- Player Stats (wenn angemeldet) -->
-        <section class="player-stats-section" id="player-stats-section" style="display: none;">
-            <div class="player-stats-card">
-                <div class="player-stats-header">
-                    <div id="player-stats-avatar" class="player-stats-avatar">👤</div>
-                    <div class="player-stats-info">
-                        <h3 id="player-stats-name">Deine Statistik</h3>
-                        <div class="player-stats-grid">
-                            <div class="player-stat-item">
-                                <span class="player-stat-icon">🎮</span>
-                                <div class="player-stat-details">
-                                    <div class="player-stat-value" id="total-games">-</div>
-                                    <div class="player-stat-label">Spiele gespielt</div>
-                                </div>
-                            </div>
-                            <div class="player-stat-item">
-                                <span class="player-stat-icon">⏱️</span>
-                                <div class="player-stat-details">
-                                    <div class="player-stat-value" id="total-playtime">-</div>
-                                    <div class="player-stat-label">Gesamtspielzeit</div>
-                                </div>
-                            </div>
-                            <div class="player-stat-item">
-                                <span class="player-stat-icon">⭐</span>
-                                <div class="player-stat-details">
-                                    <div class="player-stat-value" id="favorite-game">-</div>
-                                    <div class="player-stat-label">Lieblingsspiel</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Overall Leaderboard -->
         <section class="leaderboard-section" id="leaderboard-section" style="display: none;">
             <h2>🏆 Gesamtrangliste</h2>
@@ -80,6 +45,14 @@
             <!-- Siegertreppe für Top 3 -->
             <div id="podium-container" class="podium-container">
                 <!-- Wird dynamisch gefüllt -->
+            </div>
+            
+            <!-- Player Stats (Top 3 Statistiken) -->
+            <div class="player-stats-container" id="player-stats-section" style="display: none;">
+                <h3 style="margin: 30px 0 20px 0; color: #2c3e50; font-size: 1.3rem; text-align: center;">📊 Top 3 Spielerstatistiken</h3>
+                <div id="player-stats-list" class="player-stats-list">
+                    <!-- Wird dynamisch gefüllt mit Top 3 Spielern -->
+                </div>
             </div>
             
             <div id="overall-leaderboard" class="overall-leaderboard">

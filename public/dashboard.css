@@ -179,38 +179,79 @@ body {
     font-weight: 600;
 }
 
-/* Player Stats Section */
-.player-stats-section {
-    background: linear-gradient(135deg, rgba(46, 204, 113, 0.95) 0%, rgba(39, 174, 96, 0.95) 100%);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
+/* Player Stats Container */
+.player-stats-container {
+    margin: 30px 0;
     padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(39, 174, 96, 0.1) 100%);
+    border-radius: 15px;
+    border: 2px solid rgba(46, 204, 113, 0.3);
+}
+
+.player-stats-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    align-items: stretch;
 }
 
 .player-stats-card {
-    color: white;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    flex: 1 1 320px;
+    max-width: 400px;
+    min-width: 280px;
+    color: #2c3e50;
+    border: 2px solid rgba(46, 204, 113, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.player-stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.player-stats-card.highlight {
+    border-color: #FFD700;
+    border-width: 3px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 223, 0, 0.15) 100%);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
 }
 
 .player-stats-header {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
+    margin-bottom: 15px;
 }
 
+.player-stats-rank {
+    font-size: 2rem;
+    font-weight: 700;
+    min-width: 40px;
+    text-align: center;
+}
+
+.player-stats-rank.rank-1 { color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+.player-stats-rank.rank-2 { color: #C0C0C0; text-shadow: 0 0 10px rgba(192, 192, 192, 0.5); }
+.player-stats-rank.rank-3 { color: #CD7F32; text-shadow: 0 0 10px rgba(205, 127, 50, 0.5); }
+
 .player-stats-avatar {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    border: 4px solid rgba(255, 255, 255, 0.5);
+    border: 3px solid rgba(255, 255, 255, 0.4);
     overflow: hidden;
     background: white;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3rem;
+    font-size: 2rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -222,60 +263,63 @@ body {
 
 .player-stats-info {
     flex: 1;
+    min-width: 0;
 }
 
-.player-stats-info h3 {
-    margin: 0 0 15px 0;
-    font-size: 1.5rem;
+.player-stats-name {
+    font-size: 1.2rem;
     font-weight: 700;
+    margin: 0 0 5px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #2c3e50;
+}
+
+.player-stats-subtitle {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin: 0;
+    color: #7f8c8d;
 }
 
 .player-stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
 }
 
 .player-stat-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.15);
+    gap: 5px;
+    background: rgba(46, 204, 113, 0.1);
     backdrop-filter: blur(5px);
-    padding: 12px 15px;
-    border-radius: 12px;
-    transition: transform 0.2s, background 0.2s;
-}
-
-.player-stat-item:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.25);
+    padding: 10px 8px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid rgba(46, 204, 113, 0.2);
 }
 
 .player-stat-icon {
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.player-stat-details {
-    flex: 1;
-    min-width: 0;
+    font-size: 1.5rem;
 }
 
 .player-stat-value {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1;
+    color: #2c3e50;
 }
 
 .player-stat-label {
-    font-size: 0.75rem;
-    opacity: 0.9;
+    font-size: 0.65rem;
+    opacity: 0.7;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    line-height: 1.2;
+    color: #7f8c8d;
 }
 
 /* Leaderboard Section */
@@ -909,27 +953,55 @@ body {
     }
 
     /* Player Stats Mobile */
-    .player-stats-section {
+    .player-stats-container {
         padding: 20px 15px;
+        margin: 20px 0;
     }
 
-    .player-stats-header {
-        flex-direction: column;
-        text-align: center;
+    .player-stats-container h3 {
+        font-size: 1.1rem;
+    }
+
+    .player-stats-list {
+        gap: 15px;
+    }
+
+    .player-stats-card {
+        flex: 1 1 100%;
+        max-width: 100%;
+        min-width: unset;
+        padding: 15px;
     }
 
     .player-stats-avatar {
-        width: 70px;
-        height: 70px;
-        font-size: 2.5rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.8rem;
+    }
+
+    .player-stats-name {
+        font-size: 1rem;
     }
 
     .player-stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .player-stat-item {
+        padding: 8px 5px;
+    }
+
+    .player-stat-icon {
+        font-size: 1.3rem;
     }
 
     .player-stat-value {
-        font-size: 1.2rem;
+        font-size: 1rem;
+    }
+
+    .player-stat-label {
+        font-size: 0.6rem;
     }
 }
 

@@ -18,11 +18,11 @@ class DashboardManager {
             // Lade User-Avatare
             await this.loadUserAvatars();
             
-            // Lade Spielerstatistik (wenn angemeldet)
-            await this.loadPlayerStats();
-            
             // Lade Rangliste von der API (effizienter als alle Einzelscores)
             await this.loadGlobalLeaderboard();
+            
+            // Lade Spielerstatistik für Top 3 (nach Rangliste!)
+            await this.loadPlayerStats();
             
             // Lade Scores für alle Spiele
             await this.loadAllScores();
@@ -96,61 +96,94 @@ class DashboardManager {
     }
 
     async loadPlayerStats() {
-        const username = this.getCookie('playerName');
-        if (!username) {
-            console.log('Kein Spieler angemeldet, überspringe Statistik-Laden');
+        // Lade Stats für Top 3 Spieler
+        if (!this.globalLeaderboard || this.globalLeaderboard.length === 0) {
+            console.log('Keine Rangliste verfügbar, überspringe Statistik-Laden');
             return;
         }
 
+        const currentUsername = this.getCookie('playerName');
+        const top3 = this.globalLeaderboard.slice(0, 3);
+        
         try {
-            console.log('Lade Spielerstatistik für:', username);
-            const response = await fetch(`/api/users/${encodeURIComponent(username)}/stats`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            this.renderPlayerStats(data);
+            console.log('Lade Spielerstatistiken für Top 3...');
+            const statsPromises = top3.map(player => 
+                fetch(`/api/users/${encodeURIComponent(player.username || player.name)}/stats`)
+                    .then(res => res.json())
+            );
+            
+            const allStats = await Promise.all(statsPromises);
+            this.renderPlayerStats(allStats, currentUsername);
         } catch (error) {
-            console.error('Fehler beim Laden der Spielerstatistik:', error);
+            console.error('Fehler beim Laden der Spielerstatistiken:', error);
         }
     }
 
-    renderPlayerStats(stats) {
+    renderPlayerStats(statsArray, currentUsername) {
         const section = document.getElementById('player-stats-section');
-        if (!stats || stats.totalGamesPlayed === 0) {
+        const container = document.getElementById('player-stats-list');
+        
+        if (!statsArray || statsArray.length === 0) {
             section.style.display = 'none';
             return;
         }
 
-        // Avatar anzeigen
-        const avatarContainer = document.getElementById('player-stats-avatar');
-        const avatar = this.getAvatarIcon(stats.username);
-        avatarContainer.innerHTML = avatar;
-
-        // Name anzeigen
-        document.getElementById('player-stats-name').textContent = `${stats.username} - Deine Statistik`;
-
-        // Gesamtspiele
-        document.getElementById('total-games').textContent = stats.totalGamesPlayed;
-
-        // Spielzeit formatieren
-        const hours = Math.floor(stats.totalPlayTime / 3600);
-        const minutes = Math.floor((stats.totalPlayTime % 3600) / 60);
-        const seconds = stats.totalPlayTime % 60;
-        
-        let timeString = '';
-        if (hours > 0) {
-            timeString = `${hours}h ${minutes}m`;
-        } else if (minutes > 0) {
-            timeString = `${minutes}m ${seconds}s`;
-        } else {
-            timeString = `${seconds}s`;
-        }
-        document.getElementById('total-playtime').textContent = timeString;
-
-        // Lieblingsspiel
-        const favoriteGameName = this.getGameName(stats.favoriteGame);
-        document.getElementById('favorite-game').textContent = favoriteGameName || 'Noch keins';
+        container.innerHTML = statsArray.map((stats, index) => {
+            const rank = index + 1;
+            const isCurrentUser = currentUsername && stats.username === currentUsername;
+            const highlightClass = isCurrentUser ? 'highlight' : '';
+            
+            // Avatar
+            const avatar = this.getAvatarIcon(stats.username);
+            
+            // Spielzeit formatieren
+            const hours = Math.floor(stats.totalPlayTime / 3600);
+            const minutes = Math.floor((stats.totalPlayTime % 3600) / 60);
+            const seconds = stats.totalPlayTime % 60;
+            
+            let timeString = '';
+            if (hours > 0) {
+                timeString = `${hours}h ${minutes}m`;
+            } else if (minutes > 0) {
+                timeString = `${minutes}m`;
+            } else {
+                timeString = `${seconds}s`;
+            }
+            
+            // Lieblingsspiel
+            const favoriteGameName = this.getGameName(stats.favoriteGame);
+            const medals = ['🥇', '🥈', '🥉'];
+            
+            return `
+                <div class="player-stats-card ${highlightClass}">
+                    <div class="player-stats-header">
+                        <div class="player-stats-rank rank-${rank}">${medals[index]}</div>
+                        <div class="player-stats-avatar">${avatar}</div>
+                        <div class="player-stats-info">
+                            <h3 class="player-stats-name">${this.escapeHtml(stats.username)}</h3>
+                            <p class="player-stats-subtitle">Platz ${rank}</p>
+                        </div>
+                    </div>
+                    <div class="player-stats-grid">
+                        <div class="player-stat-item">
+                            <span class="player-stat-icon">🎮</span>
+                            <div class="player-stat-value">${stats.totalGamesPlayed}</div>
+                            <div class="player-stat-label">Spiele</div>
+                        </div>
+                        <div class="player-stat-item">
+                            <span class="player-stat-icon">⏱️</span>
+                            <div class="player-stat-value">${timeString}</div>
+                            <div class="player-stat-label">Spielzeit</div>
+                        </div>
+                        <div class="player-stat-item">
+                            <span class="player-stat-icon">⭐</span>
+                            <div class="player-stat-value" style="font-size: 0.9rem;">${favoriteGameName || '-'}</div>
+                            <div class="player-stat-label">Favorit</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
 
         // Sektion anzeigen
         section.style.display = 'block';
