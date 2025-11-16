@@ -50,16 +50,20 @@ function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
-    // Calculate optimal bubble size based on screen width
-    const margin = 40; // More margin for better centering
+    // Dynamische Spaltenanzahl basierend auf der Bildschirmbreite
+    const minBubbleRadius = 35;
+    const maxBubbleRadius = 50;
+    const margin = 20;
     const availableWidth = canvas.width - (margin * 2);
+    
+    // Berechne optimale Spaltenanzahl (6-12 Spalten je nach Breite)
+    let optimalCols = Math.floor(availableWidth / ((maxBubbleRadius * 2) + CONFIG.BUBBLE_SPACING));
+    optimalCols = Math.max(6, Math.min(12, optimalCols));
+    CONFIG.COLS = optimalCols;
+    
+    // Bubble-Radius zwischen 35px und 50px (viel größer!)
     const bubbleWidth = availableWidth / CONFIG.COLS;
-    
-    // Update bubble radius based on calculated width (larger bubbles)
-    CONFIG.BUBBLE_RADIUS = Math.floor((bubbleWidth - CONFIG.BUBBLE_SPACING) / 2);
-    
-    // Ensure minimum and maximum bubble size (increased for better visibility)
-    CONFIG.BUBBLE_RADIUS = Math.max(18, Math.min(30, CONFIG.BUBBLE_RADIUS));
+    CONFIG.BUBBLE_RADIUS = Math.max(minBubbleRadius, Math.min(maxBubbleRadius, Math.floor((bubbleWidth - CONFIG.BUBBLE_SPACING) / 2)));
     
     // Calculate total grid width
     const gridWidth = CONFIG.COLS * (CONFIG.BUBBLE_RADIUS * 2 + CONFIG.BUBBLE_SPACING);
