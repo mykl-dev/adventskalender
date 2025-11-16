@@ -51,17 +51,17 @@ function resizeCanvas() {
     canvas.height = window.innerHeight;
     
     // Dynamische Spaltenanzahl basierend auf der Bildschirmbreite
-    const minBubbleRadius = 35;
-    const maxBubbleRadius = 50;
-    const margin = 20;
+    const minBubbleRadius = 28;
+    const maxBubbleRadius = 40;
+    const margin = 30;
     const availableWidth = canvas.width - (margin * 2);
     
-    // Berechne optimale Spaltenanzahl (6-12 Spalten je nach Breite)
+    // Berechne optimale Spaltenanzahl (6-10 Spalten je nach Breite)
     let optimalCols = Math.floor(availableWidth / ((maxBubbleRadius * 2) + CONFIG.BUBBLE_SPACING));
-    optimalCols = Math.max(6, Math.min(12, optimalCols));
+    optimalCols = Math.max(6, Math.min(10, optimalCols));
     CONFIG.COLS = optimalCols;
     
-    // Bubble-Radius zwischen 35px und 50px (viel größer!)
+    // Bubble-Radius zwischen 28px und 40px
     const bubbleWidth = availableWidth / CONFIG.COLS;
     CONFIG.BUBBLE_RADIUS = Math.max(minBubbleRadius, Math.min(maxBubbleRadius, Math.floor((bubbleWidth - CONFIG.BUBBLE_SPACING) / 2)));
     
