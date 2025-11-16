@@ -129,6 +129,60 @@ class DashboardManager {
         }
     }
 
+    renderPodium() {
+        const podiumContainer = document.getElementById('podium-container');
+        const playerStats = this.globalLeaderboard;
+
+        if (playerStats.length === 0) {
+            podiumContainer.innerHTML = '';
+            return;
+        }
+
+        // Top 3 Spieler (in Anzeige-Reihenfolge: 2, 1, 3)
+        const first = playerStats[0] || null;
+        const second = playerStats[1] || null;
+        const third = playerStats[2] || null;
+
+        const renderPlace = (player, rank) => {
+            if (!player) {
+                return `
+                    <div class="podium-place rank-${rank} podium-empty">
+                        <div class="podium-avatar">❓</div>
+                        <div class="podium-name">---</div>
+                        <div class="podium-stats">Noch kein Spieler</div>
+                        <div class="podium-step">
+                            <div class="podium-rank-number">${rank}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const avatar = this.getAvatarIcon(player.username || player.name);
+            const medals = ['🥇', '🥈', '🥉'];
+            
+            return `
+                <div class="podium-place rank-${rank}">
+                    <div class="podium-avatar">${avatar}</div>
+                    <div class="podium-name">${this.escapeHtml(player.username || player.name)}</div>
+                    <div class="podium-stats">
+                        ${player.firstPlaces} ${medals[0]} | ${player.totalScore.toLocaleString()} Punkte
+                    </div>
+                    <div class="podium-step">
+                        <div class="podium-rank-number">${rank}</div>
+                        ${medals[rank - 1]}
+                    </div>
+                </div>
+            `;
+        };
+
+        // Reihenfolge: 2. Platz, 1. Platz, 3. Platz (für visuelle Treppe)
+        podiumContainer.innerHTML = `
+            ${renderPlace(second, 2)}
+            ${renderPlace(first, 1)}
+            ${renderPlace(third, 3)}
+        `;
+    }
+
     renderOverallLeaderboard() {
         const container = document.getElementById('overall-leaderboard');
         
@@ -141,14 +195,26 @@ class DashboardManager {
                     <p>Noch keine Spieler vorhanden. Spiele ein paar Runden! 🎮</p>
                 </div>
             `;
+            this.renderPodium();
             return;
         }
 
-        container.innerHTML = playerStats.map((player, index) => {
-            const rankClass = index < 3 ? `rank-${index + 1}` : '';
+        // Rendere Siegertreppe
+        this.renderPodium();
+
+        // Zeige nur Spieler ab Platz 4 (Top 3 sind auf Podium)
+        const remainingPlayers = playerStats.slice(3);
+        
+        if (remainingPlayers.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 20px; color: #7f8c8d;">Nur Top 3 Spieler verfügbar</div>';
+            return;
+        }
+
+        container.innerHTML = remainingPlayers.map((player, index) => {
+            const actualRank = index + 4; // Beginne bei 4
             return `
-                <div class="player-card ${rankClass}">
-                    <div class="player-rank">${index + 1}</div>
+                <div class="player-card">
+                    <div class="player-rank">${actualRank}</div>
                     <div class="player-info">
                         <div class="player-name">${this.escapeHtml(player.username || player.name)}</div>
                         <div class="player-achievements">
