@@ -49,9 +49,30 @@ function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
+    // Calculate optimal bubble size based on screen width
+    // We want COLS bubbles to fit with some margin
+    const margin = 20;
+    const availableWidth = canvas.width - (margin * 2);
+    const bubbleWidth = availableWidth / CONFIG.COLS;
+    
+    // Update bubble radius based on calculated width
+    CONFIG.BUBBLE_RADIUS = Math.floor((bubbleWidth - CONFIG.BUBBLE_SPACING) / 2);
+    
+    // Ensure minimum and maximum bubble size
+    CONFIG.BUBBLE_RADIUS = Math.max(15, Math.min(25, CONFIG.BUBBLE_RADIUS));
+    
     // Update shooter position
     gameState.shooter.x = canvas.width / 2;
     gameState.shooter.y = canvas.height - CONFIG.SHOOTER_Y_OFFSET;
+    
+    // Recalculate all bubble positions if game is running
+    if (gameState.bubbles && gameState.bubbles.length > 0) {
+        for (let bubble of gameState.bubbles) {
+            bubble.radius = CONFIG.BUBBLE_RADIUS;
+            bubble.x = bubble.calculateX();
+            bubble.y = bubble.calculateY();
+        }
+    }
 }
 
 window.addEventListener('resize', resizeCanvas);
