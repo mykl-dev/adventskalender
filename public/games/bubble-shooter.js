@@ -304,13 +304,11 @@ class FlyingBubble extends Bubble {
             return { gameOver: true };
         }
 
-        // Check if bubble would land in last row (bottom row) - Game Over!
-        if (bestRow >= CONFIG.ROWS - 1) {
-            endGame();
-            return { gameOver: true };
-        }
-        
         const newBubble = new Bubble(bestRow, bestCol, this.colorIndex);
+        
+        // Mark if in last row - will check after match detection
+        newBubble.isInLastRow = (bestRow >= CONFIG.ROWS - 1);
+        
         return newBubble;
     }
 }
@@ -726,6 +724,12 @@ function gameLoop() {
                 removeBubbles(matches);
                 dropFloatingBubbles();
                 checkWinCondition();
+            } else {
+                // No matches - check if bubble is in last row
+                if (result.isInLastRow) {
+                    endGame();
+                    return;
+                }
             }
 
             // Load next bubble
