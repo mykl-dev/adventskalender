@@ -68,8 +68,9 @@
     },
     {
       "day": 11,
-      "type": "quote",
-      "content": "Das Schönste an Weihnachten ist nicht das Geschenk, sondern die Zeit mit der Familie! 👨‍👩‍👧‍👦",
+      "type": "game",
+      "content": "bubble-shooter",
+      "description": "Spiel: Christmas Bubble Shooter - Schieße Kugeln zu gleichen Farben! 🎯🎄",
       "opened": false
     },
     {

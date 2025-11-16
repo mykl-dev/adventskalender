@@ -91,6 +91,16 @@
       "difficulty": "medium",
       "scoreType": "points",
       "active": true
+    },
+    {
+      "id": "bubble-shooter",
+      "name": "Christmas Bubble Shooter",
+      "icon": "🎯",
+      "description": "Schieße Kugeln zu gleichen Farben und räume das Feld!",
+      "category": "puzzle",
+      "difficulty": "medium",
+      "scoreType": "points",
+      "active": true
     }
   ]
 }

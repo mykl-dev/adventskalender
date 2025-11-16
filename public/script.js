@@ -334,7 +334,8 @@ function showModal(data) {
                 'santa-run',
                 'santa-snake',
                 'christmas-memory',
-                'feeding-elf'
+                'feeding-elf',
+                'bubble-shooter'
             ];
             
             if (fullscreenGames.includes(data.content)) {
