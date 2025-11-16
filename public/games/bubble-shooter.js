@@ -9,7 +9,7 @@ const ctx = canvas.getContext('2d');
 const CONFIG = {
     BUBBLE_RADIUS: 20,
     BUBBLE_SPACING: 5,
-    ROWS: 6, // Reduced from 7 to 6 to make room for HUD
+    ROWS: 8, // 8 rows (row 0-7, game over at row 7)
     COLS: 9, // Reduced from 11 to 9 for larger bubbles that fit
     GRID_OFFSET_X: 0,
     GRID_OFFSET_Y: 100, // Larger offset from top for HUD (score, time, level)
@@ -462,14 +462,14 @@ function getSmartColor() {
         return Math.floor(Math.random() * CONFIG.COLORS.length);
     }
     
-    // Count colors in lower rows (row 3-4, which are closer to the danger zone)
+    // Count colors in lower rows (row 4-6, which are closer to the danger zone)
     const colorWeights = new Map();
     availableColors.forEach(color => colorWeights.set(color, 0));
     
     gameState.bubbles.forEach(bubble => {
-        if (bubble.row >= 3 && bubble.row <= 4) {
+        if (bubble.row >= 4 && bubble.row <= 6) {
             // Higher weight for bubbles in lower rows
-            const weight = (bubble.row - 2) * 3; // Row 3=3, Row 4=6
+            const weight = (bubble.row - 3) * 2; // Row 4=2, Row 5=4, Row 6=6
             colorWeights.set(bubble.colorIndex, (colorWeights.get(bubble.colorIndex) || 0) + weight);
         }
     });
