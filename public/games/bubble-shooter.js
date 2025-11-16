@@ -258,12 +258,6 @@ class FlyingBubble extends Bubble {
             return this.snapToGrid();
         }
 
-        // Check floor - Game Over!
-        if (this.y + this.radius >= canvas.height - CONFIG.SHOOTER_Y_OFFSET) {
-            endGame();
-            return { gameOver: true };
-        }
-
         // Check collision with other bubbles
         for (let bubble of gameState.bubbles) {
             const dx = this.x - bubble.x;
@@ -305,6 +299,13 @@ class FlyingBubble extends Bubble {
         }
 
         const newBubble = new Bubble(bestRow, bestCol, this.colorIndex);
+        
+        // Check if final position touches the floor - Game Over!
+        if (newBubble.y + CONFIG.BUBBLE_RADIUS >= canvas.height - CONFIG.SHOOTER_Y_OFFSET) {
+            endGame();
+            return { gameOver: true };
+        }
+        
         return newBubble;
     }
 }
