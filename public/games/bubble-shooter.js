@@ -17,7 +17,6 @@ const CONFIG = {
     AIM_SPEED: 0.02,
     BUBBLE_SPEED: 12,
     GRAVITY: 0.5,
-    PREVIEW_COUNT: 4,
     TIME_LIMIT: 60,
     COLORS: [
         { name: 'red', color: '#ff4444', symbol: '●' },
@@ -39,7 +38,6 @@ let gameState = {
     timeLeft: CONFIG.TIME_LIMIT,
     gameRunning: false,
     startTime: null,
-    previewQueue: [],
     particles: [],
     animations: []
 };
@@ -260,6 +258,12 @@ class FlyingBubble extends Bubble {
             return this.snapToGrid();
         }
 
+        // Check floor - Game Over!
+        if (this.y + this.radius >= canvas.height - CONFIG.SHOOTER_Y_OFFSET) {
+            endGame();
+            return { gameOver: true };
+        }
+
         // Check collision with other bubbles
         for (let bubble of gameState.bubbles) {
             const dx = this.x - bubble.x;
@@ -312,12 +316,6 @@ function initGame() {
     gameState.level = 1;
     gameState.timeLeft = CONFIG.TIME_LIMIT;
     gameState.particles = [];
-    gameState.previewQueue = [];
-    
-    // Fill preview queue
-    for (let i = 0; i < CONFIG.PREVIEW_COUNT; i++) {
-        gameState.previewQueue.push(Math.floor(Math.random() * CONFIG.COLORS.length));
-    }
     
     loadNextBubble();
     createLevel();
@@ -339,15 +337,10 @@ function createLevel() {
 
 // Load Next Bubble
 function loadNextBubble() {
-    if (gameState.previewQueue.length > 0) {
-        const colorIndex = gameState.previewQueue.shift();
-        gameState.shooter.currentBubble = new Bubble(0, 0, colorIndex);
-        gameState.shooter.currentBubble.x = gameState.shooter.x;
-        gameState.shooter.currentBubble.y = gameState.shooter.y;
-        
-        // Add new bubble to queue
-        gameState.previewQueue.push(Math.floor(Math.random() * CONFIG.COLORS.length));
-    }
+    const colorIndex = Math.floor(Math.random() * CONFIG.COLORS.length);
+    gameState.shooter.currentBubble = new Bubble(0, 0, colorIndex);
+    gameState.shooter.currentBubble.x = gameState.shooter.x;
+    gameState.shooter.currentBubble.y = gameState.shooter.y;
 }
 
 // Shoot Bubble
@@ -507,9 +500,18 @@ function dropFloatingBubbles() {
 
 // Check Win Condition
 function checkWinCondition() {
+    // Check if any bubble reached the bottom
+    for (let bubble of gameState.bubbles) {
+        if (bubble.y + CONFIG.BUBBLE_RADIUS >= canvas.height - CONFIG.SHOOTER_Y_OFFSET) {
+            endGame();
+            return;
+        }
+    }
+    
+    // Check if all bubbles cleared
     if (gameState.bubbles.length === 0) {
+        gameState.score += 100;
         gameState.level++;
-        gameState.score += 500 * gameState.level;
         gameState.timeLeft = CONFIG.TIME_LIMIT;
         createLevel();
         
@@ -701,14 +703,19 @@ function gameLoop() {
 
     // Update flying bubble
     if (gameState.flyingBubble) {
-        const newBubble = gameState.flyingBubble.update();
+        const result = gameState.flyingBubble.update();
         
-        if (newBubble) {
-            gameState.bubbles.push(newBubble);
+        if (result) {
+            // Check if game over
+            if (result.gameOver) {
+                return;
+            }
+            
+            gameState.bubbles.push(result);
             gameState.flyingBubble = null;
 
             // Check for matches
-            const matches = findMatches(newBubble);
+            const matches = findMatches(result);
             if (matches.length >= 4) {
                 removeBubbles(matches);
                 dropFloatingBubbles();
@@ -721,9 +728,6 @@ function gameLoop() {
             gameState.flyingBubble.draw(ctx);
         }
     }
-
-    // Draw preview queue
-    drawPreviewQueue();
 
     // Update timer
     updateTimer();
@@ -805,9 +809,6 @@ async function endGame() {
     document.getElementById('finalScore').textContent = gameState.score;
     document.getElementById('finalLevel').textContent = gameState.level;
     document.getElementById('gameoverOverlay').style.display = 'flex';
-    
-    // Load highscores
-    await loadHighscores();
 }
 
 // Restart Game
@@ -866,11 +867,11 @@ async function saveScore(score, level) {
     const playTime = CONFIG.TIME_LIMIT - gameState.timeLeft;
 
     try {
-        const response = await fetch('/api/score', {
+        const response = await fetch('/api/stats', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                game: GAME_NAME,
+                gameName: GAME_NAME,
                 username: playerName,
                 score: score,
                 playTime: Math.round(playTime),
