@@ -1014,7 +1014,7 @@
                     : '💥 Du hast dich selbst gebissen!';
 
                 // Highscores laden
-                const highscores = await window.statsManager.getHighscores(GAME_NAME, 10);
+                const highscores = await window.statsManager.getHighscores(GAME_NAME, 3);
                 const highscoresHTML = highscores && highscores.length > 0
                     ? highscores.map((entry, index) => `
                         <li class="highscore-item">
@@ -1042,7 +1042,7 @@
                             <div class="game-over-message">${this.getScoreMessage()}</div>
                         </div>
                         <div class="game-over-highscores">
-                            <h3>🏆 Top 10 Highscores</h3>
+                            <h3>🏆 Top 3 Highscores</h3>
                             <ul class="highscore-list">
                                 ${highscoresHTML}
                             </ul>
@@ -1070,7 +1070,7 @@
             const modal = document.getElementById('highscore-modal');
             const list = document.getElementById('highscore-list');
 
-            const highscores = await window.statsManager.getHighscores(GAME_NAME, 10);
+            const highscores = await window.statsManager.getHighscores(GAME_NAME, 3);
 
             if (highscores && highscores.length > 0) {
                 list.innerHTML = highscores.map((entry, index) => `

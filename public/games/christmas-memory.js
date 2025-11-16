@@ -255,7 +255,7 @@ class ChristmasMemoryGame {
         let highscoresHTML = '<div class="no-highscores">Noch keine Highscores vorhanden</div>';
         
         if (typeof statsManager !== 'undefined') {
-            const highscores = await window.statsManager.getHighscores(this.gameName, 10);
+            const highscores = await window.statsManager.getHighscores(this.gameName, 3);
             if (highscores && highscores.length > 0) {
                 highscoresHTML = highscores.map((entry, index) => `
                     <li class="highscore-item">
@@ -299,7 +299,7 @@ class ChristmasMemoryGame {
                     <div class="game-over-message">${this.getScoreMessage(result)}</div>
                 </div>
                 <div class="game-over-highscores">
-                    <h3>🏆 Top 10 Highscores</h3>
+                    <h3>🏆 Top 3 Highscores</h3>
                     <ul class="highscore-list">
                         ${highscoresHTML}
                     </ul>

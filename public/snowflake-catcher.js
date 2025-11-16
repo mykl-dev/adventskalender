@@ -682,7 +682,7 @@ class SnowflakeCatcherGame3D {
     
     async showGameOver() {
         // Bestenliste laden
-        const highscores = await window.statsManager.getHighscores('snowflake-catcher', 10);
+        const highscores = await window.statsManager.getHighscores('snowflake-catcher', 3);
         
         const highscoresHTML = highscores.map((entry, index) => `
             <li class="highscore-item">
@@ -703,7 +703,7 @@ class SnowflakeCatcherGame3D {
                     <div class="game-over-message">${this.getScoreMessage()}</div>
                 </div>
                 <div class="game-over-highscores">
-                    <h3>🏆 Top 10 Highscores</h3>
+                    <h3>🏆 Top 3 Highscores</h3>
                     <ul class="highscore-list">${highscoresHTML}</ul>
                 </div>
                 <div class="game-over-buttons">

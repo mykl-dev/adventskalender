@@ -722,12 +722,12 @@ class SantaRunGame {
         document.body.appendChild(overlay);
         
         // Highscores laden
-        const highscores = await window.statsManager.getHighscores('santa-run', 10);
+        const highscores = await window.statsManager.getHighscores('santa-run', 3);
         const container = document.getElementById('highscore-list-container');
         
         if (highscores && highscores.length > 0) {
             container.innerHTML = `
-                <h3 style="margin-bottom: 15px;">🏆 Top 10 Highscores</h3>
+                <h3 style="margin-bottom: 15px;">🏆 Top 3 Highscores</h3>
                 <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.1); border-radius: 10px; padding: 10px;">
                     ${highscores.map((entry, index) => `
                         <div style="display: flex; justify-content: space-between; padding: 8px; margin: 5px 0; background: ${entry.username === window.statsManager.username ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255,255,255,0.1)'}; border-radius: 5px;">

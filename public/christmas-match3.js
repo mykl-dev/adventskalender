@@ -1266,7 +1266,7 @@ class ChristmasMatch3Game {
         await window.statsManager.saveStats('christmas-match3', this.score, playTime);
         
         // Lade Highscores
-        const highscores = await window.statsManager.getHighscores('christmas-match3', 10);
+        const highscores = await window.statsManager.getHighscores('christmas-match3', 3);
         let highscoresHTML = '<div class="no-highscores">Noch keine Highscores vorhanden</div>';
         
         if (highscores && highscores.length > 0) {
@@ -1300,7 +1300,7 @@ class ChristmasMatch3Game {
                     <div class="game-over-message">${this.getScoreMessage()}</div>
                 </div>
                 <div class="game-over-highscores">
-                    <h3>🏆 Top 10 Highscores</h3>
+                    <h3>🏆 Top 3 Highscores</h3>
                     <ul class="highscore-list">${highscoresHTML}</ul>
                 </div>
                 <div class="game-over-buttons">
