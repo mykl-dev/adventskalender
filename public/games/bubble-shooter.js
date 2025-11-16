@@ -45,21 +45,9 @@ let gameState = {
 
 // Resize canvas
 function resizeCanvas() {
-    const container = document.querySelector('.game-container');
-    const maxWidth = 800;
-    const maxHeight = 900;
-    const aspectRatio = maxWidth / maxHeight;
-    
-    let width = Math.min(window.innerWidth, maxWidth);
-    let height = width / aspectRatio;
-    
-    if (height > window.innerHeight * 0.95) {
-        height = window.innerHeight * 0.95;
-        width = height * aspectRatio;
-    }
-    
-    canvas.width = width;
-    canvas.height = height;
+    // Fullscreen canvas
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
     
     // Update shooter position
     gameState.shooter.x = canvas.width / 2;
