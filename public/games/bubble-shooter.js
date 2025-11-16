@@ -277,7 +277,6 @@ class FlyingBubble extends Bubble {
         let bestRow = -1;
         let bestCol = -1;
         let minDist = Infinity;
-        let foundFreePosition = false;
 
         for (let row = 0; row < CONFIG.ROWS; row++) {
             for (let col = 0; col < CONFIG.COLS; col++) {
@@ -286,7 +285,6 @@ class FlyingBubble extends Bubble {
                     continue;
                 }
 
-                foundFreePosition = true;
                 const testBubble = new Bubble(row, col, 0);
                 const dx = this.x - testBubble.x;
                 const dy = this.y - testBubble.y;
@@ -301,19 +299,18 @@ class FlyingBubble extends Bubble {
         }
 
         // No free position found - Grid is full - Game Over!
-        if (!foundFreePosition || bestRow === -1) {
+        if (bestRow === -1) {
             endGame();
             return { gameOver: true };
         }
 
-        const newBubble = new Bubble(bestRow, bestCol, this.colorIndex);
-        
-        // Check if final position touches the floor - Game Over!
-        if (newBubble.y + CONFIG.BUBBLE_RADIUS >= canvas.height - CONFIG.SHOOTER_Y_OFFSET) {
+        // Check if bubble would land in last row (bottom row) - Game Over!
+        if (bestRow >= CONFIG.ROWS - 1) {
             endGame();
             return { gameOver: true };
         }
         
+        const newBubble = new Bubble(bestRow, bestCol, this.colorIndex);
         return newBubble;
     }
 }
