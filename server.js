@@ -171,11 +171,18 @@ app.post('/api/auth/register', (req, res) => {
   }
   
   // Register user
-  const user = dataService.registerUser(displayName.trim(), password);
+  const result = dataService.registerUser(displayName.trim(), password);
   
-  if (!user) {
-    return res.status(400).json({ error: 'DisplayName bereits vergeben' });
+  // Check for validation errors
+  if (result && result.error) {
+    return res.status(400).json({ error: result.message });
   }
+  
+  if (!result) {
+    return res.status(400).json({ error: 'Registrierung fehlgeschlagen' });
+  }
+  
+  const user = result;
   
   // Create session
   req.session.userId = user.userId;
@@ -433,6 +440,11 @@ app.post('/api/user/displayname', requireAuth, (req, res) => {
   
   if (newDisplayName.trim().length < 3) {
     return res.status(400).json({ error: 'DisplayName muss mindestens 3 Zeichen lang sein' });
+  }
+  
+  // Validate display name format
+  if (!dataService.isValidDisplayName(newDisplayName.trim())) {
+    return res.status(400).json({ error: 'Nutzername enthält ungültige Zeichen. Erlaubt sind nur Buchstaben, Zahlen und . - _ @ #' });
   }
   
   const success = dataService.updateDisplayName(req.session.userId, newDisplayName.trim());

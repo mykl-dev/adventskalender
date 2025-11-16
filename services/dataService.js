@@ -364,6 +364,43 @@ class DataService {
   }
 
   /**
+   * Validate display name format
+   * Only allows: letters, numbers, spaces, and basic punctuation (.-_@#)
+   * Blocks: emojis and special Unicode characters
+   * @param {string} displayName - Display name to check
+   * @returns {boolean} True if valid
+   */
+  isValidDisplayName(displayName) {
+    if (!displayName || typeof displayName !== 'string') {
+      return false;
+    }
+    
+    const trimmed = displayName.trim();
+    
+    // Check length (3-30 characters)
+    if (trimmed.length < 3 || trimmed.length > 30) {
+      return false;
+    }
+    
+    // Allow only: letters (any language), numbers, spaces, and basic punctuation: . - _ @ #
+    // This regex blocks emojis and special Unicode symbols
+    const validPattern = /^[\p{L}\p{N}\s.\-_@#]+$/u;
+    
+    if (!validPattern.test(trimmed)) {
+      return false;
+    }
+    
+    // Additional check: detect emojis explicitly
+    const emojiPattern = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F000}-\u{1F02F}\u{1F0A0}-\u{1F0FF}]/u;
+    
+    if (emojiPattern.test(trimmed)) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
    * Check if display name is available
    * @param {string} displayName - Display name to check
    * @param {string} excludeUserId - User ID to exclude from check (for updates)
@@ -391,9 +428,14 @@ class DataService {
   registerUser(displayName, password) {
     const users = this.loadUsers();
     
+    // Validate display name format
+    if (!this.isValidDisplayName(displayName)) {
+      return { error: 'invalid_format', message: 'Nutzername enthält ungültige Zeichen. Erlaubt sind nur Buchstaben, Zahlen und . - _ @ #' };
+    }
+    
     // Check if display name is taken
     if (!this.isDisplayNameAvailable(displayName)) {
-      return null;
+      return { error: 'name_taken', message: 'Dieser Nutzername ist bereits vergeben.' };
     }
     
     const userId = this.generateUserId();
@@ -786,6 +828,11 @@ class DataService {
       const users = this.loadUsers();
       
       if (!users.users[userId]) {
+        return false;
+      }
+      
+      // Validate display name format
+      if (!this.isValidDisplayName(newDisplayName)) {
         return false;
       }
       
