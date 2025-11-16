@@ -39,8 +39,99 @@ let gameState = {
     gameRunning: false,
     startTime: null,
     particles: [],
-    animations: []
+    animations: [],
+    lights: []
 };
+
+// Initialize Christmas Lights
+function initLights() {
+    gameState.lights = [];
+    const lightCount = 30;
+    const lightColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#95E1D3', '#FFA07A', '#98D8C8'];
+    const lightY = canvas.height - CONFIG.SHOOTER_Y_OFFSET + 10;
+    
+    for (let i = 0; i < lightCount; i++) {
+        gameState.lights.push({
+            x: (i / (lightCount - 1)) * canvas.width,
+            baseY: lightY,
+            amplitude: 8,
+            frequency: 0.3,
+            phase: (i / lightCount) * Math.PI * 2,
+            color: lightColors[i % lightColors.length],
+            brightness: Math.random(),
+            pulseSpeed: 0.02 + Math.random() * 0.03,
+            size: 5 + Math.random() * 3
+        });
+    }
+}
+
+// Update Lights Animation
+function updateLights() {
+    const time = Date.now() / 1000;
+    gameState.lights.forEach(light => {
+        light.y = light.baseY + Math.sin(time * light.frequency + light.phase) * light.amplitude;
+        light.brightness = 0.5 + Math.sin(time * light.pulseSpeed * Math.PI * 2) * 0.5;
+    });
+}
+
+// Draw Christmas Lights
+function drawLights() {
+    // Draw cable
+    ctx.beginPath();
+    ctx.moveTo(0, gameState.lights[0].y);
+    gameState.lights.forEach(light => {
+        ctx.lineTo(light.x, light.y);
+    });
+    ctx.strokeStyle = 'rgba(80, 80, 80, 0.4)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    
+    // Draw lights
+    gameState.lights.forEach(light => {
+        // Glow effect
+        const glowSize = light.size * (2 + light.brightness);
+        const glowGradient = ctx.createRadialGradient(
+            light.x, light.y, 0,
+            light.x, light.y, glowSize
+        );
+        glowGradient.addColorStop(0, hexToRgba(light.color, light.brightness * 0.8));
+        glowGradient.addColorStop(0.5, hexToRgba(light.color, light.brightness * 0.4));
+        glowGradient.addColorStop(1, hexToRgba(light.color, 0));
+        
+        ctx.fillStyle = glowGradient;
+        ctx.beginPath();
+        ctx.arc(light.x, light.y, glowSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Light core
+        const coreGradient = ctx.createRadialGradient(
+            light.x - light.size * 0.3, light.y - light.size * 0.3, 0,
+            light.x, light.y, light.size
+        );
+        coreGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        coreGradient.addColorStop(0.3, hexToRgba(light.color, 1));
+        coreGradient.addColorStop(1, hexToRgba(light.color, 0.8));
+        
+        ctx.fillStyle = coreGradient;
+        ctx.beginPath();
+        ctx.arc(light.x, light.y, light.size, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Highlight
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.arc(light.x - light.size * 0.3, light.y - light.size * 0.3, light.size * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
+// Helper function to convert hex to rgba
+function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 // Resize canvas
 function resizeCanvas() {
@@ -81,10 +172,16 @@ function resizeCanvas() {
             bubble.y = bubble.calculateY();
         }
     }
+    
+    // Update lights position
+    if (gameState.lights && gameState.lights.length > 0) {
+        initLights();
+    }
 }
 
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
+initLights();
 
 // Particle System
 class Particle {
@@ -678,6 +775,10 @@ function gameLoop() {
 
     // Draw background pattern
     drawBackground();
+
+    // Update and draw Christmas lights
+    updateLights();
+    drawLights();
 
     // Update and draw particles
     gameState.particles = gameState.particles.filter(p => {
