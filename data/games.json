@@ -61,6 +61,16 @@
       "scoreType": "moves",
       "scoreUnit": "Züge",
       "active": true
+    },
+    {
+      "id": "santa-run",
+      "name": "Santa Run",
+      "icon": "🏃",
+      "description": "Hilf Santa zu fliehen und sammle Geschenke!",
+      "category": "arcade",
+      "difficulty": "hard",
+      "scoreType": "points",
+      "active": true
     }
   ]
 }

@@ -362,6 +362,11 @@
                 const data = await response.json();
                 
                 if (response.ok) {
+                    // Setze playerName Cookie für Dashboard-Hervorhebung
+                    const expires = new Date();
+                    expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000));
+                    document.cookie = `playerName=${displayName};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+                    
                     showMessage('Anmeldung erfolgreich! Weiterleitung...', 'success');
                     setTimeout(() => {
                         window.location.href = '/';
@@ -414,6 +419,11 @@
                 const data = await response.json();
                 
                 if (response.ok) {
+                    // Setze playerName Cookie für Dashboard-Hervorhebung
+                    const expires = new Date();
+                    expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000));
+                    document.cookie = `playerName=${displayName};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+                    
                     showSuccessModal();
                 } else {
                     showMessage(data.error || 'Registrierung fehlgeschlagen', 'error');

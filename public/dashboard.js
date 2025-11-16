@@ -8,6 +8,9 @@ class DashboardManager {
 
     async init() {
         try {
+            // Zeige aktuellen User an
+            this.showCurrentUser();
+            
             // Lade Spieleliste dynamisch von der API
             await this.loadGames();
             
@@ -156,9 +159,45 @@ class DashboardManager {
         }).join('');
     }
 
+    // Cookie lesen (wie StatsManager)
+    getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    showCurrentUser() {
+        const userInfo = document.getElementById('user-info');
+        if (!userInfo) return;
+        const username = this.getCookie('playerName');
+        if (username) {
+            userInfo.innerHTML = `Angemeldet als: <strong>${username}</strong> <button onclick="dashboard.changeUsername()" style="margin-left: 10px; padding: 5px 10px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 5px; color: white; cursor: pointer; font-size: 0.9rem;">Name ändern</button>`;
+        } else {
+            userInfo.innerHTML = `<button onclick="dashboard.changeUsername()" style="padding: 5px 15px; background: rgba(52,211,153,0.3); border: 1px solid rgba(34,197,94,0.5); border-radius: 5px; color: white; cursor: pointer; font-size: 0.9rem;">Jetzt anmelden</button>`;
+        }
+    }
+
+    changeUsername() {
+        const currentName = this.getCookie('playerName');
+        const newName = prompt('Gib deinen Spielernamen ein:', currentName || '');
+        if (newName && newName.trim()) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000));
+            document.cookie = `playerName=${newName.trim()};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+            location.reload();
+        }
+    }
+
     renderGamesOverview() {
         const container = document.getElementById('games-overview');
-        const currentUser = localStorage.getItem('username') || '';
+        const currentUser = this.getCookie('playerName') || '';
+        
+        console.log('🔍 Current User aus Cookie:', currentUser);
         
         // Filtere nur Spiele die gespielt wurden (haben Scores)
         const playedGames = this.games.filter(game => {
@@ -176,6 +215,8 @@ class DashboardManager {
             // Sortiere nach highscore
             const sortedScores = [...scores].sort((a, b) => (b.highscore || 0) - (a.highscore || 0));
             const top3 = sortedScores.slice(0, 3);
+            
+            console.log(`📊 ${game.name} Top 3:`, top3.map(p => p.username));
             
             return `
                 <div class="game-card-compact">
@@ -204,8 +245,10 @@ class DashboardManager {
             const scoreUnit = game.scoreUnit || '';
             const isCurrentUser = player.username === currentUser;
             
+            console.log(`  👤 ${player.username} === ${currentUser}? ${isCurrentUser}`);
+            
             return `
-                <div class="top3-player ${isCurrentUser ? 'current-user' : ''}">
+                <div class="top3-player ${isCurrentUser ? 'current-user' : ''}" data-username="${this.escapeHtml(player.username)}" data-is-current="${isCurrentUser}">
                     <div class="player-medal">${medals[index]}</div>
                     <div class="player-avatar-circle">${avatar}</div>
                     <div class="player-score-info">

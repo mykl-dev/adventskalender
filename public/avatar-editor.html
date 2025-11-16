@@ -784,6 +784,11 @@
                 currentUser = data.user;
                 document.getElementById('usernameDisplay').textContent = currentUser.displayName;
                 
+                // Setze playerName Cookie für Dashboard-Hervorhebung
+                const expires = new Date();
+                expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000));
+                document.cookie = `playerName=${currentUser.displayName};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+                
                 // Load stars
                 const starsResponse = await fetch('/api/user/stars');
                 if (starsResponse.ok) {
@@ -1208,6 +1213,12 @@
                 if (response.ok) {
                     currentUser.displayName = newName;
                     document.getElementById('usernameDisplay').textContent = newName;
+                    
+                    // Wichtig: Auch Cookie aktualisieren für Spiele und Dashboard
+                    const expires = new Date();
+                    expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000));
+                    document.cookie = `playerName=${newName};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+                    
                     closeEditNameModal();
                     updateAvatar();
                     showSuccess('Name erfolgreich geändert!');
