@@ -274,9 +274,10 @@ class FlyingBubble extends Bubble {
 
     snapToGrid() {
         // Find nearest grid position
-        let bestRow = 0;
-        let bestCol = 0;
+        let bestRow = -1;
+        let bestCol = -1;
         let minDist = Infinity;
+        let foundFreePosition = false;
 
         for (let row = 0; row < CONFIG.ROWS; row++) {
             for (let col = 0; col < CONFIG.COLS; col++) {
@@ -285,6 +286,7 @@ class FlyingBubble extends Bubble {
                     continue;
                 }
 
+                foundFreePosition = true;
                 const testBubble = new Bubble(row, col, 0);
                 const dx = this.x - testBubble.x;
                 const dy = this.y - testBubble.y;
@@ -296,6 +298,12 @@ class FlyingBubble extends Bubble {
                     bestCol = col;
                 }
             }
+        }
+
+        // No free position found - Grid is full - Game Over!
+        if (!foundFreePosition || bestRow === -1) {
+            endGame();
+            return { gameOver: true };
         }
 
         const newBubble = new Bubble(bestRow, bestCol, this.colorIndex);
