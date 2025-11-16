@@ -18,6 +18,9 @@ class DashboardManager {
             // Lade User-Avatare
             await this.loadUserAvatars();
             
+            // Lade Spielerstatistik (wenn angemeldet)
+            await this.loadPlayerStats();
+            
             // Lade Rangliste von der API (effizienter als alle Einzelscores)
             await this.loadGlobalLeaderboard();
             
@@ -90,6 +93,73 @@ class DashboardManager {
             console.error('Fehler beim Laden der Avatare:', error);
             this.userAvatars = {};
         }
+    }
+
+    async loadPlayerStats() {
+        const username = this.getCookie('playerName');
+        if (!username) {
+            console.log('Kein Spieler angemeldet, überspringe Statistik-Laden');
+            return;
+        }
+
+        try {
+            console.log('Lade Spielerstatistik für:', username);
+            const response = await fetch(`/api/users/${encodeURIComponent(username)}/stats`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            this.renderPlayerStats(data);
+        } catch (error) {
+            console.error('Fehler beim Laden der Spielerstatistik:', error);
+        }
+    }
+
+    renderPlayerStats(stats) {
+        const section = document.getElementById('player-stats-section');
+        if (!stats || stats.totalGamesPlayed === 0) {
+            section.style.display = 'none';
+            return;
+        }
+
+        // Avatar anzeigen
+        const avatarContainer = document.getElementById('player-stats-avatar');
+        const avatar = this.getAvatarIcon(stats.username);
+        avatarContainer.innerHTML = avatar;
+
+        // Name anzeigen
+        document.getElementById('player-stats-name').textContent = `${stats.username} - Deine Statistik`;
+
+        // Gesamtspiele
+        document.getElementById('total-games').textContent = stats.totalGamesPlayed;
+
+        // Spielzeit formatieren
+        const hours = Math.floor(stats.totalPlayTime / 3600);
+        const minutes = Math.floor((stats.totalPlayTime % 3600) / 60);
+        const seconds = stats.totalPlayTime % 60;
+        
+        let timeString = '';
+        if (hours > 0) {
+            timeString = `${hours}h ${minutes}m`;
+        } else if (minutes > 0) {
+            timeString = `${minutes}m ${seconds}s`;
+        } else {
+            timeString = `${seconds}s`;
+        }
+        document.getElementById('total-playtime').textContent = timeString;
+
+        // Lieblingsspiel
+        const favoriteGameName = this.getGameName(stats.favoriteGame);
+        document.getElementById('favorite-game').textContent = favoriteGameName || 'Noch keins';
+
+        // Sektion anzeigen
+        section.style.display = 'block';
+    }
+
+    getGameName(gameId) {
+        if (!gameId) return null;
+        const game = this.games.find(g => g.id === gameId);
+        return game ? `${game.icon} ${game.name}` : gameId;
     }
 
     async loadAllScores() {

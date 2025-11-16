@@ -179,6 +179,105 @@ body {
     font-weight: 600;
 }
 
+/* Player Stats Section */
+.player-stats-section {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.95) 0%, rgba(39, 174, 96, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.player-stats-card {
+    color: white;
+}
+
+.player-stats-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.player-stats-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    background: white;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.player-stats-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.player-stats-info {
+    flex: 1;
+}
+
+.player-stats-info h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.player-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.player-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    padding: 12px 15px;
+    border-radius: 12px;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.player-stat-item:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.player-stat-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.player-stat-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.player-stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-stat-label {
+    font-size: 0.75rem;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 /* Leaderboard Section */
 .leaderboard-section {
     background: rgba(255, 255, 255, 0.95);
@@ -807,6 +906,30 @@ body {
 
     .winner-name {
         font-size: 2rem;
+    }
+
+    /* Player Stats Mobile */
+    .player-stats-section {
+        padding: 20px 15px;
+    }
+
+    .player-stats-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .player-stats-avatar {
+        width: 70px;
+        height: 70px;
+        font-size: 2.5rem;
+    }
+
+    .player-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .player-stat-value {
+        font-size: 1.2rem;
     }
 }
 

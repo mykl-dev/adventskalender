@@ -492,6 +492,46 @@ app.get('/api/users/avatars', (req, res) => {
   res.json({ avatars: userAvatars });
 });
 
+// GET: Player stats for a specific user
+app.get('/api/users/:username/stats', (req, res) => {
+  const username = req.params.username;
+  const stats = dataService.loadStats();
+  
+  let totalGamesPlayed = 0;
+  let totalPlayTime = 0;
+  const gameCounts = {};
+  
+  // Aggregiere Stats über alle Spiele
+  for (const gameName in stats.games) {
+    const players = stats.games[gameName];
+    const playerData = players.find(p => p.username === username);
+    
+    if (playerData) {
+      totalGamesPlayed += playerData.gamesPlayed || 0;
+      totalPlayTime += playerData.totalPlayTime || playerData.playTime || 0;
+      gameCounts[gameName] = playerData.gamesPlayed || 1;
+    }
+  }
+  
+  // Finde Lieblingsspiel (am meisten gespielt)
+  let favoriteGame = null;
+  let maxCount = 0;
+  for (const [game, count] of Object.entries(gameCounts)) {
+    if (count > maxCount) {
+      maxCount = count;
+      favoriteGame = game;
+    }
+  }
+  
+  res.json({
+    username,
+    totalGamesPlayed,
+    totalPlayTime,
+    favoriteGame,
+    gamesWithScores: Object.keys(gameCounts).length
+  });
+});
+
 // Serve HTML
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
