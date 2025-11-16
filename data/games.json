@@ -71,6 +71,26 @@
       "difficulty": "hard",
       "scoreType": "points",
       "active": true
+    },
+    {
+      "id": "christmas-match3",
+      "name": "Christmas Match-3",
+      "icon": "🎄",
+      "description": "Kombiniere Christbaumkugeln und sammle Punkte!",
+      "category": "puzzle",
+      "difficulty": "medium",
+      "scoreType": "points",
+      "active": true
+    },
+    {
+      "id": "feeding-elf",
+      "name": "Feeding Elf",
+      "icon": "🧝",
+      "description": "Füttere den Elf mit farbigen Kugeln!",
+      "category": "arcade",
+      "difficulty": "medium",
+      "scoreType": "points",
+      "active": true
     }
   ]
 }
