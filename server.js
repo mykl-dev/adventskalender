@@ -476,6 +476,22 @@ app.get('/api/users/leaderboard', (req, res) => {
   res.json({ users });
 });
 
+// GET: All users with avatars (for dashboard)
+app.get('/api/users/avatars', (req, res) => {
+  const allUsers = dataService.loadUsers();
+  const userAvatars = {};
+  
+  for (const userId in allUsers.users) {
+    const user = allUsers.users[userId];
+    userAvatars[user.displayName] = {
+      style: user.avatar?.style || 'adventurer',
+      options: user.avatar?.options || {}
+    };
+  }
+  
+  res.json({ avatars: userAvatars });
+});
+
 // Serve HTML
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

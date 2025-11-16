@@ -3,6 +3,7 @@ class DashboardManager {
     constructor() {
         this.games = [];
         this.allScores = {};
+        this.userAvatars = {};
         this.init();
     }
 
@@ -13,6 +14,9 @@ class DashboardManager {
             
             // Lade Spieleliste dynamisch von der API
             await this.loadGames();
+            
+            // Lade User-Avatare
+            await this.loadUserAvatars();
             
             // Lade Rangliste von der API (effizienter als alle Einzelscores)
             await this.loadGlobalLeaderboard();
@@ -69,6 +73,22 @@ class DashboardManager {
         } catch (error) {
             console.error('Fehler beim Laden der Rangliste:', error);
             this.globalLeaderboard = [];
+        }
+    }
+
+    async loadUserAvatars() {
+        try {
+            console.log('Lade User-Avatare...');
+            const response = await fetch('/api/users/avatars');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            this.userAvatars = data.avatars || {};
+            console.log('User-Avatare geladen:', Object.keys(this.userAvatars).length, 'Avatare');
+        } catch (error) {
+            console.error('Fehler beim Laden der Avatare:', error);
+            this.userAvatars = {};
         }
     }
 
@@ -291,7 +311,28 @@ class DashboardManager {
     }
     
     getAvatarIcon(username) {
-        // Avatar-Icons basierend auf dem ersten Buchstaben
+        // Versuche echten Avatar zu laden
+        const avatarData = this.userAvatars[username];
+        
+        if (avatarData && avatarData.style) {
+            const style = avatarData.style;
+            const options = avatarData.options || {};
+            
+            // Baue DiceBear URL
+            const params = new URLSearchParams();
+            for (const [key, value] of Object.entries(options)) {
+                if (Array.isArray(value)) {
+                    params.append(key, value.join(','));
+                } else {
+                    params.append(key, value);
+                }
+            }
+            
+            const avatarUrl = `https://api.dicebear.com/7.x/${style}/svg?${params.toString()}`;
+            return `<img src="${avatarUrl}" alt="${username}" style="width: 100%; height: 100%; border-radius: 50%;">`;
+        }
+        
+        // Fallback: Emoji basierend auf erstem Buchstaben
         const avatars = {
             'A': '🧑', 'B': '👨', 'C': '👩', 'D': '🧒', 'E': '👶',
             'F': '👴', 'G': '👵', 'H': '👨‍💼', 'I': '👩‍💼', 'J': '👨‍🔬',
