@@ -11,6 +11,7 @@ const CONFIG = {
     BUBBLE_SPACING: 5,
     ROWS: 8,
     COLS: 11,
+    GRID_OFFSET_X: 0,
     SHOOTER_Y_OFFSET: 80,
     AIM_LINE_LENGTH: 150,
     AIM_SPEED: 0.02,
@@ -50,16 +51,21 @@ function resizeCanvas() {
     canvas.height = window.innerHeight;
     
     // Calculate optimal bubble size based on screen width
-    // We want COLS bubbles to fit with some margin
-    const margin = 20;
+    const margin = 40; // More margin for better centering
     const availableWidth = canvas.width - (margin * 2);
     const bubbleWidth = availableWidth / CONFIG.COLS;
     
-    // Update bubble radius based on calculated width
+    // Update bubble radius based on calculated width (larger bubbles)
     CONFIG.BUBBLE_RADIUS = Math.floor((bubbleWidth - CONFIG.BUBBLE_SPACING) / 2);
     
-    // Ensure minimum and maximum bubble size
-    CONFIG.BUBBLE_RADIUS = Math.max(15, Math.min(25, CONFIG.BUBBLE_RADIUS));
+    // Ensure minimum and maximum bubble size (increased for better visibility)
+    CONFIG.BUBBLE_RADIUS = Math.max(18, Math.min(30, CONFIG.BUBBLE_RADIUS));
+    
+    // Calculate total grid width
+    const gridWidth = CONFIG.COLS * (CONFIG.BUBBLE_RADIUS * 2 + CONFIG.BUBBLE_SPACING);
+    
+    // Center the grid horizontally
+    CONFIG.GRID_OFFSET_X = (canvas.width - gridWidth) / 2;
     
     // Update shooter position
     gameState.shooter.x = canvas.width / 2;
@@ -124,7 +130,7 @@ class Bubble {
 
     calculateX() {
         const offset = (this.row % 2) * (CONFIG.BUBBLE_RADIUS + CONFIG.BUBBLE_SPACING / 2);
-        return offset + CONFIG.BUBBLE_RADIUS + this.col * (CONFIG.BUBBLE_RADIUS * 2 + CONFIG.BUBBLE_SPACING);
+        return CONFIG.GRID_OFFSET_X + offset + CONFIG.BUBBLE_RADIUS + this.col * (CONFIG.BUBBLE_RADIUS * 2 + CONFIG.BUBBLE_SPACING);
     }
 
     calculateY() {
