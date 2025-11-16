@@ -20,20 +20,21 @@ class FeedingElfGame {
         this.wallImage.onload = () => console.log('Mauer-Bild geladen:', this.wallImage.width, 'x', this.wallImage.height);
         this.wallImage.onerror = () => console.error('Mauer-Bild konnte nicht geladen werden:', this.wallImage.src);
         
-        this.ghostImage = new Image();
-        this.ghostImage.src = '../images/suesser-geist.svg';
-        this.ghostImage.onload = () => console.log('Geist-Bild geladen:', this.ghostImage.width, 'x', this.ghostImage.height);
-        this.ghostImage.onerror = () => console.error('Geist-Bild konnte nicht geladen werden:', this.ghostImage.src);
+        // Lade Wichtel als einzelne WebP-Datei (mit Transparenz)
+        this.elfImage = new Image();
+        this.elfImage.src = '../images/elf1.webp';
+        this.elfImage.onload = () => console.log('Wichtel-Bild geladen:', this.elfImage.width, 'x', this.elfImage.height);
+        this.elfImage.onerror = () => console.error('Wichtel-Bild konnte nicht geladen werden:', this.elfImage.src);
         
         // 8 verschiedene Farben optimiert für Farbschwache mit Symbolen
         this.colors = [
             { color: '#FF0000', symbol: '●', name: 'Rot' },      // Rot - Kreis
-            { color: '#0066FF', symbol: '■', name: 'Blau' },     // Blau - Quadrat
-            { color: '#00CC00', symbol: '▲', name: 'Grün' },    // Grün - Dreieck
+            { color: '#0055FF', symbol: '■', name: 'Blau' },     // Blau - Quadrat (heller)
+            { color: '#00DD00', symbol: '▲', name: 'Grün' },    // Grün - Dreieck (heller)
             { color: '#FFD700', symbol: '★', name: 'Gold' },     // Gold - Stern
-            { color: '#FF6600', symbol: '◆', name: 'Orange' },   // Orange - Raute
-            { color: '#9900FF', symbol: '✖', name: 'Lila' },     // Lila - Kreuz
-            { color: '#00CCCC', symbol: '▼', name: 'Cyan' },     // Cyan - umgedrehtes Dreieck
+            { color: '#FF7700', symbol: '◆', name: 'Orange' },   // Orange - Raute (kräftiger)
+            { color: '#AA00FF', symbol: '✖', name: 'Lila' },     // Lila - Kreuz (heller)
+            { color: '#00DDDD', symbol: '▼', name: 'Cyan' },     // Cyan - umgedrehtes Dreieck (heller)
             { color: '#FF1493', symbol: '•', name: 'Pink' }      // Pink - Punkt
         ];
         
@@ -77,16 +78,20 @@ class FeedingElfGame {
             direction: 1
         };
         
-        // Geist-Hindernis
-        this.ghost = {
+        // Physik für Ziel-Bälle (ab Treffer 20)
+        this.ballPhysicsActive = false;
+        
+        // Elfen-Hindernis (6 Elfen im SVG)
+        this.elf = {
             visible: false,
             x: 0,
             y: 0,
-            size: 40,
+            size: 60,
             vx: 0,
             vy: 0,
             targetX: 0,
-            targetY: 0
+            targetY: 0,
+            currentElfIndex: 0  // Welcher Elf (0-5) aktuell verwendet wird
         };
         
         this.hitCounter = 0; // Zählt Treffer für Hindernis-System
@@ -354,19 +359,124 @@ class FeedingElfGame {
         this.lightsObstacle.width = this.canvas.width * 0.4;
         this.lightsObstacle.offsetX = this.canvas.width / 2 - this.lightsObstacle.width / 2;
         
-        this.ghost.visible = false;
-        this.ghost.x = this.canvas.width / 2;
-        this.ghost.y = this.canvas.height * 0.3;
-        this.setGhostTarget();
+        this.elf.visible = false;
+        this.elf.x = this.canvas.width / 2;
+        this.elf.y = this.canvas.height * 0.3;
+        this.setElfTarget();
         
         this.gameLoop();
     }
     
-    setGhostTarget() {
+    setElfTarget() {
         // Wähle zufälligen Punkt im oberen Bereich
-        const margin = this.ghost.size;
-        this.ghost.targetX = margin + Math.random() * (this.canvas.width - margin * 2);
-        this.ghost.targetY = this.canvas.height * 0.15 + Math.random() * this.canvas.height * 0.3;
+        const margin = this.elf.size;
+        this.elf.targetX = margin + Math.random() * (this.canvas.width - margin * 2);
+        this.elf.targetY = this.canvas.height * 0.15 + Math.random() * this.canvas.height * 0.3;
+    }
+    
+    activateBallPhysics() {
+        // Aktiviere Physik für alle vorhandenen Ziel-Bälle
+        this.ballPhysicsActive = true;
+        
+        // Füge Geschwindigkeit und Masse zu jedem Target hinzu
+        this.targets.forEach(target => {
+            target.vx = (Math.random() - 0.5) * 4; // Geschwindigkeit -2 bis +2 (moderat)
+            target.vy = (Math.random() - 0.5) * 4;
+            target.mass = target.radius; // Masse proportional zu Radius
+        });
+    }
+    
+    updateTargetPhysics(deltaTime) {
+        if (!this.ballPhysicsActive) return;
+        
+        const dt = deltaTime / 16.67; // Normalisiere auf 60fps
+        
+        this.targets.forEach(target => {
+            // Bewegung
+            target.x += target.vx * dt;
+            target.y += target.vy * dt;
+            
+            // KEINE Dämpfung - Bälle bleiben in Bewegung!
+            
+            // Wand-Kollision (fast perfekt elastisch)
+            if (target.x - target.radius < 0) {
+                target.x = target.radius;
+                target.vx = Math.abs(target.vx); // Kehre um ohne Energieverlust
+            }
+            if (target.x + target.radius > this.canvas.width) {
+                target.x = this.canvas.width - target.radius;
+                target.vx = -Math.abs(target.vx); // Kehre um ohne Energieverlust
+            }
+            
+            // Obere und untere Grenze (Ziel-Bereich bleibt oben)
+            const minY = target.radius;
+            const maxY = this.canvas.height * 0.35;
+            
+            if (target.y - target.radius < minY) {
+                target.y = minY + target.radius;
+                target.vy = Math.abs(target.vy); // Kehre um ohne Energieverlust
+            }
+            if (target.y + target.radius > maxY) {
+                target.y = maxY - target.radius;
+                target.vy = -Math.abs(target.vy); // Kehre um ohne Energieverlust
+            }
+            
+            // Minimale Geschwindigkeit sicherstellen (falls doch zu langsam)
+            const speed = Math.sqrt(target.vx * target.vx + target.vy * target.vy);
+            if (speed < 1.5) {
+                const angle = Math.random() * Math.PI * 2;
+                target.vx = Math.cos(angle) * 2;
+                target.vy = Math.sin(angle) * 2;
+            }
+        });
+        
+        // Ball-zu-Ball Kollision zwischen Targets
+        for (let i = 0; i < this.targets.length; i++) {
+            for (let j = i + 1; j < this.targets.length; j++) {
+                const b1 = this.targets[i];
+                const b2 = this.targets[j];
+                
+                const dx = b2.x - b1.x;
+                const dy = b2.y - b1.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const minDist = b1.radius + b2.radius;
+                
+                if (distance < minDist && distance > 0) {
+                    // Kollision! Elastischer Stoß
+                    const angle = Math.atan2(dy, dx);
+                    const sin = Math.sin(angle);
+                    const cos = Math.cos(angle);
+                    
+                    // Rotiere Geschwindigkeiten
+                    const vx1 = b1.vx * cos + b1.vy * sin;
+                    const vy1 = b1.vy * cos - b1.vx * sin;
+                    const vx2 = b2.vx * cos + b2.vy * sin;
+                    const vy2 = b2.vy * cos - b2.vx * sin;
+                    
+                    // Elastischer Stoß (vereinfacht - gleiche Masse)
+                    const m1 = b1.mass || b1.radius;
+                    const m2 = b2.mass || b2.radius;
+                    const vx1Final = ((m1 - m2) * vx1 + 2 * m2 * vx2) / (m1 + m2);
+                    const vx2Final = ((m2 - m1) * vx2 + 2 * m1 * vx1) / (m1 + m2);
+                    
+                    // Rotiere zurück
+                    b1.vx = vx1Final * cos - vy1 * sin;
+                    b1.vy = vy1 * cos + vx1Final * sin;
+                    b2.vx = vx2Final * cos - vy2 * sin;
+                    b2.vy = vy2 * cos + vx2Final * sin;
+                    
+                    // Trenne Bälle (verhindere Überlappung)
+                    const overlap = minDist - distance;
+                    const separationX = (dx / distance) * overlap * 0.5;
+                    const separationY = (dy / distance) * overlap * 0.5;
+                    
+                    b1.x -= separationX;
+                    b1.y -= separationY;
+                    b2.x += separationX;
+                    b2.y += separationY;
+                }
+            }
+        }
     }
     
     initTargets() {
@@ -449,44 +559,33 @@ class FeedingElfGame {
                         
                         // Hindernis-System: Treffer zählen
                         this.hitCounter++;
-                        const cycle = this.hitCounter % 15; // 15er Zyklus
                         
-                        // Treffer 5: Lichterkette als Hindernis (1. Mal)
-                        if (cycle === 5) {
+                        // Treffer 5: Lichterkette erscheint (HÖHER)
+                        if (this.hitCounter === 5) {
                             this.lightsObstacle.visible = true;
-                            this.lightsObstacle.targetY = this.canvas.height * 0.4;
+                            this.lightsObstacle.targetY = this.canvas.height * 0.3; // Höher
                             this.lightsObstacle.offsetX = Math.random() * (this.canvas.width - this.lightsObstacle.width);
-                            this.ghost.visible = false;
                         }
-                        // Treffer 6: Lichterkette verschwindet
-                        else if (cycle === 6) {
+                        // Treffer 8: Lichterkette verschwindet
+                        else if (this.hitCounter === 8) {
                             this.lightsObstacle.visible = false;
                             this.lightsObstacle.offsetY = 0;
                         }
-                        // Treffer 10: Lichterkette erscheint (2. Mal)
-                        else if (cycle === 10) {
-                            this.lightsObstacle.visible = true;
-                            this.lightsObstacle.targetY = this.canvas.height * 0.5;
-                            this.lightsObstacle.offsetX = Math.random() * (this.canvas.width - this.lightsObstacle.width);
-                            this.ghost.visible = false;
+                        // Treffer 10: Wichtel erscheint
+                        else if (this.hitCounter === 10) {
+                            this.elf.visible = true;
+                            this.elf.currentElfIndex = 0; // Nur ein Wichtel
+                            this.elf.x = Math.random() * (this.canvas.width - this.elf.size * 2) + this.elf.size;
+                            this.elf.y = this.canvas.height * 0.25 + Math.random() * this.canvas.height * 0.2;
+                            this.setElfTarget();
                         }
-                        // Treffer 11: Lichterkette verschwindet
-                        else if (cycle === 11) {
-                            this.lightsObstacle.visible = false;
-                            this.lightsObstacle.offsetY = 0;
+                        // Treffer 15: Wichtel verschwindet
+                        else if (this.hitCounter === 15) {
+                            this.elf.visible = false;
                         }
-                        // Treffer 15 (oder 0): Geist erscheint (3. Mal) und bleibt 5 Treffer
-                        else if (cycle === 0) {
-                            this.ghost.visible = true;
-                            this.ghost.x = Math.random() * (this.canvas.width - this.ghost.size * 2) + this.ghost.size;
-                            this.ghost.y = this.canvas.height * 0.25 + Math.random() * this.canvas.height * 0.2;
-                            this.setGhostTarget();
-                            this.lightsObstacle.visible = false;
-                            this.lightsObstacle.offsetY = 0;
-                        }
-                        // Treffer 6 (= Treffer 21, 36, 51...): Geist verschwindet nach 5 Treffern
-                        else if (cycle === 6 && this.hitCounter > 15) {
-                            this.ghost.visible = false;
+                        // Treffer 20: Ziel-Bälle beginnen sich zu bewegen
+                        else if (this.hitCounter === 20) {
+                            this.activateBallPhysics();
                         }
                         
                         // Neues Ziel mit anderer Farbe (nicht bei anderen Zielen vorhanden)
@@ -596,36 +695,41 @@ class FeedingElfGame {
             }
         }
         
-        // Geist bewegen
-        if (this.ghost.visible) {
+        // Elf bewegen
+        if (this.elf.visible) {
             // Bewegung zum Zielpunkt
-            const dx = this.ghost.targetX - this.ghost.x;
-            const dy = this.ghost.targetY - this.ghost.y;
+            const dx = this.elf.targetX - this.elf.x;
+            const dy = this.elf.targetY - this.elf.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             if (distance < 5) {
                 // Neues Ziel erreicht, wähle neues
-                this.setGhostTarget();
+                this.setElfTarget();
             } else {
                 // Bewege zum Ziel
-                this.ghost.vx = (dx / distance) * 1.5;
-                this.ghost.vy = (dy / distance) * 1.5;
-                this.ghost.x += this.ghost.vx * dtMultiplier;
-                this.ghost.y += this.ghost.vy * dtMultiplier;
+                this.elf.vx = (dx / distance) * 1.5;
+                this.elf.vy = (dy / distance) * 1.5;
+                this.elf.x += this.elf.vx * dtMultiplier;
+                this.elf.y += this.elf.vy * dtMultiplier;
             }
             
-            // Kollision mit Ball (nur auf sichtbaren Geist-Bereich - 60% der Größe)
-            const ballDx = this.ball.x - this.ghost.x;
-            const ballDy = this.ball.y - this.ghost.y;
+            // Kollision mit Ball (nur auf sichtbaren Elf-Bereich - 60% der Größe)
+            const ballDx = this.ball.x - this.elf.x;
+            const ballDy = this.ball.y - this.elf.y;
             const ballDist = Math.sqrt(ballDx * ballDx + ballDy * ballDy);
-            const ghostHitboxRadius = this.ghost.size * 0.6; // Kleinere Hitbox
+            const elfHitboxRadius = this.elf.size * 0.6; // Kleinere Hitbox
             
-            if (ballDist < this.ball.radius + ghostHitboxRadius) {
-                // Ball prallt vom Geist ab
+            if (ballDist < this.ball.radius + elfHitboxRadius) {
+                // Ball prallt vom Elf ab
                 const angle = Math.atan2(ballDy, ballDx);
                 this.ball.vx = Math.cos(angle) * 8;
                 this.ball.vy = Math.sin(angle) * 8;
             }
+        }
+        
+        // Ziel-Bälle mit Physik aktualisieren (ab Treffer 20)
+        if (this.ballPhysicsActive) {
+            this.updateTargetPhysics(this.deltaTime);
         }
         
         // Update Particles
@@ -681,14 +785,14 @@ class FeedingElfGame {
         this.ctx.shadowOffsetX = 0;
         this.ctx.shadowOffsetY = 10;
         
-        // Basis-Kreis (Glaskugel Hintergrund)
+        // Basis-Kreis (Glaskugel Hintergrund) - KRÄFTIGERE FARBE
         const baseGradient = this.ctx.createRadialGradient(
             x - radius * 0.3, y - radius * 0.3, radius * 0.1,
             x, y, radius
         );
-        baseGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
-        baseGradient.addColorStop(0.5, this.hexToRgba(color, 0.3));
-        baseGradient.addColorStop(1, this.hexToRgba(color, 0.5));
+        baseGradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+        baseGradient.addColorStop(0.5, this.hexToRgba(color, 0.6));  // Stärker
+        baseGradient.addColorStop(1, this.hexToRgba(color, 0.8));    // Viel stärker
         
         this.ctx.fillStyle = baseGradient;
         this.ctx.beginPath();
@@ -722,18 +826,18 @@ class FeedingElfGame {
         this.ctx.arc(x, y, radius, 0, Math.PI * 2);
         this.ctx.fill();
         
-        // Äußerer Leucht-Ring
+        // DICKER farbiger Rand (besser sichtbar)
         this.ctx.beginPath();
         this.ctx.arc(x, y, radius, 0, Math.PI * 2);
-        this.ctx.strokeStyle = this.hexToRgba(color, 0.6);
-        this.ctx.lineWidth = 2;
+        this.ctx.strokeStyle = this.hexToRgba(color, 0.95);  // Fast undurchsichtig
+        this.ctx.lineWidth = 4;  // Dicker
         this.ctx.stroke();
         
         // Innerer Glow
         this.ctx.beginPath();
-        this.ctx.arc(x, y, radius - 3, 0, Math.PI * 2);
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        this.ctx.lineWidth = 1.5;
+        this.ctx.arc(x, y, radius - 5, 0, Math.PI * 2);
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        this.ctx.lineWidth = 2;
         this.ctx.stroke();
         
         this.ctx.restore();
@@ -920,6 +1024,24 @@ class FeedingElfGame {
         // Ziel-Kreise mit Glassmorphismus
         this.targets.forEach(target => {
             this.drawGlassBall(target.x, target.y, target.radius, target.colorData.color);
+            
+            // Zeichne Symbol in der Mitte (GROSS und KONTRASTREICH)
+            this.ctx.save();
+            this.ctx.font = `bold ${target.radius * 1.2}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            
+            // Weißer Schatten für Kontrast
+            this.ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+            this.ctx.shadowBlur = 8;
+            this.ctx.fillStyle = '#000';
+            this.ctx.fillText(target.colorData.symbol, target.x, target.y);
+            
+            // Zweite Schicht weiß
+            this.ctx.shadowBlur = 4;
+            this.ctx.fillStyle = '#FFF';
+            this.ctx.fillText(target.colorData.symbol, target.x, target.y);
+            this.ctx.restore();
         });
         
         // Reset Shadow
@@ -933,9 +1055,9 @@ class FeedingElfGame {
             this.drawLights();
         }
         
-        // Geist
-        if (this.ghost.visible) {
-            const size = this.ghost.size;
+        // Elf-Hindernis
+        if (this.elf.visible) {
+            const size = this.elf.size;
             
             // Schatten
             this.ctx.shadowColor = 'rgba(0,0,0,0.3)';
@@ -943,52 +1065,35 @@ class FeedingElfGame {
             this.ctx.shadowOffsetX = 0;
             this.ctx.shadowOffsetY = 5;
             
-            // Zeichne Geist-Bild
-            const imageLoaded = this.ghostImage.complete && this.ghostImage.naturalWidth > 0;
+            // Zeichne Wichtel aus WebP-Datei (mit Transparenz)
+            const imageLoaded = this.elfImage.complete && this.elfImage.naturalWidth > 0;
             
             if (imageLoaded) {
                 // Leichtes Schweben (Sinus-Bewegung)
                 const hover = Math.sin(Date.now() / 500) * 5;
-                try {
-                    this.ctx.drawImage(
-                        this.ghostImage, 
-                        this.ghost.x - size, 
-                        this.ghost.y - size + hover, 
-                        size * 2, 
-                        size * 2
-                    );
-                } catch (e) {
-                    console.error('Fehler beim Zeichnen des Geist-Bildes:', e);
-                }
+                
+                // Zeichne Wichtel direkt (WebP hat bereits Transparenz)
+                this.ctx.drawImage(
+                    this.elfImage,
+                    this.elf.x - size,
+                    this.elf.y - size + hover,
+                    size * 2,
+                    size * 2
+                );
             } else {
-                // Fallback falls Bild noch nicht geladen
-                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                // Fallback: einfacher Elf
+                this.ctx.fillStyle = '#FF4444';
                 this.ctx.beginPath();
-                this.ctx.arc(this.ghost.x, this.ghost.y - size * 0.2, size * 0.5, 0, Math.PI * 2);
+                this.ctx.arc(this.elf.x, this.elf.y, size * 0.5, 0, Math.PI * 2);
                 this.ctx.fill();
                 
-                // Geist-Schwanz
+                // Mütze
+                this.ctx.fillStyle = '#44FF44';
                 this.ctx.beginPath();
-                this.ctx.moveTo(this.ghost.x - size * 0.4, this.ghost.y);
-                this.ctx.bezierCurveTo(
-                    this.ghost.x - size * 0.3, this.ghost.y + size * 0.3,
-                    this.ghost.x, this.ghost.y + size * 0.2,
-                    this.ghost.x, this.ghost.y + size * 0.4
-                );
-                this.ctx.bezierCurveTo(
-                    this.ghost.x, this.ghost.y + size * 0.2,
-                    this.ghost.x + size * 0.3, this.ghost.y + size * 0.3,
-                    this.ghost.x + size * 0.4, this.ghost.y
-                );
-                this.ctx.arc(this.ghost.x, this.ghost.y - size * 0.2, size * 0.4, 0, Math.PI);
+                this.ctx.moveTo(this.elf.x - size * 0.4, this.elf.y - size * 0.3);
+                this.ctx.lineTo(this.elf.x, this.elf.y - size * 0.8);
+                this.ctx.lineTo(this.elf.x + size * 0.4, this.elf.y - size * 0.3);
                 this.ctx.closePath();
-                this.ctx.fill();
-                
-                // Augen
-                this.ctx.fillStyle = '#000';
-                this.ctx.beginPath();
-                this.ctx.arc(this.ghost.x - size * 0.15, this.ghost.y - size * 0.25, size * 0.08, 0, Math.PI * 2);
-                this.ctx.arc(this.ghost.x + size * 0.15, this.ghost.y - size * 0.25, size * 0.08, 0, Math.PI * 2);
                 this.ctx.fill();
             }
             
@@ -1052,6 +1157,24 @@ class FeedingElfGame {
         
         // Zeichne Ball mit Glassmorphismus
         this.drawGlassBall(this.ball.x, this.ball.y, this.ball.radius, this.ball.colorData.color);
+        
+        // Zeichne Symbol auf dem Ball (GROSS und KONTRASTREICH)
+        this.ctx.save();
+        this.ctx.font = `bold ${this.ball.radius * 1.2}px Arial`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        
+        // Weißer Schatten für Kontrast
+        this.ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.shadowBlur = 8;
+        this.ctx.fillStyle = '#000';
+        this.ctx.fillText(this.ball.colorData.symbol, this.ball.x, this.ball.y);
+        
+        // Zweite Schicht weiß
+        this.ctx.shadowBlur = 4;
+        this.ctx.fillStyle = '#FFF';
+        this.ctx.fillText(this.ball.colorData.symbol, this.ball.x, this.ball.y);
+        this.ctx.restore();
     }
     
     gameLoop(currentTime = 0) {

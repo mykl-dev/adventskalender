@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wichtel Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        .elf-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .info {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .original {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+        .original img {
+            max-width: 500px;
+            width: 100%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎅 Wichtel Zuschnitt Test 🎅</h1>
+    
+    <div class="container" id="elfContainer"></div>
+    
+    <div class="original">
+        <h2>Original SVG (500x500px)</h2>
+        <img src="./images/elfs.svg" alt="Original Elfs SVG">
+        <p>2 Reihen × 3 Spalten mit Rand</p>
+    </div>
+
+    <script>
+        // Lade SVG als Text und konvertiere zu Data-URL
+        fetch('./images/elfs.svg')
+            .then(response => response.text())
+            .then(svgText => {
+                // Konvertiere SVG-Text zu Data-URL
+                const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                
+                const elfImage = new Image();
+                elfImage.crossOrigin = 'anonymous';
+                
+                elfImage.onload = () => {
+                    console.log('Wichtel-Bild geladen:', elfImage.width, 'x', elfImage.height);
+            
+            // Erstelle temporäres Img-Element im DOM (notwendig für SVG-Rendering)
+            document.body.appendChild(elfImage);
+            elfImage.style.position = 'absolute';
+            elfImage.style.left = '-9999px';
+            elfImage.style.width = '500px';
+            elfImage.style.height = '500px';
+            
+            // Warte auf Rendering
+            setTimeout(() => {
+                // WICHTIG: Zeichne SVG erst auf großes Canvas
+                const sourceCanvas = document.createElement('canvas');
+                sourceCanvas.width = 500;
+                sourceCanvas.height = 500;
+                const sourceCtx = sourceCanvas.getContext('2d');
+                
+                // Zeichne SVG
+                sourceCtx.drawImage(elfImage, 0, 0, 500, 500);
+                
+                // DEBUG: Prüfe Pixel-Daten
+                const testData = sourceCtx.getImageData(250, 250, 1, 1).data;
+                console.log('Pixel-Test bei (250,250):', testData[0], testData[1], testData[2], testData[3]);
+            
+            // DEBUG: Zeige das Source-Canvas
+            const container = document.getElementById('elfContainer');
+            const debugCard = document.createElement('div');
+            debugCard.className = 'elf-card';
+            debugCard.innerHTML = '<h3>🔍 Source Canvas (500x500)</h3>';
+            debugCard.appendChild(sourceCanvas);
+            sourceCanvas.style.width = '300px';
+            sourceCanvas.style.height = '300px';
+            container.appendChild(debugCard);
+            
+            // Erstelle 6 Canvas-Elemente für die 6 Wichtel
+            
+            for (let i = 0; i < 6; i++) {
+                // SVG hat 6 Elfen - 2 Reihen x 3 Spalten mit Rand
+                const elfsPerRow = 3;
+                const isBottomRow = i >= 3;
+                const col = isBottomRow ? i - 3 : i;
+                
+                const totalWidth = 500;  // SVG ist 500x500
+                const totalHeight = 500;
+                
+                console.log(`Wichtel ${i}: totalWidth=${totalWidth}, totalHeight=${totalHeight}`);
+                
+                // EINFACHER ANSATZ: Teile 500x500 in 3 Spalten x 2 Reihen
+                const elfWidth = totalWidth / elfsPerRow;  // 500 / 3 = 166.67
+                const elfHeight = totalHeight / 2;          // 500 / 2 = 250
+                
+                const sx = col * elfWidth;
+                const sy = isBottomRow ? elfHeight : 0;
+                
+                console.log(`  sx=${sx}, sy=${sy}, elfWidth=${elfWidth}, elfHeight=${elfHeight}`);
+                
+                // Erstelle temporäres Canvas für Weißentfernung
+                const tempCanvas = document.createElement('canvas');
+                const tempSize = 200;
+                tempCanvas.width = tempSize;
+                tempCanvas.height = tempSize;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Zeichne Elf-Ausschnitt vom großen Canvas
+                tempCtx.drawImage(
+                    sourceCanvas,
+                    sx, sy, elfWidth, elfHeight,
+                    0, 0, tempSize, tempSize
+                );
+                
+                // DEBUG: Zeige erstmal MIT weißem Hintergrund
+                // (später wieder aktivieren für Transparenz)
+                /*
+                const imageData = tempCtx.getImageData(0, 0, tempSize, tempSize);
+                const data = imageData.data;
+                
+                for (let j = 0; j < data.length; j += 4) {
+                    const r = data[j];
+                    const g = data[j + 1];
+                    const b = data[j + 2];
+                    
+                    // Wenn sehr hell/weiß, mache transparent
+                    if (r > 240 && g > 240 && b > 240) {
+                        data[j + 3] = 0;
+                    }
+                }
+                
+                tempCtx.putImageData(imageData, 0, 0);
+                */
+                
+                // Erstelle Display-Canvas
+                const displayCanvas = document.createElement('canvas');
+                displayCanvas.width = 150;
+                displayCanvas.height = 150;
+                const displayCtx = displayCanvas.getContext('2d');
+                
+                // Zeichne bearbeitetes Bild
+                displayCtx.drawImage(
+                    tempCanvas,
+                    0, 0, tempSize, tempSize,
+                    0, 0, 150, 150
+                );
+                
+                // Erstelle Card
+                const card = document.createElement('div');
+                card.className = 'elf-card';
+                card.innerHTML = `
+                    <h3>Wichtel ${i + 1}</h3>
+                `;
+                card.appendChild(displayCanvas);
+                card.innerHTML += `
+                    <div class="info">
+                        Reihe: ${isBottomRow ? 'Unten' : 'Oben'}<br>
+                        Spalte: ${col + 1}<br>
+                        Position: (${Math.round(sx)}, ${Math.round(sy)})<br>
+                        Größe: ${Math.round(elfWidth)}×${Math.round(elfHeight)}px
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            }
+                
+                // Entferne temporäres Bild
+                document.body.removeChild(elfImage);
+            }, 200); // 200ms warten für SVG-Rendering
+                };
+                
+                elfImage.onerror = () => {
+                    console.error('Fehler beim Laden des Wichtel-Bildes');
+                    document.getElementById('elfContainer').innerHTML = 
+                        '<p style="color: red;">❌ Fehler: Wichtel-Bild konnte nicht geladen werden!</p>';
+                };
+                
+                elfImage.src = url;
+            })
+            .catch(error => {
+                console.error('Fehler beim Laden der SVG-Datei:', error);
+                document.getElementById('elfContainer').innerHTML = 
+                    '<p style="color: red;">❌ Fehler beim Laden der SVG-Datei!</p>';
+            });
+    </script>
+</body>
+</html>
