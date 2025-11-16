@@ -10,7 +10,7 @@ const CONFIG = {
     BUBBLE_RADIUS: 20,
     BUBBLE_SPACING: 5,
     ROWS: 8,
-    COLS: 11,
+    COLS: 9, // Reduced from 11 to 9 for larger bubbles that fit
     GRID_OFFSET_X: 0,
     SHOOTER_Y_OFFSET: 80,
     AIM_LINE_LENGTH: 150,
