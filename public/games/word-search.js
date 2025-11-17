@@ -9,6 +9,7 @@ let gameState = {
     foundWords: new Set(),
     score: 0,
     startTime: null,
+    gameStartTime: null,
     isSelecting: false,
     selectedCells: [],
     gridSize: { rows: 10, cols: 10 },
@@ -59,6 +60,9 @@ async function startGame() {
     // Responsive Grid Size
     const isMobile = window.innerWidth < 600;
     gameState.gridSize = isMobile ? { rows: 8, cols: 8 } : { rows: 10, cols: 10 };
+    
+    // Setze Gesamtspielzeit-Start
+    gameState.gameStartTime = Date.now();
 
     initGame();
 }
@@ -67,6 +71,7 @@ function initGame() {
     const currentScore = gameState.score || 0;
     const currentRound = gameState.round || 1;
     const currentTimeLimit = gameState.timeLimit || 120;
+    const gameStart = gameState.gameStartTime || Date.now();
     
     gameState = {
         grid: [],
@@ -74,6 +79,7 @@ function initGame() {
         foundWords: new Set(),
         score: currentScore,
         startTime: Date.now(),
+        gameStartTime: gameStart,
         isSelecting: false,
         selectedCells: [],
         gridSize: gameState.gridSize,
@@ -511,7 +517,7 @@ async function endGame() {
         gameState.score += timeBonus;
     }
     
-    const totalTime = Math.floor((Date.now() - gameState.startTime) / 1000);
+    const totalTime = Math.floor((Date.now() - gameState.gameStartTime) / 1000);
     
     // Stats anzeigen
     document.getElementById('finalWordsFound').textContent = gameState.foundWords.size;
@@ -522,11 +528,11 @@ async function endGame() {
     // Speichern
     if (typeof statsManager !== 'undefined') {
         try {
-            console.log('Saving score:', GAME_NAME, gameState.score, playTime);
+            console.log('Saving score:', GAME_NAME, gameState.score, totalTime);
             const saved = await statsManager.saveStats(
                 GAME_NAME,
                 gameState.score,
-                playTime
+                totalTime
             );
             console.log('Score saved:', saved);
             
@@ -577,6 +583,7 @@ function restartGame() {
     gameState.score = 0;
     gameState.round = 1;
     gameState.timeLimit = 120;
+    gameState.gameStartTime = Date.now();
     
     initGame();
 }
