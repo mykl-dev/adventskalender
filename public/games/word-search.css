@@ -146,9 +146,11 @@ body {
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    padding: 15px;
+    padding: 15px 10px;
     margin-bottom: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .hud-item {
@@ -156,14 +158,15 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 5px;
+    min-width: 60px;
 }
 
 .hud-label {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
 }
 
 .hud-value {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: bold;
 }
 

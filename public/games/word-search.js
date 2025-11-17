@@ -11,8 +11,13 @@ let gameState = {
     startTime: null,
     isSelecting: false,
     selectedCells: [],
-    gridSize: { rows: 10, cols: 10 }
+    gridSize: { rows: 10, cols: 10 },
+    round: 1,
+    timeLimit: 120,
+    timeRemaining: 120
 };
+
+let timerInterval = null;
 
 // Pool von 50+ Weihnachtswörtern
 const WORD_POOL = [
@@ -59,15 +64,22 @@ async function startGame() {
 }
 
 function initGame() {
+    const currentScore = gameState.score || 0;
+    const currentRound = gameState.round || 1;
+    const currentTimeLimit = gameState.timeLimit || 120;
+    
     gameState = {
         grid: [],
         words: [],
         foundWords: new Set(),
-        score: 0,
+        score: currentScore,
         startTime: Date.now(),
         isSelecting: false,
         selectedCells: [],
-        gridSize: gameState.gridSize
+        gridSize: gameState.gridSize,
+        round: currentRound,
+        timeLimit: currentTimeLimit,
+        timeRemaining: currentTimeLimit
     };
 
     // Wähle 5 zufällige Wörter
@@ -368,7 +380,7 @@ function positionsMatch(selected, wordPositions) {
 
 function handleCorrectWord(word, positions) {
     gameState.foundWords.add(word);
-    gameState.score += word.length * 10;
+    gameState.score += 50;
     
     // Markiere Zellen als gefunden
     positions.forEach(pos => {
@@ -389,7 +401,7 @@ function handleCorrectWord(word, positions) {
     
     // Prüfe ob alle Wörter gefunden
     if (gameState.foundWords.size === gameState.words.length) {
-        setTimeout(() => endGame(), 1000);
+        setTimeout(() => startNextRound(), 1000);
     }
     
     // Entferne Selection
@@ -432,7 +444,6 @@ function renderWordsList() {
 // ========================================
 // HUD & TIMER
 // ========================================
-let timerInterval = null;
 
 function startTimer() {
     if (timerInterval) clearInterval(timerInterval);
@@ -444,8 +455,16 @@ function startTimer() {
 
 function updateTimer() {
     const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
-    const minutes = Math.floor(elapsed / 60);
-    const seconds = elapsed % 60;
+    gameState.timeRemaining = gameState.timeLimit - elapsed;
+    
+    if (gameState.timeRemaining <= 0) {
+        gameState.timeRemaining = 0;
+        endGame();
+        return;
+    }
+    
+    const minutes = Math.floor(gameState.timeRemaining / 60);
+    const seconds = gameState.timeRemaining % 60;
     document.getElementById('timer').textContent = 
         `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
@@ -454,19 +473,50 @@ function updateHUD() {
     document.getElementById('wordsCounter').textContent = 
         `${gameState.foundWords.size}/${gameState.words.length}`;
     document.getElementById('score').textContent = gameState.score;
+    
+    const roundElement = document.getElementById('round');
+    if (roundElement) {
+        roundElement.textContent = gameState.round;
+    }
 }
 
 // ========================================
-// GAME END
+// RUNDEN & GAME END
 // ========================================
+function startNextRound() {
+    if (timerInterval) clearInterval(timerInterval);
+    
+    // Zeitbonus berechnen (übrige Sekunden * 10)
+    const timeBonus = gameState.timeRemaining * 10;
+    gameState.score += timeBonus;
+    
+    // Rundenbonus (500 * Runde)
+    const roundBonus = 500 * gameState.round;
+    gameState.score += roundBonus;
+    
+    // Nächste Runde vorbereiten
+    gameState.round++;
+    gameState.timeLimit = Math.max(20, gameState.timeLimit - 10); // Mindestens 20 Sekunden
+    
+    // Neue Runde starten
+    initGame();
+}
+
 async function endGame() {
     if (timerInterval) clearInterval(timerInterval);
     
-    const playTime = Math.floor((Date.now() - gameState.startTime) / 1000);
+    // Zeitbonus für gefundene Wörter (auch wenn nicht alle)
+    if (gameState.timeRemaining > 0) {
+        const timeBonus = gameState.timeRemaining * 10;
+        gameState.score += timeBonus;
+    }
+    
+    const totalTime = Math.floor((Date.now() - gameState.startTime) / 1000);
     
     // Stats anzeigen
     document.getElementById('finalWordsFound').textContent = gameState.foundWords.size;
-    document.getElementById('finalTime').textContent = `${playTime}s`;
+    document.getElementById('finalRound').textContent = gameState.round;
+    document.getElementById('finalTime').textContent = `${totalTime}s`;
     document.getElementById('finalScore').textContent = gameState.score;
     
     // Speichern
@@ -522,5 +572,11 @@ async function loadTop3() {
 
 function restartGame() {
     document.getElementById('gameoverOverlay').style.display = 'none';
+    
+    // Spiel komplett zurücksetzen
+    gameState.score = 0;
+    gameState.round = 1;
+    gameState.timeLimit = 120;
+    
     initGame();
 }

@@ -16,8 +16,10 @@
             <h1>🔍 Wörter-Suchrätsel 🎄</h1>
             <div class="instructions">
                 <p>📱 Finde alle Weihnachtswörter im Gitter!</p>
-                <p>➡️ Horizontal, Vertikal, Diagonal</p>
-                <p>🔄 Auch rückwärts möglich!</p>
+                <p>⏱️ Du hast 120 Sekunden Zeit</p>
+                <p>🎯 50 Punkte pro Wort</p>
+                <p>⚡ Zeitbonus: Übrige Sekunden × 10</p>
+                <p>🏆 Alle Wörter = 500 Bonuspunkte + neue Runde (-10s)</p>
                 <p>👆 Markiere mit Maus oder Finger</p>
             </div>
             <button id="startButton" class="game-button">Spiel Starten</button>
@@ -31,11 +33,15 @@
             <h1 id="gameoverTitle">🎉 Geschafft! 🎉</h1>
             <div class="stats-display">
                 <div class="stat-item">
+                    <span class="stat-label">Erreichte Runde:</span>
+                    <span id="finalRound" class="stat-value">1</span>
+                </div>
+                <div class="stat-item">
                     <span class="stat-label">Gefundene Wörter:</span>
                     <span id="finalWordsFound" class="stat-value">0</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Zeit:</span>
+                    <span class="stat-label">Gesamtzeit:</span>
                     <span id="finalTime" class="stat-value">0s</span>
                 </div>
                 <div class="stat-item">
@@ -65,8 +71,12 @@
         <!-- HUD -->
         <div class="hud">
             <div class="hud-item">
+                <span class="hud-label">🔄</span>
+                <span id="round" class="hud-value">1</span>
+            </div>
+            <div class="hud-item">
                 <span class="hud-label">⏱️</span>
-                <span id="timer" class="hud-value">0:00</span>
+                <span id="timer" class="hud-value">2:00</span>
             </div>
             <div class="hud-item">
                 <span class="hud-label">🎯</span>
