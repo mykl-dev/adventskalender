@@ -50,6 +50,122 @@ function toggleTheme() {
 }
 
 // ========================================
+// GEÖFFNETE TÜRCHEN MENÜ
+// ========================================
+function updateOpenedDoorsMenu() {
+    if (!calendarData || !calendarData.doors) return;
+    
+    const section = document.getElementById('opened-doors-section');
+    if (!section) return;
+    
+    // Im Test-Modus alle Türchen anzeigen, sonst nur geöffnete
+    const openedDoors = testMode ? calendarData.doors : calendarData.doors.filter(door => door.opened);
+    
+    if (openedDoors.length === 0) {
+        section.innerHTML = '';
+        return;
+    }
+    
+    // Gruppiere nach Typ
+    const categories = {
+        game: { icon: '🎮', label: 'Spiele', doors: [] },
+        video: { icon: '🎥', label: 'Videos', doors: [] },
+        quote: { icon: '💭', label: 'Zitate', doors: [] },
+        joke: { icon: '😄', label: 'Witze', doors: [] },
+        image: { icon: '🖼️', label: 'Bilder', doors: [] }
+    };
+    
+    openedDoors.forEach(door => {
+        if (categories[door.type]) {
+            categories[door.type].doors.push(door);
+        }
+    });
+    
+    // Erstelle Untermenüs
+    let html = '';
+    Object.keys(categories).forEach(type => {
+        const cat = categories[type];
+        if (cat.doors.length === 0) return;
+        
+        const categoryId = `submenu-${type}`;
+        html += `
+            <div class="menu-submenu-toggle" onclick="toggleSubmenu('${categoryId}')">
+                <div class="submenu-toggle-left">
+                    <span class="menu-icon">${cat.icon}</span>
+                    <span>${cat.label} (${cat.doors.length})</span>
+                </div>
+                <span class="submenu-toggle-arrow">▶</span>
+            </div>
+            <div id="${categoryId}" class="menu-submenu">
+        `;
+        
+        cat.doors.sort((a, b) => a.day - b.day).forEach(door => {
+            const name = getSubmenuItemName(door);
+            html += `
+                <div class="menu-submenu-item" onclick="openDoorFromMenu(${door.day})">
+                    <span class="submenu-item-day">${door.day}:</span>
+                    <span class="submenu-item-name">${name}</span>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+    });
+    
+    section.innerHTML = html;
+}
+
+function getSubmenuItemName(door) {
+    if (door.type === 'game') {
+        const gameNames = {
+            'gift-catcher': 'Gift Catcher',
+            'snowflake-catcher': 'Snowflake Catcher',
+            'santa-launcher': 'Santa Launcher',
+            'flappy-santa': 'Flappy Santa',
+            'bubble-shooter': 'Bubble Shooter',
+            'santa-snake': 'Santa Snake',
+            'christmas-memory': 'Memory',
+            'christmas-match3': 'Match-3',
+            'santa-run': 'Santa Run',
+            'feeding-elf': 'Feeding Elf',
+            'word-search': 'Wörter-Suchrätsel'
+        };
+        return gameNames[door.content] || door.content;
+    }
+    return door.description || door.content;
+}
+
+function toggleSubmenu(submenuId) {
+    const submenu = document.getElementById(submenuId);
+    const toggle = submenu.previousElementSibling;
+    
+    if (!submenu || !toggle) return;
+    
+    const isActive = submenu.classList.contains('active');
+    
+    // Schließe alle anderen Untermenüs
+    document.querySelectorAll('.menu-submenu').forEach(sm => {
+        sm.classList.remove('active');
+    });
+    document.querySelectorAll('.menu-submenu-toggle').forEach(t => {
+        t.classList.remove('active');
+    });
+    
+    // Toggle aktuelles Untermenü
+    if (!isActive) {
+        submenu.classList.add('active');
+        toggle.classList.add('active');
+    }
+}
+
+function openDoorFromMenu(day) {
+    closeMenu();
+    setTimeout(() => {
+        openDoor(day);
+    }, 300);
+}
+
+// ========================================
 // KONFIGURATION LADEN
 // ========================================
 async function loadConfig() {
@@ -150,6 +266,7 @@ async function loadCalendarData() {
         const response = await fetch('/api/calendar');
         calendarData = await response.json();
         renderCalendar();
+        updateOpenedDoorsMenu(); // Aktualisiere Menü nach Laden
     } catch (error) {
         console.error('Fehler beim Laden der Kalenderdaten:', error);
         showError('Kalender konnte nicht geladen werden.');
@@ -269,6 +386,9 @@ async function openDoor(day) {
             doorElement.classList.add('opened');
         }
         
+        // Kalenderdaten aktualisieren und Menü refreshen
+        await loadCalendarData();
+        
         // Inhalt im Modal anzeigen
         showModal(data);
         
@@ -335,7 +455,8 @@ function showModal(data) {
                 'santa-snake',
                 'christmas-memory',
                 'feeding-elf',
-                'bubble-shooter'
+                'bubble-shooter',
+                'word-search'
             ];
             
             if (fullscreenGames.includes(data.content)) {

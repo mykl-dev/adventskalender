@@ -101,6 +101,16 @@
       "difficulty": "medium",
       "scoreType": "points",
       "active": true
+    },
+    {
+      "id": "word-search",
+      "name": "Wörter-Suchrätsel",
+      "icon": "🔍",
+      "description": "Finde alle versteckten Weihnachtswörter im Buchstabengitter!",
+      "category": "puzzle",
+      "difficulty": "medium",
+      "scoreType": "points",
+      "active": true
     }
   ]
 }

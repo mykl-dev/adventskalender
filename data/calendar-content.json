@@ -28,8 +28,9 @@
     },
     {
       "day": 5,
-      "type": "quote",
-      "content": "Weihnachten ist nicht ein Zeitpunkt noch eine Jahreszeit, sondern eine Gefühlslage. ✨",
+      "type": "game",
+      "content": "word-search",
+      "description": "Spiel: Wörter-Suchrätsel - Finde alle Weihnachtswörter! 🔍🎄",
       "opened": false
     },
     {

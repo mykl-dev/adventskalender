@@ -57,6 +57,12 @@
                 <span class="menu-icon">🏆</span>
                 <span>Dashboard</span>
             </a>
+            
+            <!-- Geöffnete Türchen Untermenüs -->
+            <div id="opened-doors-section">
+                <!-- Wird dynamisch gefüllt -->
+            </div>
+            
             <div class="menu-item" onclick="toggleThemeFromMenu()">
                 <span class="menu-icon">🎨</span>
                 <span id="themeMenuText">Design: Modern</span>
@@ -256,6 +262,12 @@
         // Initialize on page load
         window.addEventListener('load', () => {
             checkSession();
+            // Lade geöffnete Türchen für Menü (mit kleiner Verzögerung für calendarData)
+            setTimeout(() => {
+                if (typeof updateOpenedDoorsMenu === 'function') {
+                    updateOpenedDoorsMenu();
+                }
+            }, 500);
         });
     </script>
     <script src="avatarManager.js"></script>
