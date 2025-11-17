@@ -145,6 +145,8 @@ function placeWords() {
         { dr: -1, dc: 1 }   // diagonal ↗
     ];
 
+    const placedWords = [];
+    
     for (let word of gameState.words) {
         let placed = false;
         let attempts = 0;
@@ -163,8 +165,20 @@ function placeWords() {
             if (canPlaceWord(word, row, col, dir)) {
                 placeWord(word, row, col, dir);
                 placed = true;
+                placedWords.push(word);
             }
         }
+        
+        if (!placed) {
+            console.warn('Konnte Wort nicht platzieren:', word);
+        }
+    }
+    
+    // Wenn nicht alle Wörter platziert wurden, versuche es erneut
+    if (placedWords.length < gameState.words.length) {
+        console.log('Wiederhole Platzierung...');
+        createEmptyGrid();
+        placeWords();
     }
 }
 
@@ -517,6 +531,9 @@ async function endGame() {
         gameState.score += timeBonus;
     }
     
+    // Zeige fehlende Wörter kurz an
+    await showMissingWords();
+    
     const totalTime = Math.floor((Date.now() - gameState.gameStartTime) / 1000);
     
     // Stats anzeigen
@@ -547,6 +564,38 @@ async function endGame() {
     
     // Overlay anzeigen
     document.getElementById('gameoverOverlay').style.display = 'flex';
+}
+
+async function showMissingWords() {
+    return new Promise(resolve => {
+        // Finde fehlende Wörter
+        const missingWords = gameState.words.filter(wordObj => {
+            const word = typeof wordObj === 'string' ? wordObj : wordObj.text;
+            return !gameState.foundWords.has(word);
+        });
+        
+        if (missingWords.length === 0) {
+            resolve();
+            return;
+        }
+        
+        // Markiere fehlende Wörter in gelb/orange
+        missingWords.forEach(wordObj => {
+            if (typeof wordObj === 'object' && wordObj.positions) {
+                wordObj.positions.forEach(pos => {
+                    const cell = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
+                    if (cell) {
+                        cell.classList.add('missed');
+                    }
+                });
+            }
+        });
+        
+        // Nach 2 Sekunden auflösen
+        setTimeout(() => {
+            resolve();
+        }, 2000);
+    });
 }
 
 async function loadTop3() {

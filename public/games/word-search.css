@@ -224,9 +224,23 @@ body {
     color: white;
 }
 
+.cell.missed {
+    background: linear-gradient(135deg, #FFB74D, #FFA726);
+    color: white;
+    animation: missedPulse 1s ease infinite;
+}
+
 /* ========================================
    ANIMATIONS
    ======================================== */
+@keyframes missedPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
 @keyframes correctPulse {
     0%, 100% {
         transform: scale(1);
