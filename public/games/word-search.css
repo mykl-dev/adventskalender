@@ -132,8 +132,8 @@ body {
    ======================================== */
 #gameContainer {
     width: 100%;
-    max-width: 600px;
-    padding: 20px;
+    max-width: 700px;
+    padding: 10px;
 }
 
 /* ========================================
@@ -201,8 +201,8 @@ body {
     user-select: none;
     -webkit-user-select: none;
     touch-action: none;
-    min-width: 35px;
-    min-height: 35px;
+    min-width: 40px;
+    min-height: 40px;
 }
 
 .cell:hover {
@@ -403,6 +403,10 @@ body {
    RESPONSIVE
    ======================================== */
 @media (max-width: 600px) {
+    #gameContainer {
+        padding: 5px;
+    }
+
     .overlay-content h1 {
         font-size: 2rem;
     }
@@ -412,9 +416,9 @@ body {
     }
 
     .cell {
-        font-size: 1.2rem;
-        min-width: 30px;
-        min-height: 30px;
+        font-size: 1.3rem;
+        min-width: 36px;
+        min-height: 36px;
     }
 
     .hud {
