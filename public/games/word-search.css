@@ -219,7 +219,6 @@ body {
 .cell.found {
     background: linear-gradient(135deg, #81C784, #66BB6A);
     color: white;
-    pointer-events: none;
 }
 
 /* ========================================
