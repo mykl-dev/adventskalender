@@ -479,17 +479,18 @@ class FlappySanta {
             this.showDifficultyNotification();
         } else if (this.score === 10) {
             this.obstacleSpeed += 0.3;
-            this.obstacleGap = 190;
             this.showDifficultyNotification();
         } else if (this.score === 15) {
             this.obstacleSpeed += 0.4;
-            this.obstacleSpacing = Math.max(220, this.obstacleSpacing * 0.9); // 10% enger
             this.showDifficultyNotification();
         } else if (this.score === 20) {
-            this.obstacleGap = 180;
+            this.obstacleSpeed += 0.3;
             this.showDifficultyNotification();
         } else if (this.score === 25) {
             this.obstacleSpeed += 0.3;
+            this.showDifficultyNotification();
+        } else if (this.score === 30) {
+            this.obstacleSpeed += 0.4;
             this.showDifficultyNotification();
         }
     }
