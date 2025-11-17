@@ -13,6 +13,7 @@ let gameState = {
     gameStartTime: null,
     isSelecting: false,
     selectedCells: [],
+    selectionDirection: null,
     gridSize: { rows: 10, cols: 10 },
     round: 1,
     timeLimit: 120,
@@ -84,6 +85,7 @@ function initGame() {
         gameStartTime: gameStart,
         isSelecting: false,
         selectedCells: [],
+        selectionDirection: null,
         gridSize: gameState.gridSize,
         round: currentRound,
         timeLimit: currentTimeLimit,
@@ -279,6 +281,7 @@ function handleSelectionStart(e) {
     if (e.target.classList.contains('cell')) {
         gameState.isSelecting = true;
         gameState.selectedCells = [];
+        gameState.selectionDirection = null;
         addCellToSelection(e.target);
     }
 }
@@ -300,6 +303,7 @@ function handleTouchStart(e) {
     if (cell && cell.classList.contains('cell')) {
         gameState.isSelecting = true;
         gameState.selectedCells = [];
+        gameState.selectionDirection = null;
         addCellToSelection(cell);
     }
 }
@@ -332,10 +336,37 @@ function addCellToSelection(cell) {
         c => c.row === row && c.col === col
     );
     
-    if (!alreadySelected) {
-        gameState.selectedCells.push({ row, col, element: cell });
-        cell.classList.add('selected');
+    if (alreadySelected) return;
+    
+    // Wenn wir schon 2+ Zellen haben, prüfe Richtung
+    if (gameState.selectedCells.length >= 1) {
+        const lastCell = gameState.selectedCells[gameState.selectedCells.length - 1];
+        const deltaRow = row - lastCell.row;
+        const deltaCol = col - lastCell.col;
+        
+        // Bestimme Richtung bei 2. Zelle
+        if (gameState.selectedCells.length === 1 && (deltaRow !== 0 || deltaCol !== 0)) {
+            // Normalisiere Richtung auf -1, 0, 1
+            gameState.selectionDirection = {
+                dr: deltaRow === 0 ? 0 : (deltaRow > 0 ? 1 : -1),
+                dc: deltaCol === 0 ? 0 : (deltaCol > 0 ? 1 : -1)
+            };
+        }
+        
+        // Wenn Richtung gesetzt ist, prüfe ob neue Zelle passt
+        if (gameState.selectionDirection) {
+            const expectedRow = lastCell.row + gameState.selectionDirection.dr;
+            const expectedCol = lastCell.col + gameState.selectionDirection.dc;
+            
+            // Erlaube nur Zellen in der festgelegten Richtung
+            if (row !== expectedRow || col !== expectedCol) {
+                return; // Ignoriere Zellen außerhalb der Richtung
+            }
+        }
     }
+    
+    gameState.selectedCells.push({ row, col, element: cell });
+    cell.classList.add('selected');
 }
 
 function validateSelection() {
