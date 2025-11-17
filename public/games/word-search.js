@@ -6,6 +6,7 @@ const GAME_NAME = 'word-search';
 let gameState = {
     grid: [],
     words: [],
+    wordPositions: new Map(),
     foundWords: new Set(),
     score: 0,
     startTime: null,
@@ -76,6 +77,7 @@ function initGame() {
     gameState = {
         grid: [],
         words: [],
+        wordPositions: new Map(),
         foundWords: new Set(),
         score: currentScore,
         startTime: Date.now(),
@@ -213,9 +215,8 @@ function placeWord(word, startRow, startCol, dir) {
         positions.push({ row: r, col: c });
     }
     
-    // Speichere Positionen für Validierung
-    const wordIndex = gameState.words.indexOf(word);
-    gameState.words[wordIndex] = { text: word, positions };
+    // Speichere Positionen separat
+    gameState.wordPositions.set(word, positions);
 }
 
 function fillEmptySpaces() {
@@ -345,10 +346,11 @@ function validateSelection() {
     // Prüfe ob Wort gefunden
     let found = false;
     
-    for (let wordObj of gameState.words) {
-        if (typeof wordObj === 'string') continue;
+    for (let word of gameState.words) {
+        const positions = gameState.wordPositions.get(word);
+        if (!positions) continue;
         
-        const { text, positions } = wordObj;
+        const text = word;
         
         // Bereits gefunden?
         if (gameState.foundWords.has(text)) continue;
@@ -451,8 +453,7 @@ function renderWordsList() {
     const container = document.getElementById('wordsToFind');
     container.innerHTML = '';
     
-    gameState.words.forEach(wordObj => {
-        const word = typeof wordObj === 'string' ? wordObj : wordObj.text;
+    gameState.words.forEach(word => {
         const div = document.createElement('div');
         div.className = 'word-item';
         div.textContent = word;
@@ -569,8 +570,7 @@ async function endGame() {
 async function showMissingWords() {
     return new Promise(resolve => {
         // Finde fehlende Wörter
-        const missingWords = gameState.words.filter(wordObj => {
-            const word = typeof wordObj === 'string' ? wordObj : wordObj.text;
+        const missingWords = gameState.words.filter(word => {
             return !gameState.foundWords.has(word);
         });
         
@@ -580,9 +580,10 @@ async function showMissingWords() {
         }
         
         // Markiere fehlende Wörter in gelb/orange
-        missingWords.forEach(wordObj => {
-            if (typeof wordObj === 'object' && wordObj.positions) {
-                wordObj.positions.forEach(pos => {
+        missingWords.forEach(word => {
+            const positions = gameState.wordPositions.get(word);
+            if (positions) {
+                positions.forEach(pos => {
                     const cell = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
                     if (cell) {
                         cell.classList.add('missed');
