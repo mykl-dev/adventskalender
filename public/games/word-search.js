@@ -8,6 +8,7 @@ let gameState = {
     words: [],
     wordPositions: new Map(),
     foundWords: new Set(),
+    usedWords: [],
     score: 0,
     startTime: null,
     gameStartTime: null,
@@ -22,7 +23,7 @@ let gameState = {
 
 let timerInterval = null;
 
-// Pool von 50+ Weihnachtswörtern
+// Pool von 100+ Weihnachtswörtern
 const WORD_POOL = [
     'WEIHNACHTEN', 'GESCHENK', 'BAUM', 'STERN', 'ENGEL',
     'KRIPPE', 'KERZE', 'LICHT', 'ADVENT', 'NIKOLAUS',
@@ -35,7 +36,24 @@ const WORD_POOL = [
     'FAMILIE', 'LIEBE', 'FRIEDEN', 'FREUDE', 'HOFFNUNG',
     'WUNSCH', 'ZAUBER', 'MAGIE', 'FEST', 'FEIER',
     'SINGEN', 'TANZEN', 'ESSEN', 'TRINKEN', 'GLANZ',
-    'SCHMUCK', 'BAND', 'SCHLEIFE', 'PAKET', 'KARTE'
+    'SCHMUCK', 'BAND', 'SCHLEIFE', 'PAKET', 'KARTE',
+    // Weitere Wörter
+    'WUNSCHZETTEL', 'NUSSKNACKER', 'VORFREUDE', 'HEILIGABEND', 'BESCHERUNG',
+    'CHRISTBAUM', 'RENTIERE', 'RUDOLPH', 'NORDPOL', 'WERKSTATT',
+    'ELFEN', 'WICHTEL', 'SPEKULATIUS', 'DOMINOSTEIN', 'MARZIPAN',
+    'PUNSCH', 'GLUEHWEIN', 'KAKAO', 'ZIMTSTERN', 'VANILLE',
+    'BRATAPFEL', 'MARONEN', 'NOUGAT', 'SCHOKOLADE', 'ADVENT',
+    'KALENDER', 'TUERCHEN', 'MOND', 'STERNE', 'HIMMEL',
+    'RUTE', 'SACK', 'RAUSCHEBART', 'MUETZE', 'MANTEL',
+    'STIEFEL', 'SOCKEN', 'STRUMPF', 'KRANZ', 'ZWEIG',
+    'TANNE', 'FICHTE', 'KIEFER', 'NADEL', 'HARZ',
+    'DUFT', 'GERUCH', 'AROMA', 'GEWUERZ', 'KARDAMOM',
+    'ANIS', 'INGWER', 'HONIG', 'ZUCKER', 'MEHL',
+    'TEIG', 'BACKEN', 'OFEN', 'BLECH', 'FORM',
+    'AUSSTECHFORM', 'ROLLE', 'NUDELHOLZ', 'REZEPT', 'TRADITION',
+    'BRAUCH', 'RITUAL', 'GLAUBE', 'RELIGION', 'KIRCHE',
+    'MESSE', 'CHOR', 'LIED', 'MELODIE', 'GESANG',
+    'GLOCKENSPIEL', 'ORGEL', 'PSALM', 'GEBET', 'SEGEN'
 ];
 
 // ========================================
@@ -74,12 +92,14 @@ function initGame() {
     const currentRound = gameState.round || 1;
     const currentTimeLimit = gameState.timeLimit || 120;
     const gameStart = gameState.gameStartTime || Date.now();
+    const usedWords = gameState.usedWords || [];
     
     gameState = {
         grid: [],
         words: [],
         wordPositions: new Map(),
         foundWords: new Set(),
+        usedWords: usedWords,
         score: currentScore,
         startTime: Date.now(),
         gameStartTime: gameStart,
@@ -118,14 +138,26 @@ function initGame() {
 }
 
 function selectRandomWords(count) {
-    const shuffled = [...WORD_POOL].sort(() => Math.random() - 0.5);
     const maxSize = Math.min(gameState.gridSize.rows, gameState.gridSize.cols);
+    
+    // Filtere bereits verwendete Wörter aus (letzte 15 Wörter)
+    const recentlyUsed = gameState.usedWords.slice(-15);
+    const availableWords = WORD_POOL.filter(word => 
+        word.length <= maxSize && !recentlyUsed.includes(word)
+    );
+    
+    // Falls zu wenige verfügbar, reset
+    const poolToUse = availableWords.length >= count ? availableWords : 
+        WORD_POOL.filter(word => word.length <= maxSize);
+    
+    const shuffled = [...poolToUse].sort(() => Math.random() - 0.5);
     
     // Wähle Wörter die ins Grid passen
     gameState.words = [];
     for (let word of shuffled) {
-        if (word.length <= maxSize && gameState.words.length < count) {
+        if (gameState.words.length < count) {
             gameState.words.push(word);
+            gameState.usedWords.push(word);
         }
         if (gameState.words.length === count) break;
     }
@@ -665,6 +697,7 @@ function restartGame() {
     gameState.round = 1;
     gameState.timeLimit = 120;
     gameState.gameStartTime = Date.now();
+    gameState.usedWords = [];
     
     initGame();
 }
