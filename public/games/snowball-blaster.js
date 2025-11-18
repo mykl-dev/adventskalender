@@ -558,9 +558,9 @@ function nextLevel() {
     gameState.comboMultiplier = 1;
     
     generateLevel(gameState.level);
+    gameState.timeBonusUsed = false; // Reset time bonus for new level
     resetBall();
     updateHUD();
-}   updateHUD();
 }
 
 // ========================================
