@@ -21,7 +21,7 @@ let gameState = {
         x: 0,
         y: 0,
         width: 100,
-        height: 15,
+        height: 20,
         speed: 8
     },
     
@@ -105,12 +105,12 @@ function initGame() {
     
     // Initialize paddle (mittig)
     gameState.paddle.x = canvas.width / 2;
-    gameState.paddle.y = canvas.height - 80;
+    gameState.paddle.y = canvas.height - 60;
     
     // Initialize ball (auf Paddle mittig)
     gameState.ball.launched = false;
     gameState.ball.x = canvas.width / 2;
-    gameState.ball.y = canvas.height - 80 - gameState.ball.radius - 5;
+    gameState.ball.y = canvas.height - 60 - gameState.ball.radius - 5;
     gameState.ball.velocityX = 0;
     gameState.ball.velocityY = 0;
     
@@ -137,7 +137,7 @@ function resizeCanvas() {
     // Reposition paddle and ball wenn canvas sich ändert
     if (gameState.paddle.y > 0) {
         gameState.paddle.x = canvas.width / 2;
-        gameState.paddle.y = canvas.height - 80;
+        gameState.paddle.y = canvas.height - 60;
         if (!gameState.ball.launched) {
             gameState.ball.x = gameState.paddle.x;
             gameState.ball.y = gameState.paddle.y - gameState.ball.radius - 5;
@@ -484,8 +484,8 @@ function draw() {
     const ctx = gameState.ctx;
     const canvas = gameState.canvas;
     
-    // Clear
-    ctx.fillStyle = 'linear-gradient(180deg, #0a1628 0%, #1a2a4a 100%)';
+    // Clear with dark background
+    ctx.fillStyle = '#0d1117';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Draw bricks
