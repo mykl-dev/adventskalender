@@ -12,7 +12,7 @@ let gameState = {
         radius: 8,
         velocityX: 0,
         velocityY: 0,
-        speed: 5,
+        speed: 7,
         launched: false
     },
     
@@ -103,12 +103,16 @@ function initGame() {
     gameState.timeRemaining = 120;
     gameState.gameStartTime = Date.now();
     
-    // Initialize paddle
+    // Initialize paddle (mittig)
     gameState.paddle.x = canvas.width / 2;
     gameState.paddle.y = canvas.height - 40;
     
-    // Initialize ball
-    resetBall();
+    // Initialize ball (auf Paddle mittig)
+    gameState.ball.launched = false;
+    gameState.ball.x = canvas.width / 2;
+    gameState.ball.y = canvas.height - 40 - gameState.ball.radius - 5;
+    gameState.ball.velocityX = 0;
+    gameState.ball.velocityY = 0;
     
     // Generate first level
     generateLevel(1);
