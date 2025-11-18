@@ -604,6 +604,81 @@ function dropPowerUp(x, y) {
     });
 }
 
+function activatePowerUp(type) {
+    showPowerUpText(type.name);
+    
+    switch(type.id) {
+        case 'multiball':
+            // Create additional ball
+            const angle = (Math.random() * 60 - 30) * Math.PI / 180;
+            gameState.balls.push({
+                x: gameState.ball.x,
+                y: gameState.ball.y,
+                radius: gameState.ball.radius,
+                velocityX: gameState.ball.speed * Math.sin(angle),
+                velocityY: -gameState.ball.speed * Math.cos(angle),
+                speed: gameState.ball.speed
+            });
+            break;
+            
+        case 'widepaddle':
+            gameState.activePowerUps.push({
+                type: 'widepaddle',
+                duration: type.duration,
+                remaining: type.duration,
+                originalWidth: gameState.paddle.width
+            });
+            gameState.paddle.width = gameState.canvas.width;
+            break;
+            
+        case 'laser':
+            gameState.activePowerUps.push({
+                type: 'laser',
+                duration: type.duration,
+                remaining: type.duration,
+                lastShot: Date.now()
+            });
+            break;
+            
+        case 'slowmo':
+            gameState.activePowerUps.push({
+                type: 'slowmo',
+                duration: type.duration,
+                remaining: type.duration,
+                originalSpeed: gameState.ball.speed
+            });
+            gameState.ball.speed *= 0.5;
+            gameState.balls.forEach(b => b.speed *= 0.5);
+            break;
+            
+        case 'magnetball':
+            gameState.activePowerUps.push({
+                type: 'magnetball',
+                duration: type.duration,
+                remaining: type.duration
+            });
+            break;
+            
+        case 'fireball':
+            gameState.activePowerUps.push({
+                type: 'fireball',
+                duration: type.duration,
+                remaining: type.duration
+            });
+            break;
+    }
+}
+
+function showPowerUpText(text) {
+    comboTexts.push({
+        x: gameState.canvas.width / 2,
+        y: gameState.canvas.height / 2,
+        text: text,
+        life: 1.5,
+        multiplier: 999 // Special marker for power-up text
+    });
+}
+
 function updateParticles() {
     particles.forEach(p => {
         p.x += p.vx;
