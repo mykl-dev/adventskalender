@@ -425,6 +425,11 @@ function checkPaddleCollision() {
         if (Math.abs(ball.velocityY) < ball.speed * 0.5) {
             ball.velocityY = -ball.speed * 0.7;
         }
+        
+        // Reset combo on paddle hit (new flight phase)
+        gameState.combo = 0;
+        gameState.comboMultiplier = 1;
+        updateHUD();
     }
 }
 
@@ -480,8 +485,6 @@ function checkBrickCollisions() {
 
 function loseLife() {
     gameState.lives--;
-    gameState.combo = 0;
-    gameState.comboMultiplier = 1;
     updateHUD();
     
     if (gameState.lives > 0) {
