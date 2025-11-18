@@ -605,14 +605,18 @@ function dropPowerUp(x, y) {
     }
     
     const type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
-    gameState.powerUps.push({
-        x: x,
-        y: y,
-        width: 40,
-        height: 40,
-        velocity: 2,
-        type: type
-    });
+    
+    // Delay spawn by 300ms to prevent instant pickup
+    setTimeout(() => {
+        gameState.powerUps.push({
+            x: x,
+            y: y,
+            width: 30,
+            height: 30,
+            velocity: 1, // Slower fall speed
+            type: type
+        });
+    }, 300);
 }
 
 function activatePowerUp(type) {
@@ -741,7 +745,7 @@ function updatePowerUps() {
     const canvas = gameState.canvas;
     const ball = gameState.ball;
     
-    // Move power-ups down
+    // Move power-ups down (slowly)
     gameState.powerUps.forEach(p => {
         p.y += p.velocity;
     });
@@ -939,50 +943,16 @@ function drawPowerUps() {
         
         // Shadow/glow
         ctx.shadowColor = p.type.color;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 10;
         
-        // Gift box body
-        const gradient = ctx.createLinearGradient(
-            p.x - p.width/2, p.y - p.height/2,
-            p.x + p.width/2, p.y + p.height/2
-        );
-        gradient.addColorStop(0, p.type.color);
-        gradient.addColorStop(1, adjustBrightness(p.type.color, -20));
-        
-        ctx.fillStyle = gradient;
-        ctx.fillRect(p.x - p.width/2, p.y - p.height/2, p.width, p.height);
-        
-        // Ribbon (horizontal)
-        ctx.fillStyle = '#FFD700';
-        ctx.fillRect(p.x - p.width/2, p.y - 3, p.width, 6);
-        
-        // Ribbon (vertical)
-        ctx.fillRect(p.x - 3, p.y - p.height/2, 6, p.height);
-        
-        // Bow on top
-        ctx.fillStyle = '#FFD700';
-        ctx.beginPath();
-        ctx.arc(p.x - 8, p.y - p.height/2 - 5, 5, 0, Math.PI * 2);
-        ctx.arc(p.x + 8, p.y - p.height/2 - 5, 5, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Bow center
-        ctx.fillRect(p.x - 3, p.y - p.height/2 - 8, 6, 6);
+        // Draw gift emoji using text
+        ctx.font = `${p.width}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🎁', p.x, p.y);
         
         ctx.restore();
     });
-}
-
-function adjustBrightness(color, percent) {
-    const num = parseInt(color.replace('#', ''), 16);
-    const amt = Math.round(2.55 * percent);
-    const R = (num >> 16) + amt;
-    const G = (num >> 8 & 0x00FF) + amt;
-    const B = (num & 0x0000FF) + amt;
-    return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-        (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-        (B < 255 ? B < 1 ? 0 : B : 255))
-        .toString(16).slice(1);
 }
 
 function drawExtraBall(ball) {
