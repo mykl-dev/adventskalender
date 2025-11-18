@@ -135,7 +135,7 @@ class GiftCatcherGame3D {
         
         // Catcher höher positionieren für bessere Erreichbarkeit auf Mobile
         this.catcherX = this.canvas.width / 2;
-        this.catcherY = this.canvas.height - 120; // Weiter oben (war 80)
+        this.catcherY = this.canvas.height - 160; // Noch weiter oben für bessere Handy-Bedienung
         this.catcherWidth = Math.min(80, this.canvas.width / 8);
         this.catcherHeight = Math.min(80, this.canvas.width / 8);
         

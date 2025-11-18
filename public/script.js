@@ -409,13 +409,30 @@ function showModal(data) {
     
     switch (data.type) {
         case 'video':
-            content += `
-                <video class="content-video" controls>
-                    <source src="${data.content}" type="video/mp4">
-                    Dein Browser unterstützt keine Videos.
-                </video>
-                ${data.description ? `<p class="content-text">${data.description}</p>` : ''}
-            `;
+            // Prüfe ob es ein Share-Link ist (NAS, Dropbox, etc.) oder direkte Video-URL
+            const isShareLink = data.content.includes('share.cgi') || 
+                                data.content.includes('dropbox.com') || 
+                                data.content.includes('drive.google.com') ||
+                                !data.content.match(/\.(mp4|webm|ogg)$/i);
+            
+            if (isShareLink) {
+                content += `
+                    <iframe class="content-video" src="${data.content}" 
+                            frameborder="0" 
+                            allowfullscreen
+                            allow="autoplay; fullscreen">
+                    </iframe>
+                    ${data.description ? `<p class="content-text">${data.description}</p>` : ''}
+                `;
+            } else {
+                content += `
+                    <video class="content-video" controls>
+                        <source src="${data.content}" type="video/mp4">
+                        Dein Browser unterstützt keine Videos.
+                    </video>
+                    ${data.description ? `<p class="content-text">${data.description}</p>` : ''}
+                `;
+            }
             break;
             
         case 'image':
@@ -525,6 +542,21 @@ function initializeGame(gameName, containerId) {
 
 function closeModal() {
     const modal = document.getElementById('door-modal');
+    const modalBody = document.getElementById('modal-body');
+    
+    // Stoppe alle Videos
+    const videos = modalBody.querySelectorAll('video');
+    videos.forEach(video => {
+        video.pause();
+        video.currentTime = 0;
+    });
+    
+    // Entferne alle iframes komplett (stoppt Wiedergabe zuverlässig)
+    const iframes = modalBody.querySelectorAll('iframe');
+    iframes.forEach(iframe => {
+        iframe.remove();
+    });
+    
     modal.classList.remove('show');
     document.body.style.overflow = '';
 }
