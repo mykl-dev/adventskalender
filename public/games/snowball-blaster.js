@@ -39,6 +39,7 @@ let gameState = {
     powerUps: [],
     activePowerUps: [],
     balls: [], // Additional balls for multi-ball power-up
+    timeBonusUsed: false, // Track if time bonus was already given this level
     
     // Canvas
     canvas: null,
@@ -60,12 +61,13 @@ let comboTexts = [];
 
 // Power-Up Types
 const POWER_UP_TYPES = [
-    { id: 'multiball', icon: '🎾', name: 'Doppelball', color: '#FF6B6B', duration: 0 },
-    { id: 'widepaddle', icon: '↔️', name: 'Breite Plattform', color: '#4ECDC4', duration: 5000 },
-    { id: 'laser', icon: '🔫', name: 'Laser-Kanone', color: '#FFD93D', duration: 5000 },
-    { id: 'slowmo', icon: '⏱️', name: 'Zeitlupe', color: '#A8E6CF', duration: 5000 },
-    { id: 'magnetball', icon: '🧲', name: 'Magnet-Ball', color: '#FF8B94', duration: 5000 },
-    { id: 'fireball', icon: '🔥', name: 'Feuerball', color: '#FFA500', duration: 5000 }
+    { id: 'multiball', icon: '🎁', name: 'Doppelball', color: '#FF6B6B', duration: 0 },
+    { id: 'widepaddle', icon: '🎁', name: 'Breite Plattform', color: '#4ECDC4', duration: 10000 },
+    { id: 'laser', icon: '🎁', name: 'Laser-Kanone', color: '#FFD93D', duration: 10000 },
+    { id: 'slowmo', icon: '🎁', name: 'Zeitlupe', color: '#A8E6CF', duration: 10000 },
+    { id: 'magnetball', icon: '🎁', name: 'Magnet-Ball', color: '#FF8B94', duration: 10000 },
+    { id: 'fireball', icon: '🎁', name: 'Feuerball', color: '#FFA500', duration: 10000 },
+    { id: 'timebonus', icon: '🎁', name: '+30 Sekunden', color: '#9B59B6', duration: 0 }
 ];
 
 // Brick colors
@@ -550,7 +552,7 @@ function loseLife() {
 
 function nextLevel() {
     gameState.level++;
-    gameState.timeLimit = Math.max(30, gameState.timeLimit - 10);
+    gameState.timeLimit = gameState.timeLimit + 60; // +60 Sekunden pro Level
     gameState.timeRemaining = gameState.timeLimit;
     gameState.combo = 0;
     gameState.comboMultiplier = 1;
@@ -558,6 +560,7 @@ function nextLevel() {
     generateLevel(gameState.level);
     resetBall();
     updateHUD();
+}   updateHUD();
 }
 
 // ========================================
@@ -593,7 +596,15 @@ function showComboText(x, y, points, multiplier) {
 }
 
 function dropPowerUp(x, y) {
-    const type = POWER_UP_TYPES[Math.floor(Math.random() * POWER_UP_TYPES.length)];
+    let availableTypes = POWER_UP_TYPES.filter(t => t.id !== 'timebonus');
+    
+    // 15% chance for time bonus if not yet used this level
+    if (!gameState.timeBonusUsed && Math.random() < 0.15) {
+        const timeBonus = POWER_UP_TYPES.find(t => t.id === 'timebonus');
+        availableTypes = [timeBonus];
+    }
+    
+    const type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
     gameState.powerUps.push({
         x: x,
         y: y,
@@ -665,6 +676,12 @@ function activatePowerUp(type) {
                 duration: type.duration,
                 remaining: type.duration
             });
+            break;
+            
+        case 'timebonus':
+            gameState.timeRemaining += 30;
+            gameState.timeBonusUsed = true;
+            updateHUD();
             break;
     }
 }
@@ -924,19 +941,48 @@ function drawPowerUps() {
         ctx.shadowColor = p.type.color;
         ctx.shadowBlur = 15;
         
-        // Background box
-        ctx.fillStyle = p.type.color;
+        // Gift box body
+        const gradient = ctx.createLinearGradient(
+            p.x - p.width/2, p.y - p.height/2,
+            p.x + p.width/2, p.y + p.height/2
+        );
+        gradient.addColorStop(0, p.type.color);
+        gradient.addColorStop(1, adjustBrightness(p.type.color, -20));
+        
+        ctx.fillStyle = gradient;
         ctx.fillRect(p.x - p.width/2, p.y - p.height/2, p.width, p.height);
         
-        // Icon
-        ctx.font = '28px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(p.type.icon, p.x, p.y);
+        // Ribbon (horizontal)
+        ctx.fillStyle = '#FFD700';
+        ctx.fillRect(p.x - p.width/2, p.y - 3, p.width, 6);
+        
+        // Ribbon (vertical)
+        ctx.fillRect(p.x - 3, p.y - p.height/2, 6, p.height);
+        
+        // Bow on top
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(p.x - 8, p.y - p.height/2 - 5, 5, 0, Math.PI * 2);
+        ctx.arc(p.x + 8, p.y - p.height/2 - 5, 5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Bow center
+        ctx.fillRect(p.x - 3, p.y - p.height/2 - 8, 6, 6);
         
         ctx.restore();
     });
+}
+
+function adjustBrightness(color, percent) {
+    const num = parseInt(color.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+        (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+        (B < 255 ? B < 1 ? 0 : B : 255))
+        .toString(16).slice(1);
 }
 
 function drawExtraBall(ball) {
