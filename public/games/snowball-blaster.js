@@ -933,6 +933,9 @@ function draw() {
     gameState.balls.forEach(ball => {
         drawExtraBall(ball);
     });
+    
+    // Draw active power-up indicators
+    drawActivePowerUpIndicators();
 }
 
 function drawPowerUps() {
@@ -976,6 +979,80 @@ function drawExtraBall(ball) {
     ctx.beginPath();
     ctx.arc(ball.x - ball.radius / 3, ball.y - ball.radius / 3, ball.radius / 3, 0, Math.PI * 2);
     ctx.fill();
+}
+
+function drawActivePowerUpIndicators() {
+    const ctx = gameState.ctx;
+    const canvas = gameState.canvas;
+    
+    // Filter power-ups with duration (exclude permanent ones like multiball and timebonus)
+    const timedPowerUps = gameState.activePowerUps.filter(p => 
+        p.duration > 0 && p.type !== 'multiball' && p.type !== 'timebonus'
+    );
+    
+    const iconSize = 40;
+    const margin = 10;
+    const startX = canvas.width - iconSize - margin;
+    const startY = margin + 60; // Below HUD
+    
+    timedPowerUps.forEach((powerUp, index) => {
+        const x = startX;
+        const y = startY + (iconSize + 10) * index;
+        const centerX = x + iconSize / 2;
+        const centerY = y + iconSize / 2;
+        
+        // Get power-up type info
+        const typeInfo = POWER_UP_TYPES.find(t => t.id === powerUp.type);
+        if (!typeInfo) return;
+        
+        // Calculate progress (0 to 1)
+        const progress = powerUp.remaining / powerUp.duration;
+        
+        ctx.save();
+        
+        // Glow effect
+        ctx.shadowColor = typeInfo.color;
+        ctx.shadowBlur = 15;
+        
+        // Background circle
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, iconSize / 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Timer ring (shrinking border)
+        ctx.strokeStyle = typeInfo.color;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(
+            centerX, 
+            centerY, 
+            iconSize / 2 - 2,
+            -Math.PI / 2,
+            -Math.PI / 2 + (Math.PI * 2 * progress)
+        );
+        ctx.stroke();
+        
+        // Icon emoji
+        ctx.shadowBlur = 0;
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Draw appropriate icon based on power-up type
+        let icon = '🎁';
+        switch(powerUp.type) {
+            case 'widepaddle': icon = '↔️'; break;
+            case 'laser': icon = '🔫'; break;
+            case 'slowmo': icon = '⏱️'; break;
+            case 'magnetball': icon = '🧲'; break;
+            case 'fireball': icon = '🔥'; break;
+        }
+        
+        ctx.fillText(icon, centerX, centerY);
+        
+        ctx.restore();
+    });
 }
 
 function drawBrick(brick) {
