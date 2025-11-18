@@ -42,11 +42,16 @@ let gameState = {
     // Input
     keys: {},
     touchX: null,
-    mouse: { x: 0, down: false }
+    mouse: { x: 0, down: false },
+    
+    // Combo system
+    combo: 0,
+    comboMultiplier: 1
 };
 
 let timerInterval = null;
 let particles = [];
+let comboTexts = [];
 
 // Brick colors
 const BRICK_COLORS = [
@@ -120,6 +125,9 @@ function initGame() {
     
     // Setup controls
     setupControls();
+    
+    // Initialize mouse position to center
+    gameState.mouse.x = canvas.width / 2;
     
     // Start game loop
     startTimer();
@@ -325,6 +333,7 @@ function update() {
     
     // Update particles
     updateParticles();
+    updateComboTexts();
     
     // Check for level complete
     const visibleBricks = gameState.bricks.filter(b => b.visible).length;
@@ -435,9 +444,17 @@ function checkBrickCollisions() {
         
         if (distance < ball.radius) {
             brick.visible = false;
-            gameState.score += 10;
+            
+            // Combo system
+            gameState.combo++;
+            gameState.comboMultiplier = Math.floor(gameState.combo / 3) + 1;
+            
+            const points = 10 * gameState.comboMultiplier;
+            gameState.score += points;
             gameState.totalBricksDestroyed++;
+            
             createBrickParticles(brick);
+            showComboText(brick.x + brick.width / 2, brick.y + brick.height / 2, points, gameState.comboMultiplier);
             updateHUD();
             
             // Determine bounce direction
@@ -463,6 +480,8 @@ function checkBrickCollisions() {
 
 function loseLife() {
     gameState.lives--;
+    gameState.combo = 0;
+    gameState.comboMultiplier = 1;
     updateHUD();
     
     if (gameState.lives > 0) {
@@ -476,6 +495,8 @@ function nextLevel() {
     gameState.level++;
     gameState.timeLimit = Math.max(30, gameState.timeLimit - 10);
     gameState.timeRemaining = gameState.timeLimit;
+    gameState.combo = 0;
+    gameState.comboMultiplier = 1;
     
     generateLevel(gameState.level);
     resetBall();
@@ -504,6 +525,16 @@ function createBrickParticles(brick) {
     }
 }
 
+function showComboText(x, y, points, multiplier) {
+    comboTexts.push({
+        x: x,
+        y: y,
+        text: multiplier > 1 ? `+${points} (x${multiplier})` : `+${points}`,
+        life: 1.0,
+        multiplier: multiplier
+    });
+}
+
 function updateParticles() {
     particles.forEach(p => {
         p.x += p.vx;
@@ -513,6 +544,15 @@ function updateParticles() {
     });
     
     particles = particles.filter(p => p.life > 0);
+}
+
+function updateComboTexts() {
+    comboTexts.forEach(t => {
+        t.y -= 1;
+        t.life -= 0.015;
+    });
+    
+    comboTexts = comboTexts.filter(t => t.life > 0);
 }
 
 function drawParticles() {
@@ -525,6 +565,30 @@ function drawParticles() {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
+    });
+}
+
+function drawComboTexts() {
+    const ctx = gameState.ctx;
+    
+    comboTexts.forEach(t => {
+        ctx.save();
+        ctx.globalAlpha = t.life;
+        ctx.font = 'bold 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Glow effect
+        if (t.multiplier > 1) {
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = '#FFD700';
+        } else {
+            ctx.fillStyle = '#FFFFFF';
+        }
+        
+        ctx.fillText(t.text, t.x, t.y);
         ctx.restore();
     });
 }
@@ -549,6 +613,7 @@ function draw() {
     
     // Draw particles
     drawParticles();
+    drawComboTexts();
     
     // Draw paddle
     drawPaddle();
@@ -685,6 +750,18 @@ function updateHUD() {
     document.getElementById('level').textContent = gameState.level;
     document.getElementById('lives').textContent = gameState.lives;
     document.getElementById('score').textContent = gameState.score;
+    
+    // Combo display
+    const comboDisplay = document.getElementById('comboDisplay');
+    const comboText = document.getElementById('combo');
+    if (gameState.comboMultiplier > 1) {
+        comboDisplay.style.display = 'flex';
+        comboText.textContent = `x${gameState.comboMultiplier}`;
+        comboText.style.color = '#FFD700';
+        comboText.style.textShadow = '0 0 10px #FFD700';
+    } else {
+        comboDisplay.style.display = 'none';
+    }
 }
 
 // ========================================
