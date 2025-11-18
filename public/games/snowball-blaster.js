@@ -20,8 +20,8 @@ let gameState = {
     paddle: {
         x: 0,
         y: 0,
-        width: 100,
-        height: 20,
+        width: 120,
+        height: 15,
         speed: 8
     },
     
@@ -46,6 +46,7 @@ let gameState = {
 };
 
 let timerInterval = null;
+let particles = [];
 
 // Brick colors
 const BRICK_COLORS = [
@@ -105,12 +106,12 @@ function initGame() {
     
     // Initialize paddle (mittig)
     gameState.paddle.x = canvas.width / 2;
-    gameState.paddle.y = canvas.height - 60;
+    gameState.paddle.y = canvas.height - 100;
     
     // Initialize ball (auf Paddle mittig)
     gameState.ball.launched = false;
     gameState.ball.x = canvas.width / 2;
-    gameState.ball.y = canvas.height - 60 - gameState.ball.radius - 5;
+    gameState.ball.y = canvas.height - 100 - gameState.ball.radius - 5;
     gameState.ball.velocityX = 0;
     gameState.ball.velocityY = 0;
     
@@ -137,7 +138,7 @@ function resizeCanvas() {
     // Reposition paddle and ball wenn canvas sich ändert
     if (gameState.paddle.y > 0) {
         gameState.paddle.x = canvas.width / 2;
-        gameState.paddle.y = canvas.height - 60;
+        gameState.paddle.y = canvas.height - 100;
         if (!gameState.ball.launched) {
             gameState.ball.x = gameState.paddle.x;
             gameState.ball.y = gameState.paddle.y - gameState.ball.radius - 5;
@@ -322,6 +323,9 @@ function update() {
         gameState.ball.y = gameState.paddle.y - gameState.ball.radius - 5;
     }
     
+    // Update particles
+    updateParticles();
+    
     // Check for level complete
     const visibleBricks = gameState.bricks.filter(b => b.visible).length;
     if (visibleBricks === 0) {
@@ -433,6 +437,7 @@ function checkBrickCollisions() {
             brick.visible = false;
             gameState.score += 10;
             gameState.totalBricksDestroyed++;
+            createBrickParticles(brick);
             updateHUD();
             
             // Determine bounce direction
@@ -478,6 +483,53 @@ function nextLevel() {
 }
 
 // ========================================
+// PARTICLE SYSTEM
+// ========================================
+function createBrickParticles(brick) {
+    const particleCount = 8;
+    const centerX = brick.x + brick.width / 2;
+    const centerY = brick.y + brick.height / 2;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const angle = (Math.PI * 2 * i) / particleCount;
+        particles.push({
+            x: centerX,
+            y: centerY,
+            vx: Math.cos(angle) * 3,
+            vy: Math.sin(angle) * 3,
+            life: 1.0,
+            color: brick.color,
+            size: 4
+        });
+    }
+}
+
+function updateParticles() {
+    particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.2; // Gravity
+        p.life -= 0.02;
+    });
+    
+    particles = particles.filter(p => p.life > 0);
+}
+
+function drawParticles() {
+    const ctx = gameState.ctx;
+    
+    particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    });
+}
+
+// ========================================
 // DRAWING
 // ========================================
 function draw() {
@@ -495,6 +547,9 @@ function draw() {
         }
     });
     
+    // Draw particles
+    drawParticles();
+    
     // Draw paddle
     drawPaddle();
     
@@ -505,19 +560,39 @@ function draw() {
 function drawBrick(brick) {
     const ctx = gameState.ctx;
     
-    // Main brick
-    ctx.fillStyle = brick.color;
+    // Main brick with gradient for glass effect
+    const gradient = ctx.createLinearGradient(brick.x, brick.y, brick.x, brick.y + brick.height);
+    gradient.addColorStop(0, brick.color);
+    gradient.addColorStop(0.5, brick.darkColor);
+    gradient.addColorStop(1, brick.color);
+    
+    ctx.fillStyle = gradient;
     ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
     
-    // 3D effect
-    ctx.fillStyle = brick.darkColor;
-    ctx.fillRect(brick.x, brick.y + brick.height - 5, brick.width, 5);
-    ctx.fillRect(brick.x + brick.width - 5, brick.y, 5, brick.height);
+    // Ice/Glass shine effect (top highlight)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillRect(brick.x, brick.y, brick.width, brick.height * 0.3);
     
-    // Border
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    // Ice crystals effect (diagonal lines)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(brick.x, brick.y + brick.height * 0.3);
+    ctx.lineTo(brick.x + brick.width * 0.3, brick.y);
+    ctx.moveTo(brick.x + brick.width * 0.5, brick.y + brick.height);
+    ctx.lineTo(brick.x + brick.width, brick.y + brick.height * 0.5);
+    ctx.stroke();
+    
+    // Frozen border
+    ctx.strokeStyle = 'rgba(200, 230, 255, 0.5)';
     ctx.lineWidth = 2;
     ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
+    
+    // Inner glow
+    ctx.shadowColor = brick.color;
+    ctx.shadowBlur = 8;
+    ctx.strokeRect(brick.x + 2, brick.y + 2, brick.width - 4, brick.height - 4);
+    ctx.shadowBlur = 0;
 }
 
 function drawPaddle() {
