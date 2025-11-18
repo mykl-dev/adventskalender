@@ -12,7 +12,7 @@ let gameState = {
         radius: 8,
         velocityX: 0,
         velocityY: 0,
-        speed: 7,
+        speed: 4,
         launched: false
     },
     
@@ -105,12 +105,12 @@ function initGame() {
     
     // Initialize paddle (mittig)
     gameState.paddle.x = canvas.width / 2;
-    gameState.paddle.y = canvas.height - 40;
+    gameState.paddle.y = canvas.height - 80;
     
     // Initialize ball (auf Paddle mittig)
     gameState.ball.launched = false;
     gameState.ball.x = canvas.width / 2;
-    gameState.ball.y = canvas.height - 40 - gameState.ball.radius - 5;
+    gameState.ball.y = canvas.height - 80 - gameState.ball.radius - 5;
     gameState.ball.velocityX = 0;
     gameState.ball.velocityY = 0;
     
@@ -129,15 +129,15 @@ function initGame() {
 function resizeCanvas() {
     const canvas = gameState.canvas;
     const hud = document.querySelector('.hud');
-    const hudHeight = hud ? hud.offsetHeight : 0;
+    const hudHeight = hud ? hud.offsetHeight : 60;
     
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - hudHeight;
+    canvas.height = window.innerHeight - hudHeight - 10;
     
     // Reposition paddle and ball wenn canvas sich ändert
     if (gameState.paddle.y > 0) {
         gameState.paddle.x = canvas.width / 2;
-        gameState.paddle.y = canvas.height - 40;
+        gameState.paddle.y = canvas.height - 80;
         if (!gameState.ball.launched) {
             gameState.ball.x = gameState.paddle.x;
             gameState.ball.y = gameState.paddle.y - gameState.ball.radius - 5;
