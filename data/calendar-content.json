@@ -21,9 +21,9 @@
     },
     {
       "day": 4,
-      "type": "image",
-      "content": "http://DEIN-NAS-SERVER/images/weihnacht-tag4.jpg",
-      "description": "Ein wunderschönes Winterbild zum Träumen! 🖼️",
+      "type": "game",
+      "content": "snowball-blaster",
+      "description": "Spiel: Snowball Blaster - Zerstöre alle Eisblöcke! ❄️⚡",
       "opened": false
     },
     {

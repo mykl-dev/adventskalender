@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
+    <title>❄️ Snowball Blaster</title>
+    <link rel="stylesheet" href="snowball-blaster.css">
+</head>
+<body>
+    <!-- Start Overlay -->
+    <div id="startOverlay" class="overlay">
+        <div class="overlay-content">
+            <h1>❄️ Snowball Blaster ⚡</h1>
+            <div class="instructions">
+                <p>🎯 Zerstöre alle bunten Eisblöcke!</p>
+                <p>🏐 Halte den Schneeball mit der Plattform im Spiel</p>
+                <p>⏱️ 120 Sekunden pro Level</p>
+                <p>💎 10 Punkte pro Block</p>
+                <p>❤️ 3 Leben - Verpasse den Ball nicht!</p>
+                <p>📱 Touch/Maus: Bewege die Plattform</p>
+                <p>🚀 Klick zum Start!</p>
+            </div>
+            <button id="startButton" class="game-button">Spiel Starten</button>
+            <a href="../index.html" class="back-link">← Zurück zum Kalender</a>
+        </div>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div id="gameoverOverlay" class="overlay" style="display: none;">
+        <div class="overlay-content">
+            <h1 id="gameoverTitle">🎉 Game Over! 🎉</h1>
+            <div class="stats-display">
+                <div class="stat-item">
+                    <span class="stat-label">Level erreicht:</span>
+                    <span id="finalLevel" class="stat-value">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Blöcke zerstört:</span>
+                    <span id="finalBricks" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Gesamtzeit:</span>
+                    <span id="finalTime" class="stat-value">0s</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Punkte:</span>
+                    <span id="finalScore" class="stat-value">0</span>
+                </div>
+            </div>
+            
+            <!-- Top 3 Highscores -->
+            <div id="top3Container" class="top3-container">
+                <h3>🏆 Top 3 Highscores</h3>
+                <div id="top3List" class="top3-list">
+                    <div class="loading">Lade Highscores...</div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button id="restartButton" class="game-button">Nochmal spielen</button>
+                <a href="../dashboard.html" class="game-button secondary">Dashboard</a>
+                <a href="../index.html" class="game-button secondary">Kalender</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="gameContainer" style="display: none;">
+        <!-- HUD -->
+        <div class="hud">
+            <div class="hud-item">
+                <span class="hud-label">🎯</span>
+                <span id="level" class="hud-value">1</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">❤️</span>
+                <span id="lives" class="hud-value">3</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">⏱️</span>
+                <span id="timer" class="hud-value">2:00</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">⭐</span>
+                <span id="score" class="hud-value">0</span>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script src="../stats-manager.js"></script>
+    <script src="snowball-blaster.js"></script>
+</body>
+</html>

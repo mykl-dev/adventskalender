@@ -111,6 +111,16 @@
       "difficulty": "medium",
       "scoreType": "points",
       "active": true
+    },
+    {
+      "id": "snowball-blaster",
+      "name": "Snowball Blaster",
+      "icon": "❄️",
+      "description": "Klassisches Breakout mit Schneeball - zerstöre alle bunten Eisblöcke bevor die Zeit abläuft!",
+      "category": "arcade",
+      "difficulty": "medium",
+      "scoreType": "points",
+      "active": true
     }
   ]
 }

@@ -473,7 +473,8 @@ function showModal(data) {
                 'christmas-memory',
                 'feeding-elf',
                 'bubble-shooter',
-                'word-search'
+                'word-search',
+                'snowball-blaster'
             ];
             
             if (fullscreenGames.includes(data.content)) {
