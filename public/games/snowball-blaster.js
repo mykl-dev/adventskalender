@@ -361,9 +361,34 @@ function update() {
     }
     
     // Update extra balls
+    const hasSlowmo = gameState.activePowerUps.some(p => p.type === 'slowmo');
+    const hasMagnet = gameState.activePowerUps.some(p => p.type === 'magnetball');
+    const speedMultiplier = hasSlowmo ? 0.5 : 1;
+    
     gameState.balls = gameState.balls.filter((ball, index) => {
-        ball.x += ball.velocityX;
-        ball.y += ball.velocityY;
+        // Apply magnet effect
+        if (hasMagnet) {
+            const paddle = gameState.paddle;
+            const dx = paddle.x - ball.x;
+            const dy = paddle.y - ball.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance > 0) {
+                const magnetStrength = 0.15;
+                ball.velocityX += (dx / distance) * magnetStrength;
+                ball.velocityY += (dy / distance) * magnetStrength;
+                
+                // Normalize to maintain speed
+                const currentSpeed = Math.sqrt(ball.velocityX * ball.velocityX + ball.velocityY * ball.velocityY);
+                if (currentSpeed > ball.speed) {
+                    ball.velocityX = (ball.velocityX / currentSpeed) * ball.speed;
+                    ball.velocityY = (ball.velocityY / currentSpeed) * ball.speed;
+                }
+            }
+        }
+        
+        ball.x += ball.velocityX * speedMultiplier;
+        ball.y += ball.velocityY * speedMultiplier;
         
         // Wall collisions
         if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= gameState.canvas.width) {
@@ -418,10 +443,39 @@ function updatePaddle() {
 function updateBall() {
     const ball = gameState.ball;
     const canvas = gameState.canvas;
+    const paddle = gameState.paddle;
+    
+    // Check if slowmo is active
+    const hasSlowmo = gameState.activePowerUps.some(p => p.type === 'slowmo');
+    const speedMultiplier = hasSlowmo ? 0.5 : 1;
+    
+    // Check if magnet is active
+    const hasMagnet = gameState.activePowerUps.some(p => p.type === 'magnetball');
+    if (hasMagnet) {
+        // Pull ball towards paddle center
+        const paddleCenterX = paddle.x;
+        const paddleCenterY = paddle.y;
+        const dx = paddleCenterX - ball.x;
+        const dy = paddleCenterY - ball.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > 0) {
+            const magnetStrength = 0.15;
+            ball.velocityX += (dx / distance) * magnetStrength;
+            ball.velocityY += (dy / distance) * magnetStrength;
+            
+            // Normalize to maintain speed
+            const currentSpeed = Math.sqrt(ball.velocityX * ball.velocityX + ball.velocityY * ball.velocityY);
+            if (currentSpeed > ball.speed) {
+                ball.velocityX = (ball.velocityX / currentSpeed) * ball.speed;
+                ball.velocityY = (ball.velocityY / currentSpeed) * ball.speed;
+            }
+        }
+    }
     
     // Update position
-    ball.x += ball.velocityX;
-    ball.y += ball.velocityY;
+    ball.x += ball.velocityX * speedMultiplier;
+    ball.y += ball.velocityY * speedMultiplier;
     
     // Wall collision (left/right)
     if (ball.x - ball.radius <= 0) {
@@ -445,9 +499,15 @@ function updateBall() {
     // Brick collisions
     checkBrickCollisions();
     
-    // Ball falls below paddle - lose life
+    // Ball falls below paddle - check if all balls are gone
     if (ball.y - ball.radius > canvas.height) {
-        loseLife();
+        // Only lose life if no extra balls are left
+        if (gameState.balls.length === 0) {
+            loseLife();
+        } else {
+            // Main ball is gone, make first extra ball the main ball
+            gameState.ball = gameState.balls.shift();
+        }
     }
 }
 
@@ -516,23 +576,31 @@ function checkBrickCollisions() {
             
             updateHUD();
             
-            // Determine bounce direction
-            const brickCenterX = brick.x + brick.width / 2;
-            const brickCenterY = brick.y + brick.height / 2;
+            // Check if fireball is active
+            const hasFireball = gameState.activePowerUps.some(p => p.type === 'fireball');
             
-            const deltaX = ball.x - brickCenterX;
-            const deltaY = ball.y - brickCenterY;
-            
-            // Bounce based on which side was hit
-            if (Math.abs(deltaX / brick.width) > Math.abs(deltaY / brick.height)) {
-                // Hit from side
-                ball.velocityX = -ball.velocityX;
-            } else {
-                // Hit from top/bottom
-                ball.velocityY = -ball.velocityY;
+            // Determine bounce direction (only if not fireball)
+            if (!hasFireball) {
+                const brickCenterX = brick.x + brick.width / 2;
+                const brickCenterY = brick.y + brick.height / 2;
+                
+                const deltaX = ball.x - brickCenterX;
+                const deltaY = ball.y - brickCenterY;
+                
+                // Bounce based on which side was hit
+                if (Math.abs(deltaX / brick.width) > Math.abs(deltaY / brick.height)) {
+                    // Hit from side
+                    ball.velocityX = -ball.velocityX;
+                } else {
+                    // Hit from top/bottom
+                    ball.velocityY = -ball.velocityY;
+                }
             }
             
-            break; // Only one brick per frame
+            // Only break if not fireball (fireball goes through bricks)
+            if (!hasFireball) {
+                break;
+            }
         }
     }
 }
@@ -750,13 +818,25 @@ function updatePowerUps() {
         p.y += p.velocity;
     });
     
-    // Check collision with ball
+    // Check collision with ball and paddle
     gameState.powerUps = gameState.powerUps.filter(p => {
+        const paddle = gameState.paddle;
+        
+        // Ball collision
         const dx = ball.x - p.x;
         const dy = ball.y - p.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance < ball.radius + p.width / 2) {
+            activatePowerUp(p.type);
+            return false; // Remove power-up
+        }
+        
+        // Paddle collision
+        if (p.x >= paddle.x - paddle.width / 2 &&
+            p.x <= paddle.x + paddle.width / 2 &&
+            p.y + p.height / 2 >= paddle.y - paddle.height / 2 &&
+            p.y - p.height / 2 <= paddle.y + paddle.height / 2) {
             activatePowerUp(p.type);
             return false; // Remove power-up
         }
@@ -864,10 +944,17 @@ function checkExtraBallPaddleCollision(ball) {
         const hitPos = (ball.x - paddle.x) / (paddle.width / 2);
         ball.velocityX = hitPos * ball.speed * 0.8;
         ball.velocityY = -Math.abs(ball.velocityY);
+        
+        // Reset combo on paddle hit (new flight phase)
+        gameState.combo = 0;
+        gameState.comboMultiplier = 1;
+        updateHUD();
     }
 }
 
 function checkBallBrickCollisions(ball) {
+    const hasFireball = gameState.activePowerUps.some(p => p.type === 'fireball');
+    
     for (let brick of gameState.bricks) {
         if (!brick.visible) continue;
         
@@ -880,20 +967,41 @@ function checkBallBrickCollisions(ball) {
         
         if (distance < ball.radius) {
             brick.visible = false;
-            gameState.score += 10 * gameState.comboMultiplier;
+            
+            // Increase combo
+            gameState.combo++;
+            gameState.comboMultiplier = Math.floor(gameState.combo / 3) + 1;
+            
+            const points = 10 * gameState.comboMultiplier;
+            gameState.score += points;
             gameState.totalBricksDestroyed++;
+            
             createBrickParticles(brick);
+            showComboText(brick.x + brick.width / 2, brick.y + brick.height / 2, points, gameState.comboMultiplier);
             
-            const deltaX = ball.x - (brick.x + brick.width / 2);
-            const deltaY = ball.y - (brick.y + brick.height / 2);
-            
-            if (Math.abs(deltaX / brick.width) > Math.abs(deltaY / brick.height)) {
-                ball.velocityX = -ball.velocityX;
-            } else {
-                ball.velocityY = -ball.velocityY;
+            // 20% chance to drop power-up
+            if (Math.random() < 0.2) {
+                dropPowerUp(brick.x + brick.width / 2, brick.y + brick.height / 2);
             }
             
-            break;
+            updateHUD();
+            
+            // Bounce logic (only if not fireball)
+            if (!hasFireball) {
+                const deltaX = ball.x - (brick.x + brick.width / 2);
+                const deltaY = ball.y - (brick.y + brick.height / 2);
+                
+                if (Math.abs(deltaX / brick.width) > Math.abs(deltaY / brick.height)) {
+                    ball.velocityX = -ball.velocityX;
+                } else {
+                    ball.velocityY = -ball.velocityY;
+                }
+            }
+            
+            // Only break if not fireball (fireball goes through bricks)
+            if (!hasFireball) {
+                break;
+            }
         }
     }
 }
