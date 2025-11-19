@@ -12,12 +12,12 @@ class SantaLauncherGame {
         // Katapult-Werte
         this.angle = 30; // Start-Winkel
         this.angleDirection = 1; // Richtung des Pendelns
-        this.angleSpeed = 0.8; // Geschwindigkeit des Pendelns (langsamer für Mobile)
+        this.angleSpeed = 0.5; // Geschwindigkeit des Pendelns (reduziert für bessere Kontrolle)
         this.angleMin = 10; // Sehr flacher Minimum-Winkel
         this.angleMax = 50; // Moderater Maximum-Winkel
         
         this.power = 0;
-        this.powerSpeed = 0.9; // Wie schnell füllt sich der Balken (langsamer für Mobile)
+        this.powerSpeed = 0.6; // Wie schnell füllt sich der Balken (reduziert für bessere Kontrolle)
         this.powerMax = 100;
         this.powerDanger = 85; // Ab hier rot/gefährlich
         
@@ -31,8 +31,8 @@ class SantaLauncherGame {
             rotation: 0
         };
         
-        this.gravity = 0.15; // Noch flacher fallen (war 0.18)
-        this.airResistance = 0.998; // Minimal Luftwiderstand = Santa behält Geschwindigkeit länger (war 0.996)
+        this.gravity = 0.12; // Langsamerer Fall für gemäßigteren Flug
+        this.airResistance = 0.998; // Minimal Luftwiderstand = Santa behält Geschwindigkeit länger
         
         // Kamera-Offset für scrollenden Hintergrund
         this.cameraX = 0;
