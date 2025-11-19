@@ -213,15 +213,15 @@ class DataService {
       );
 
       if (existingPlayer) {
+        // Immer gamesPlayed und playTime aktualisieren
+        existingPlayer.gamesPlayed = (existingPlayer.gamesPlayed || 0) + 1;
+        existingPlayer.playTime = (existingPlayer.playTime || 0) + playTime;
+        existingPlayer.lastScore = score;
+        existingPlayer.lastPlayed = new Date().toISOString();
+        
+        // Nur Highscore aktualisieren wenn besser
         if (score > existingPlayer.highscore) {
           existingPlayer.highscore = score;
-          existingPlayer.lastScore = score;
-          existingPlayer.playTime = playTime;
-          existingPlayer.lastPlayed = new Date().toISOString();
-          existingPlayer.gamesPlayed = (existingPlayer.gamesPlayed || 0) + 1;
-        } else {
-          existingPlayer.lastScore = score;
-          existingPlayer.gamesPlayed = (existingPlayer.gamesPlayed || 0) + 1;
         }
       } else {
         stats.games[gameName].push({
