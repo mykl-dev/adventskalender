@@ -576,8 +576,8 @@ function checkBrickCollisions() {
                 explodeAdjacentBricks(brick);
             }
             
-            // 20% chance to drop power-up
-            if (Math.random() < 0.2) {
+            // 12% chance to drop power-up (reduced from 20%)
+            if (Math.random() < 0.12) {
                 dropPowerUp(brick.x + brick.width / 2, brick.y + brick.height / 2);
             }
             
@@ -627,8 +627,21 @@ function loseLife() {
 
 function nextLevel() {
     gameState.level++;
-    gameState.timeLimit = gameState.timeLimit + 60; // +60 Sekunden pro Level
+    
+    // Zeit startet neu pro Level mit progressiver Reduzierung
+    // Level 1: 120s, Level 2: 110s, Level 3: 100s, Level 4+: 90s
+    if (gameState.level === 1) {
+        gameState.timeLimit = 120;
+    } else if (gameState.level === 2) {
+        gameState.timeLimit = 110;
+    } else if (gameState.level === 3) {
+        gameState.timeLimit = 100;
+    } else {
+        gameState.timeLimit = 90;
+    }
+    
     gameState.timeRemaining = gameState.timeLimit;
+    gameState.gameStartTime = Date.now(); // Reset timer
     gameState.combo = 0;
     gameState.comboMultiplier = 1;
     
@@ -1054,8 +1067,8 @@ function checkBallBrickCollisions(ball) {
                 explodeAdjacentBricks(brick);
             }
             
-            // 20% chance to drop power-up
-            if (Math.random() < 0.2) {
+            // 12% chance to drop power-up (reduced from 20%)
+            if (Math.random() < 0.12) {
                 dropPowerUp(brick.x + brick.width / 2, brick.y + brick.height / 2);
             }
             
@@ -1149,10 +1162,21 @@ function drawPowerUps() {
 function drawExtraBall(ball) {
     const ctx = gameState.ctx;
     
+    // Check if mega ball is active
+    const hasMegaBall = gameState.activePowerUps.some(p => p.type === 'megaball');
+    const displayRadius = hasMegaBall ? ball.radius * 3 : ball.radius;
+    
+    // Add glow for mega ball
+    if (hasMegaBall) {
+        ctx.save();
+        ctx.shadowColor = '#76FF03';
+        ctx.shadowBlur = 20;
+    }
+    
     // Same as main ball
     const gradient = ctx.createRadialGradient(
-        ball.x - ball.radius / 3, ball.y - ball.radius / 3, 0,
-        ball.x, ball.y, ball.radius
+        ball.x - displayRadius / 3, ball.y - displayRadius / 3, 0,
+        ball.x, ball.y, displayRadius
     );
     gradient.addColorStop(0, '#FFFFFF');
     gradient.addColorStop(0.7, '#E8F4F8');
@@ -1160,13 +1184,17 @@ function drawExtraBall(ball) {
     
     ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.arc(ball.x, ball.y, displayRadius, 0, Math.PI * 2);
     ctx.fill();
     
     ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.beginPath();
-    ctx.arc(ball.x - ball.radius / 3, ball.y - ball.radius / 3, ball.radius / 3, 0, Math.PI * 2);
+    ctx.arc(ball.x - displayRadius / 3, ball.y - displayRadius / 3, displayRadius / 3, 0, Math.PI * 2);
     ctx.fill();
+    
+    if (hasMegaBall) {
+        ctx.restore();
+    }
 }
 
 function drawActivePowerUpIndicators() {
