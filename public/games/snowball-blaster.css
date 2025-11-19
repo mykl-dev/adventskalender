@@ -138,6 +138,69 @@ body {
     margin-top: 30px;
 }
 
+/* Start Button Pulsieren */
+.game-button.start-pulse {
+    animation: start-pulse 2s ease-in-out infinite;
+}
+
+@keyframes start-pulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 35px rgba(76, 175, 80, 0.6),
+                    0 0 50px rgba(76, 175, 80, 0.4);
+        transform: scale(1.05);
+    }
+}
+
+/* ========================================
+   GAME INFO (Start Overlay)
+   ======================================== */
+.game-info-container {
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #4CAF50;
+    transition: all 0.3s ease;
+}
+
+.info-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.info-icon {
+    color: #4CAF50;
+    font-size: 1.2rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.info-text {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.4;
+}
+
 /* ========================================
    GAME CONTAINER
    ======================================== */

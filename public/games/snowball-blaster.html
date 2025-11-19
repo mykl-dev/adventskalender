@@ -13,18 +13,16 @@
     <!-- Start Overlay -->
     <div id="startOverlay" class="overlay">
         <div class="overlay-content">
-            <h1>❄️ Snowball Blaster ⚡</h1>
-            <div class="instructions">
-                <p>🎯 Zerstöre alle bunten Eisblöcke!</p>
-                <p>🏐 Halte den Schneeball mit der Plattform im Spiel</p>
-                <p>⏱️ 120 Sekunden pro Level</p>
-                <p>💎 10 Punkte pro Block</p>
-                <p>❤️ 3 Leben - Verpasse den Ball nicht!</p>
-                <p>📱 Touch/Maus: Bewege die Plattform</p>
-                <p>🚀 Klick zum Start!</p>
+            <h1 id="startTitle">❄️ Snowball Blaster ❄️</h1>
+            <div class="game-info-container">
+                <div id="gameInfoList" class="game-info-list">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
             </div>
-            <button id="startButton" class="game-button">Spiel Starten</button>
-            <a href="../index.html" class="back-link">← Zurück zum Kalender</a>
+            <div class="button-group">
+                <button id="startButton" class="game-button start-pulse">Spiel Starten</button>
+                <a href="../index.html" class="game-button secondary">Kalender</a>
+            </div>
         </div>
     </div>
 

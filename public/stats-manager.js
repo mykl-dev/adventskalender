@@ -297,6 +297,52 @@ class StatsManager {
         // Overlay anzeigen
         overlay.style.display = 'flex';
     }
+    
+    // Globale Game-Start Overlay Funktion
+    async showGameStartOverlay(gameId, overlayId = 'startOverlay') {
+        const overlay = document.getElementById(overlayId);
+        if (!overlay) return;
+        
+        try {
+            // Game-Daten laden
+            const response = await fetch('../data/games.json');
+            const data = await response.json();
+            const gameData = data.games.find(g => g.id === gameId);
+            
+            if (!gameData) {
+                console.error('Game nicht gefunden:', gameId);
+                return;
+            }
+            
+            // Titel aktualisieren
+            const titleElement = document.getElementById('startTitle');
+            if (titleElement) {
+                titleElement.textContent = `${gameData.icon} ${gameData.name} ${gameData.icon}`;
+            }
+            
+            // Info-Liste erstellen (maximal 5 Einträge)
+            const infoList = document.getElementById('gameInfoList');
+            if (infoList && gameData.info && gameData.info.length > 0) {
+                const maxEntries = Math.min(gameData.info.length, 5);
+                infoList.innerHTML = '';
+                
+                for (let i = 0; i < maxEntries; i++) {
+                    const infoItem = document.createElement('div');
+                    infoItem.className = 'info-item';
+                    infoItem.innerHTML = `
+                        <span class="info-icon">▸</span>
+                        <span class="info-text">${gameData.info[i]}</span>
+                    `;
+                    infoList.appendChild(infoItem);
+                }
+            }
+            
+            // Overlay anzeigen
+            overlay.style.display = 'flex';
+        } catch (error) {
+            console.error('Fehler beim Laden der Game-Daten:', error);
+        }
+    }
 }
 
 // Globale Instanz erstellen

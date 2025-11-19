@@ -120,7 +120,15 @@
       "category": "arcade",
       "difficulty": "medium",
       "scoreType": "points",
-      "active": true
+      "active": true,
+      "info": [
+        "Zerstöre alle bunten Eisblöcke",
+        "120 Sekunden pro Level (progressiv weniger)",
+        "7 verschiedene Power-Ups sammeln",
+        "Explosive Kettenreaktionen auslösen",
+        "Schild schützt vor 3 Fehlschüssen",
+        "Zeit-Bonus: Verbleibende Sekunden × 10 Punkte"
+      ]
     }
   ]
 }

@@ -86,7 +86,12 @@ const BRICK_COLORS = [
 // ========================================
 // INITIALIZATION
 // ========================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Start-Overlay mit Game-Infos laden
+    if (typeof statsManager !== 'undefined') {
+        await statsManager.showGameStartOverlay('snowball-blaster');
+    }
+    
     document.getElementById('startButton').addEventListener('click', startGame);
     document.getElementById('restartButton').addEventListener('click', restartGame);
 });
