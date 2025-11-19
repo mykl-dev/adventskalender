@@ -1495,49 +1495,21 @@ async function endGame() {
     
     const totalTime = Math.floor((Date.now() - gameState.gameStartTime) / 1000);
     
-    // Stats anzeigen
-    document.getElementById('finalLevel').textContent = gameState.level;
-    document.getElementById('finalBricks').textContent = gameState.totalBricksDestroyed;
-    document.getElementById('finalTime').textContent = `${totalTime}s`;
-    document.getElementById('finalScore').textContent = gameState.score;
-    
     // Speichern
     if (typeof statsManager !== 'undefined') {
         try {
             await statsManager.saveStats(GAME_NAME, gameState.score, totalTime);
-            await loadTop3();
+            
+            // Globale Overlay-Funktion verwenden
+            await statsManager.showGameOverOverlay('snowball-blaster', [
+                {id: 'finalLevel', value: gameState.level},
+                {id: 'finalBricks', value: gameState.totalBricksDestroyed},
+                {id: 'finalTime', value: `${totalTime}s`},
+                {id: 'finalScore', value: gameState.score}
+            ]);
         } catch (error) {
             console.error('Error saving score:', error);
         }
-    }
-    
-    // Overlay anzeigen
-    document.getElementById('gameoverOverlay').style.display = 'flex';
-}
-
-async function loadTop3() {
-    const top3List = document.getElementById('top3List');
-    
-    try {
-        const top3 = await statsManager.getTop3(GAME_NAME);
-        
-        if (top3 && top3.length > 0) {
-            const medals = ['🥇', '🥈', '🥉'];
-            const classes = ['gold', 'silver', 'bronze'];
-            
-            top3List.innerHTML = top3.map((entry, index) => `
-                <div class="top3-item ${classes[index] || ''}">
-                    <span class="top3-medal">${medals[index] || '🏅'}</span>
-                    <span class="top3-name">${entry.username}</span>
-                    <span class="top3-score">${entry.highscore || entry.score || 0} Pkt</span>
-                </div>
-            `).join('');
-        } else {
-            top3List.innerHTML = '<div class="no-scores">Noch keine Highscores vorhanden.</div>';
-        }
-    } catch (error) {
-        console.error('Error loading top 3:', error);
-        top3List.innerHTML = '<div class="no-scores">Fehler beim Laden der Highscores.</div>';
     }
 }
 

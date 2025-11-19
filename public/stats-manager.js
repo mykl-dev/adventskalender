@@ -241,6 +241,62 @@ class StatsManager {
             </div>
         `;
     }
+    
+    // Globale Game-Over Overlay Funktion
+    async showGameOverOverlay(gameName, stats, overlayId = 'gameoverOverlay') {
+        const overlay = document.getElementById(overlayId);
+        if (!overlay) return;
+        
+        // Titel aktualisieren
+        const titleElement = document.getElementById('gameoverTitle');
+        if (titleElement) {
+            titleElement.textContent = '🎉 Spiel Vorbei! 🎉';
+        }
+        
+        // Stats anzeigen
+        stats.forEach(stat => {
+            const element = document.getElementById(stat.id);
+            if (element) {
+                element.textContent = stat.value;
+            }
+        });
+        
+        // Top 3 laden und anzeigen
+        const top3Container = document.getElementById('top3Container');
+        const top3List = document.getElementById('top3List');
+        
+        if (top3List) {
+            top3List.innerHTML = '<div class="loading">Lade Highscores...</div>';
+            
+            try {
+                const top3 = await this.getTop3(gameName);
+                
+                if (top3.length === 0) {
+                    top3List.innerHTML = '<p class="no-scores">Noch keine Highscores vorhanden.<br>Sei der Erste!</p>';
+                } else {
+                    const medals = ['🥇', '🥈', '🥉'];
+                    top3List.innerHTML = top3.map((player, index) => {
+                        const isCurrentPlayer = player.username === this.username;
+                        const highlightClass = isCurrentPlayer ? 'current-player' : '';
+                        
+                        return `
+                            <div class="highscore-row ${highlightClass}" onclick="window.location.href='../dashboard.html?player=${encodeURIComponent(player.username)}'">
+                                <span class="rank">${medals[index] || (index + 1)}</span>
+                                <span class="player-name">${player.username}</span>
+                                <span class="player-score">${player.highscore.toLocaleString()}</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden der Top 3:', error);
+                top3List.innerHTML = '<p class="error">Fehler beim Laden der Highscores.</p>';
+            }
+        }
+        
+        // Overlay anzeigen
+        overlay.style.display = 'flex';
+    }
 }
 
 // Globale Instanz erstellen
