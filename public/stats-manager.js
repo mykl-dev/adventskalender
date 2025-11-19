@@ -305,7 +305,7 @@ class StatsManager {
         
         try {
             // Game-Daten laden
-            const response = await fetch('../data/games.json');
+            const response = await fetch('/api/games');
             const data = await response.json();
             const gameData = data.games.find(g => g.id === gameId);
             
