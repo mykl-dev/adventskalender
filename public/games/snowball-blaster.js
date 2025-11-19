@@ -90,10 +90,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Start-Overlay mit Game-Infos laden
     if (typeof statsManager !== 'undefined') {
         await statsManager.showGameStartOverlay('snowball-blaster');
+        
+        // Event-Listener nach Overlay-Erstellung hinzufügen
+        const startBtn = document.getElementById('startButton');
+        if (startBtn) {
+            startBtn.addEventListener('click', startGame);
+        }
     }
-    
-    document.getElementById('startButton').addEventListener('click', startGame);
-    document.getElementById('restartButton').addEventListener('click', restartGame);
 });
 
 async function startGame() {
@@ -106,7 +109,10 @@ async function startGame() {
         }
     }
 
-    document.getElementById('startOverlay').style.display = 'none';
+    const startOverlay = document.getElementById('startOverlay');
+    if (startOverlay) {
+        startOverlay.classList.remove('active');
+    }
     document.getElementById('gameContainer').style.display = 'flex';
 
     initGame();
@@ -1507,10 +1513,10 @@ async function endGame() {
             
             // Globale Overlay-Funktion verwenden
             await statsManager.showGameOverOverlay('snowball-blaster', [
-                {id: 'finalLevel', value: gameState.level},
-                {id: 'finalBricks', value: gameState.totalBricksDestroyed},
-                {id: 'finalTime', value: `${totalTime}s`},
-                {id: 'finalScore', value: gameState.score}
+                {label: 'Level erreicht', value: gameState.level},
+                {label: 'Blöcke', value: gameState.totalBricksDestroyed},
+                {label: 'Zeit', value: `${totalTime}s`},
+                {label: 'Punkte', value: gameState.score}
             ]);
         } catch (error) {
             console.error('Error saving score:', error);

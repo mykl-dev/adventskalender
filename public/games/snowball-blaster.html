@@ -8,61 +8,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
     <title>❄️ Snowball Blaster</title>
     <link rel="stylesheet" href="snowball-blaster.css">
+    <link rel="stylesheet" href="../game-overlays.css">
 </head>
 <body>
-    <!-- Start Overlay -->
-    <div id="startOverlay" class="overlay">
-        <div class="overlay-content">
-            <h1 id="startTitle">❄️ Snowball Blaster ❄️</h1>
-            <div class="game-info-container">
-                <div id="gameInfoList" class="game-info-list">
-                    <!-- Wird dynamisch gefüllt -->
-                </div>
-            </div>
-            <div class="button-group">
-                <button id="startButton" class="game-button start-pulse">Spiel Starten</button>
-                <a href="../index.html" class="game-button secondary">Kalender</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Game Over Overlay -->
-    <div id="gameoverOverlay" class="overlay" style="display: none;">
-        <div class="overlay-content">
-            <h1 id="gameoverTitle">🎉 Game Over! 🎉</h1>
-            <div class="stats-display">
-                <div class="stat-item">
-                    <span class="stat-label">Level erreicht</span>
-                    <span id="finalLevel" class="stat-value">1</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Blöcke</span>
-                    <span id="finalBricks" class="stat-value">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Zeit</span>
-                    <span id="finalTime" class="stat-value">0s</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Punkte</span>
-                    <span id="finalScore" class="stat-value">0</span>
-                </div>
-            </div>
-            
-            <!-- Top 3 Highscores -->
-            <div id="top3Container" class="top3-container">
-                <h3>🏆 Top 3 Highscores</h3>
-                <div id="top3List" class="top3-list">
-                    <div class="loading">Lade Highscores...</div>
-                </div>
-            </div>
-            
-            <div class="button-group">
-                <button id="restartButton" class="game-button">Nochmal spielen</button>
-                <a href="../index.html" class="game-button secondary">Kalender</a>
-            </div>
-        </div>
-    </div>
+    <!-- Overlays werden dynamisch von stats-manager.js erstellt -->
 
     <!-- Game Container -->
     <div id="gameContainer" style="display: none;">

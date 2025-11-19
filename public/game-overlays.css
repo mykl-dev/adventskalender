@@ -1,79 +1,78 @@
 /* ========================================
-   SNOWBALL BLASTER STYLES
+   GLOBALE GAME OVERLAY STYLES
    ======================================== */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #0a0e27;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    color: white;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-/* ========================================
-   OVERLAYS
-   ======================================== */
-.overlay {
+.game-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.95);
-    display: flex;
-    align-items: center;
+    display: none;
     justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-    overflow-y: auto;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(10px);
+}
+
+.game-overlay.active {
+    display: flex;
 }
 
 .overlay-content {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
-    backdrop-filter: blur(20px);
-    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(13, 71, 161, 0.95), rgba(26, 35, 126, 0.95));
     padding: 40px;
+    border-radius: 20px;
     text-align: center;
     max-width: 500px;
-    width: 100%;
+    width: 90%;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.1);
     max-height: 90vh;
     overflow-y: auto;
 }
 
 .overlay-content h1 {
-    font-size: 2.5rem;
-    margin-bottom: 30px;
-    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: white;
+    text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
 }
 
-.instructions {
-    margin: 30px 0;
-    font-size: 1.1rem;
-    line-height: 2;
+/* ========================================
+   THEME VARIATIONS
+   ======================================== */
+
+/* Dark Theme (z.B. Snowball Blaster) */
+.game-overlay.dark-theme .overlay-content {
+    background: linear-gradient(135deg, rgba(26, 35, 126, 0.95), rgba(13, 71, 161, 0.95));
 }
 
-.instructions p {
-    margin: 10px 0;
+/* Ice Theme (z.B. Gift Catcher) */
+.game-overlay.ice-theme .overlay-content {
+    background: linear-gradient(135deg, rgba(41, 128, 185, 0.95), rgba(52, 152, 219, 0.95));
+}
+
+/* Fire Theme */
+.game-overlay.fire-theme .overlay-content {
+    background: linear-gradient(135deg, rgba(192, 57, 43, 0.95), rgba(231, 76, 60, 0.95));
+}
+
+/* Forest Theme */
+.game-overlay.forest-theme .overlay-content {
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.95), rgba(46, 204, 113, 0.95));
+}
+
+/* Gold Theme */
+.game-overlay.gold-theme .overlay-content {
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.95), rgba(241, 196, 15, 0.95));
 }
 
 /* ========================================
    BUTTONS
    ======================================== */
+
 .game-button {
     background: rgba(76, 175, 80, 0.2);
     color: white;
@@ -116,29 +115,6 @@ body {
     box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
 }
 
-.back-link {
-    display: inline-block;
-    margin-top: 20px;
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.back-link:hover {
-    color: white;
-    transform: translateX(-5px);
-}
-
-.button-group {
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 30px;
-}
-
-/* Start Button Pulsieren */
 .game-button.start-pulse {
     animation: start-pulse 2s ease-in-out infinite;
 }
@@ -155,9 +131,18 @@ body {
     }
 }
 
+.button-group {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
 /* ========================================
    GAME INFO (Start Overlay)
    ======================================== */
+
 .game-info-container {
     margin: 20px 0;
     padding: 20px;
@@ -199,65 +184,13 @@ body {
     font-size: 0.95rem;
     color: rgba(255, 255, 255, 0.9);
     line-height: 1.4;
+    text-align: left;
 }
 
 /* ========================================
-   GAME CONTAINER
+   STATS DISPLAY (Game Over Overlay)
    ======================================== */
-#gameContainer {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
 
-/* ========================================
-   HUD
-   ======================================== */
-.hud {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    padding: 12px 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.hud-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    min-width: 60px;
-}
-
-.hud-label {
-    font-size: 1.5rem;
-}
-
-.hud-value {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-/* ========================================
-   CANVAS
-   ======================================== */
-#gameCanvas {
-    width: 100%;
-    height: calc(100vh - 60px);
-    display: block;
-    background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
-    touch-action: none;
-}
-
-/* ========================================
-   STATS DISPLAY
-   ======================================== */
 .stats-display {
     display: flex;
     flex-direction: column;
@@ -270,38 +203,47 @@ body {
 }
 
 .stat-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 0;
-    background: none;
-    border: none;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 12px 15px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: translateX(2px) !important;
 }
 
 .stat-label {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    flex-shrink: 0;
-}
-
-.stat-label::after {
-    content: ':';
-    margin-left: 2px;
+    display: inline !important;
+    font-size: 0.9rem !important;
+    opacity: 0.8 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    flex-shrink: 0 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin-bottom: 0 !important;
 }
 
 .stat-value {
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: #4CAF50;
-    text-align: right;
-    margin-left: 15px;
+    display: inline !important;
+    font-size: 0.9rem !important;
+    font-weight: bold !important;
+    color: #4CAF50 !important;
+    text-align: right !important;
+    margin-left: 15px !important;
+    text-shadow: none !important;
 }
 
 /* ========================================
    TOP 3 HIGHSCORES
    ======================================== */
+
 .top3-container {
     margin: 20px 0;
     padding: 20px;
@@ -328,7 +270,6 @@ body {
     padding: 3px;
 }
 
-/* Highscore Row Styles (für globale Funktion) */
 .highscore-row {
     display: grid;
     grid-template-columns: 50px 1fr 100px;
@@ -364,7 +305,6 @@ body {
     border-left: 3px solid #CD7F32;
 }
 
-/* Aktueller Spieler - Pulsierend */
 .highscore-row.current-player {
     background: linear-gradient(90deg, rgba(76, 175, 80, 0.25), rgba(76, 175, 80, 0.1));
     border: 2px solid #4CAF50;
@@ -418,87 +358,31 @@ body {
     color: #76FF03;
 }
 
-/* Legacy Top3 Item Support */
-.top3-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
-}
-
-.top3-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.top3-medal {
-    font-size: 1.5rem;
-    margin-right: 15px;
-}
-
-.top3-name {
-    flex: 1;
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-.top3-score {
-    font-weight: bold;
-    font-size: 1.1rem;
-    color: #4CAF50;
-}
-
 .loading,
 .no-scores {
     text-align: center;
     padding: 20px;
-    color: rgba(255, 255, 255, 0.7);
-    font-style: italic;
+    color: rgba(255, 255, 255, 0.6);
 }
 
 /* ========================================
    RESPONSIVE
    ======================================== */
+
 @media (max-width: 600px) {
     .overlay-content {
         padding: 30px 20px;
     }
-
+    
     .overlay-content h1 {
-        font-size: 2rem;
-    }
-
-    .instructions {
-        font-size: 1rem;
-    }
-
-    .stats-display {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    .stat-value {
         font-size: 1.5rem;
     }
-
-    .hud-label {
-        font-size: 1.3rem;
+    
+    .button-group {
+        flex-direction: column;
     }
-
-    .hud-value {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 400px) {
-    .overlay-content h1 {
-        font-size: 1.8rem;
-    }
-
+    
     .game-button {
-        padding: 12px 30px;
-        font-size: 1rem;
+        width: 100%;
     }
 }

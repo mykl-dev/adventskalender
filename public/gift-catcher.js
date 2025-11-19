@@ -55,42 +55,7 @@ class GiftCatcherGame3D {
                 
                 <canvas id="gift-canvas" class="gift-canvas"></canvas>
                 
-                <!-- Instructions Overlay -->
-                <div class="gift-instructions-overlay" id="gift-instructions-overlay">
-                    <div class="instructions-content">
-                        <h2>🎅 Geschenke fangen! 🎁</h2>
-                        <div class="instruction-items">
-                            <div class="instruction-item">
-                                <span class="item-icon">🎁</span>
-                                <span>Geschenke fangen = +10 Punkte</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">🪨</span>
-                                <span>Kohle = Sofort Game Over!</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">📱</span>
-                                <span>Finger auf 🎅 halten & bewegen</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">🖱️</span>
-                                <span>Maus oder ←→ Tasten</span>
-                            </div>
-                        </div>
-                        <p class="difficulty-info">⚡ Je mehr Geschenke, desto schneller!</p>
-                        <button class="instruction-ok-button" id="instruction-ok-button">
-                            ✓ Okay, verstanden!
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Start Button (erscheint nach OK) -->
-                <div class="start-button-overlay" id="start-button-overlay" style="display: none;">
-                    <button class="gift-start-button pulse" id="gift-start-button">
-                        <span class="button-icon">🎮</span>
-                        <span>Spiel starten!</span>
-                    </button>
-                </div>
+                <!-- Overlays werden dynamisch von stats-manager.js erstellt -->
             </div>
         `;
         
@@ -105,14 +70,18 @@ class GiftCatcherGame3D {
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
         
-        // OK Button für Instructions
-        document.getElementById('instruction-ok-button').addEventListener('click', () => {
-            document.getElementById('gift-instructions-overlay').style.display = 'none';
-            document.getElementById('start-button-overlay').style.display = 'flex';
-        });
-        
-        // Start Button
-        document.getElementById('gift-start-button').addEventListener('click', () => this.start());
+        // Start-Overlay mit Game-Infos laden
+        if (typeof statsManager !== 'undefined') {
+            statsManager.showGameStartOverlay('gift-catcher').then(() => {
+                // Start Button Event nach Overlay-Erstellung
+                const startBtn = document.getElementById('startButton');
+                if (startBtn) {
+                    startBtn.addEventListener('click', () => this.start());
+                }
+            }).catch(err => {
+                console.error('Error loading start overlay:', err);
+            });
+        }
         
         // Touch-Events für Canvas
         this.setupTouchControls();
@@ -228,8 +197,11 @@ class GiftCatcherGame3D {
         this.catcherX = this.canvas.width / 2;
         this.startTime = Date.now();
         
-        // Verstecke Start-Button Overlay
-        document.getElementById('start-button-overlay').style.display = 'none';
+        // Verstecke Start Overlay
+        const startOverlay = document.getElementById('startOverlay');
+        if (startOverlay) {
+            startOverlay.classList.remove('active');
+        }
         document.getElementById('gift-score').textContent = '0';
         document.getElementById('banner-score').textContent = '0';
         document.getElementById('banner-level').textContent = '1';
@@ -627,38 +599,11 @@ class GiftCatcherGame3D {
     async showGameOver() {
         const giftsCount = Math.floor(this.score / 10);
         
-        // Bestenliste laden
-        const highscores = await window.statsManager.getHighscores('gift-catcher', 3);
-        
-        const highscoresHTML = highscores.map((entry, index) => `
-            <li class="highscore-item">
-                <span class="highscore-rank">${index + 1}.</span>
-                <span class="highscore-name">${entry.username}</span>
-                <span class="highscore-score">${entry.highscore} 🎁</span>
-            </li>
-        `).join('');
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'game-over-overlay';
-        overlay.innerHTML = `
-            <div class="game-over-content">
-                <h2>🎅 Spiel vorbei! 🎁</h2>
-                <div class="game-over-stats">
-                    <div class="game-over-stat-label">Deine Punkte</div>
-                    <div class="game-over-stat-value">${this.score}</div>
-                    <div style="margin-top: 10px; font-size: 1.2rem;">🎁 ${giftsCount} Geschenke gefangen</div>
-                </div>
-                <div class="game-over-highscores">
-                    <h3>🏆 Top 3 Highscores</h3>
-                    <ul class="highscore-list">${highscoresHTML}</ul>
-                </div>
-                <div class="game-over-buttons">
-                    <button class="game-over-button button-primary" onclick="location.reload()">🔄 Nochmal spielen</button>
-                    <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+        // Globale Overlay-Funktion verwenden (Stats werden dynamisch erstellt)
+        await window.statsManager.showGameOverOverlay('gift-catcher', [
+            {label: 'Punkte', value: this.score},
+            {label: 'Geschenke', value: giftsCount}
+        ]);
     }
 }
 

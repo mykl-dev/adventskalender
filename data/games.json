@@ -8,7 +8,15 @@
       "category": "arcade",
       "difficulty": "easy",
       "scoreType": "points",
-      "active": true
+      "active": true,
+      "theme": "ice-theme",
+      "info": [
+        "Fange fallende Geschenke mit dem Weihnachtsmann",
+        "Geschenke = +10 Punkte",
+        "Kohle = Sofort Game Over!",
+        "Je mehr Geschenke, desto schneller fallen sie",
+        "Steuerung: Touch, Maus oder Pfeiltasten"
+      ]
     },
     {
       "id": "snowflake-catcher",
@@ -121,6 +129,7 @@
       "difficulty": "medium",
       "scoreType": "points",
       "active": true,
+      "theme": "dark-theme",
       "info": [
         "Zerstöre alle bunten Eisblöcke",
         "120 Sekunden pro Level (progressiv weniger)",

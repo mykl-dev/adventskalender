@@ -243,9 +243,22 @@ class StatsManager {
     }
     
     // Globale Game-Over Overlay Funktion
-    async showGameOverOverlay(gameName, stats, overlayId = 'gameoverOverlay') {
-        const overlay = document.getElementById(overlayId);
-        if (!overlay) return;
+    async showGameOverOverlay(gameName, stats) {
+        // Game-Daten laden für Theme
+        const response = await fetch('/api/games');
+        const data = await response.json();
+        const gameData = data.games.find(g => g.id === gameName);
+        const theme = gameData?.theme || 'dark-theme';
+        
+        // Prüfen ob Overlay bereits existiert, sonst erstellen
+        let overlay = document.getElementById('gameoverOverlay');
+        if (!overlay) {
+            overlay = this.createGameOverOverlay(theme);
+            document.body.appendChild(overlay);
+        } else {
+            // Theme aktualisieren
+            overlay.className = `game-overlay ${theme}`;
+        }
         
         // Titel aktualisieren
         const titleElement = document.getElementById('gameoverTitle');
@@ -253,13 +266,16 @@ class StatsManager {
             titleElement.textContent = '🎉 Spiel Vorbei! 🎉';
         }
         
-        // Stats anzeigen
-        stats.forEach(stat => {
-            const element = document.getElementById(stat.id);
-            if (element) {
-                element.textContent = stat.value;
-            }
-        });
+        // Stats dynamisch anzeigen
+        const statsDisplay = document.getElementById('statsDisplay');
+        if (statsDisplay && stats && stats.length > 0) {
+            statsDisplay.innerHTML = stats.map(stat => `
+                <div class="stat-item">
+                    <span class="stat-label">${stat.label}</span>
+                    <span class="stat-value">${stat.value}</span>
+                </div>
+            `).join('');
+        }
         
         // Top 3 laden und anzeigen
         const top3Container = document.getElementById('top3Container');
@@ -295,14 +311,42 @@ class StatsManager {
         }
         
         // Overlay anzeigen
-        overlay.style.display = 'flex';
+        overlay.classList.add('active');
+    }
+    
+    createGameOverOverlay(theme = 'dark-theme') {
+        const overlay = document.createElement('div');
+        overlay.id = 'gameoverOverlay';
+        overlay.className = `game-overlay ${theme}`;
+        overlay.innerHTML = `
+            <div class="overlay-content">
+                <h1 id="gameoverTitle">🎉 Spiel Vorbei! 🎉</h1>
+                <div class="stats-display" id="statsDisplay">
+                    <!-- Stats werden dynamisch hinzugefügt -->
+                </div>
+                <div id="top3Container" class="top3-container">
+                    <h3>🏆 Top 3 Highscores</h3>
+                    <div id="top3List" class="top3-list">
+                        <div class="loading">Lade Highscores...</div>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="restartButton" class="game-button">Nochmal spielen</button>
+                    <a href="../index.html" class="game-button secondary">Kalender</a>
+                </div>
+            </div>
+        `;
+        
+        // Restart Button Event
+        overlay.querySelector('#restartButton').addEventListener('click', () => {
+            location.reload();
+        });
+        
+        return overlay;
     }
     
     // Globale Game-Start Overlay Funktion
-    async showGameStartOverlay(gameId, overlayId = 'startOverlay') {
-        const overlay = document.getElementById(overlayId);
-        if (!overlay) return;
-        
+    async showGameStartOverlay(gameId) {
         try {
             // Game-Daten laden
             const response = await fetch('/api/games');
@@ -314,34 +358,81 @@ class StatsManager {
                 return;
             }
             
-            // Titel aktualisieren
-            const titleElement = document.getElementById('startTitle');
-            if (titleElement) {
-                titleElement.textContent = `${gameData.icon} ${gameData.name} ${gameData.icon}`;
-            }
+            const theme = gameData.theme || 'dark-theme';
             
-            // Info-Liste erstellen (maximal 5 Einträge)
-            const infoList = document.getElementById('gameInfoList');
-            if (infoList && gameData.info && gameData.info.length > 0) {
-                const maxEntries = Math.min(gameData.info.length, 5);
-                infoList.innerHTML = '';
+            // Overlay erstellen wenn nicht vorhanden, sonst aktualisieren
+            let overlay = document.getElementById('startOverlay');
+            if (!overlay) {
+                overlay = this.createGameStartOverlay(gameData, theme);
+                document.body.appendChild(overlay);
+            } else {
+                // Theme und Inhalt aktualisieren
+                overlay.className = `game-overlay ${theme}`;
+                const titleElement = overlay.querySelector('#startTitle');
+                if (titleElement) {
+                    titleElement.textContent = `${gameData.icon} ${gameData.name} ${gameData.icon}`;
+                }
                 
-                for (let i = 0; i < maxEntries; i++) {
-                    const infoItem = document.createElement('div');
-                    infoItem.className = 'info-item';
-                    infoItem.innerHTML = `
-                        <span class="info-icon">▸</span>
-                        <span class="info-text">${gameData.info[i]}</span>
-                    `;
-                    infoList.appendChild(infoItem);
+                // Info-Liste aktualisieren
+                const infoList = overlay.querySelector('#gameInfoList');
+                if (infoList && gameData.info && gameData.info.length > 0) {
+                    const maxEntries = Math.min(gameData.info.length, 5);
+                    infoList.innerHTML = '';
+                    
+                    for (let i = 0; i < maxEntries; i++) {
+                        const infoItem = document.createElement('div');
+                        infoItem.className = 'info-item';
+                        infoItem.innerHTML = `
+                            <span class="info-icon">▸</span>
+                            <span class="info-text">${gameData.info[i]}</span>
+                        `;
+                        infoList.appendChild(infoItem);
+                    }
                 }
             }
             
             // Overlay anzeigen
-            overlay.style.display = 'flex';
+            overlay.classList.add('active');
         } catch (error) {
             console.error('Fehler beim Laden der Game-Daten:', error);
         }
+    }
+    
+    createGameStartOverlay(gameData, theme = 'dark-theme') {
+        const overlay = document.createElement('div');
+        overlay.id = 'startOverlay';
+        overlay.className = `game-overlay ${theme} active`;
+        
+        const maxEntries = Math.min(gameData.info?.length || 0, 5);
+        let infoHTML = '';
+        
+        if (gameData.info && gameData.info.length > 0) {
+            for (let i = 0; i < maxEntries; i++) {
+                infoHTML += `
+                    <div class="info-item">
+                        <span class="info-icon">▸</span>
+                        <span class="info-text">${gameData.info[i]}</span>
+                    </div>
+                `;
+            }
+        }
+        
+        overlay.innerHTML = `
+            <div class="overlay-content">
+                <h1 id="startTitle">${gameData.icon} ${gameData.name} ${gameData.icon}</h1>
+                <div class="game-info-container">
+                    <div id="gameInfoList" class="game-info-list">
+                        ${infoHTML}
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="startButton" class="game-button start-pulse">Spiel Starten</button>
+                    <a href="../index.html" class="game-button secondary">Kalender</a>
+                </div>
+            </div>
+        `;
+        
+        return overlay;
     }
 }
 
