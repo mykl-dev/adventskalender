@@ -422,8 +422,8 @@ function updatePaddle() {
     if (gameState.touchX !== null) {
         gameState.paddle.x = gameState.touchX;
     }
-    // Mouse control
-    else {
+    // Mouse control (nur wenn Maus sich bewegt oder Ball nicht gestartet)
+    else if (gameState.mouse.down || !gameState.ball.launched) {
         gameState.paddle.x = gameState.mouse.x;
     }
     
@@ -638,6 +638,21 @@ function nextLevel() {
         gameState.timeLimit = 100;
     } else {
         gameState.timeLimit = 90;
+    }
+    
+    // Zeit-Bonus: Übrige Sekunden * 10 zu Punkten hinzufügen
+    const timeBonus = Math.max(0, gameState.timeRemaining) * 10;
+    gameState.score += timeBonus;
+    
+    // Show time bonus text
+    if (timeBonus > 0) {
+        comboTexts.push({
+            x: gameState.canvas.width / 2,
+            y: gameState.canvas.height / 2 - 50,
+            text: `Zeit-Bonus: +${timeBonus}`,
+            life: 2.0,
+            multiplier: 999 // Special marker
+        });
     }
     
     gameState.timeRemaining = gameState.timeLimit;
