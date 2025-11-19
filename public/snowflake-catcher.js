@@ -14,6 +14,7 @@ class SnowflakeCatcherGame3D {
         this.ctx = null;
         this.animationFrame = null;
         this.spawnInterval = null;
+        this.timerInterval = null;
         this.startTime = null;
         
         // Schwierigkeitsgrad steigt mit der Zeit
@@ -79,11 +80,26 @@ class SnowflakeCatcherGame3D {
         window.addEventListener('resize', () => this.resizeCanvas());
         
         // Show start overlay and attach event listener
+        console.log('🔄 Showing start overlay...');
         statsManager.showGameStartOverlay('snowflake-catcher').then(() => {
+            console.log('✅ Start overlay shown');
             const startBtn = document.getElementById('startButton');
+            console.log('🔍 Looking for start button:', startBtn);
             if (startBtn) {
-                startBtn.addEventListener('click', () => this.start());
+                console.log('✅ Start button found, attaching click listener');
+                startBtn.addEventListener('click', async () => {
+                    console.log('🖱️ Start button clicked!');
+                    try {
+                        await this.start();
+                    } catch (error) {
+                        console.error('❌ Error starting game:', error);
+                    }
+                });
+            } else {
+                console.error('❌ Start button not found!');
             }
+        }).catch(error => {
+            console.error('❌ Error showing start overlay:', error);
         });
         
         // Touch- und Click-Events für Canvas
@@ -112,37 +128,69 @@ class SnowflakeCatcherGame3D {
     }
     
     async start() {
-        // Spielername sicherstellen
-        await window.statsManager.ensureUsername();
+        console.log('🎮 Game start() called');
         
-        this.score = 0;
-        this.timeLeft = 30;
-        this.gameActive = true;
-        this.snowflakes = [];
-        this.particles = [];
-        this.difficulty = 1;
-        this.startTime = Date.now();
-        
-        // Verstecke Start Overlay
-        const startOverlay = document.getElementById('gamestartOverlay');
-        if (startOverlay) {
-            startOverlay.classList.remove('active');
+        try {
+            // Spielername sicherstellen
+            console.log('⏳ Ensuring username...');
+            await window.statsManager.ensureUsername();
+            console.log('✅ Username ensured');
+            
+            this.score = 0;
+            this.timeLeft = 30;
+            this.gameActive = true;
+            this.snowflakes = [];
+            this.particles = [];
+            this.difficulty = 1;
+            this.startTime = Date.now();
+            
+            console.log('🎯 Game state initialized, gameActive:', this.gameActive);
+            
+            // Verstecke Start Overlay
+            const startOverlay = document.getElementById('startOverlay');
+            if (startOverlay) {
+                startOverlay.classList.remove('active');
+                console.log('✅ Start overlay hidden');
+            } else {
+                console.warn('⚠️ Start overlay not found');
+            }
+            
+            // Aktualisiere alle Anzeigen
+            document.getElementById('snowflake-score').textContent = '0';
+            document.getElementById('snowflake-time').textContent = '30';
+            document.getElementById('banner-score').textContent = '0';
+            document.getElementById('banner-time').textContent = '30';
+            document.getElementById('banner-difficulty').textContent = '1';
+            
+            console.log('✅ Display elements updated');
+            
+            this.startTimer();
+            console.log('✅ Timer started');
+            
+            this.startSpawning();
+            console.log('✅ Spawning started');
+            
+            this.gameLoop();
+            console.log('✅ Game loop started');
+            
+        } catch (error) {
+            console.error('❌ Error in start():', error);
+            throw error;
         }
-        
-        // Aktualisiere alle Anzeigen
-        document.getElementById('snowflake-score').textContent = '0';
-        document.getElementById('snowflake-time').textContent = '30';
-        document.getElementById('banner-score').textContent = '0';
-        document.getElementById('banner-time').textContent = '30';
-        document.getElementById('banner-difficulty').textContent = '1';
-        
-        this.startTimer();
-        this.startSpawning();
-        this.gameLoop();
     }
     
     startTimer() {
-        const interval = setInterval(() => {
+        // Clear any existing timer first
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        
+        this.timerInterval = setInterval(() => {
+            if (!this.gameActive) {
+                clearInterval(this.timerInterval);
+                return;
+            }
+            
             this.timeLeft--;
             document.getElementById('snowflake-time').textContent = this.timeLeft;
             
@@ -153,7 +201,7 @@ class SnowflakeCatcherGame3D {
             this.updateBanner();
             
             if (this.timeLeft <= 0) {
-                clearInterval(interval);
+                clearInterval(this.timerInterval);
                 this.endGame();
             }
         }, 1000);
@@ -615,6 +663,10 @@ class SnowflakeCatcherGame3D {
     
     async endGame() {
         this.gameActive = false;
+        
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
         
         if (this.spawnInterval) {
             clearTimeout(this.spawnInterval);
