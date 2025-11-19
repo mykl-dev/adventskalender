@@ -44,7 +44,15 @@
       "difficulty": "medium",
       "scoreType": "distance",
       "scoreUnit": "m",
-      "active": true
+      "active": true,
+      "theme": "fire-theme",
+      "info": [
+        "Ziehe die Schleuder mit Maus oder Touch",
+        "Stärkere Spannung = Weitere Flugbahn",
+        "Sammle Booster für Extra-Schub",
+        "Vermeide Hindernisse in der Luft",
+        "Ziel: Maximale Distanz erreichen"
+      ]
     },
     {
       "id": "flappy-santa",

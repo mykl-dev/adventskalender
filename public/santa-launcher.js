@@ -161,13 +161,28 @@ class SantaLauncherGame {
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
         
-        // Overlay Event-Handler
-        document.getElementById('instruction-ok-button').addEventListener('click', () => {
-            document.getElementById('launcher-instructions-overlay').style.display = 'none';
-            document.getElementById('start-button-overlay').style.display = 'flex';
+        // Show start overlay and attach event listener
+        console.log('🔄 Showing start overlay...');
+        statsManager.showGameStartOverlay('santa-launcher').then(() => {
+            console.log('✅ Start overlay shown');
+            const startBtn = document.getElementById('startButton');
+            console.log('🔍 Looking for start button:', startBtn);
+            if (startBtn) {
+                console.log('✅ Start button found, attaching click listener');
+                startBtn.addEventListener('click', async () => {
+                    console.log('🖱️ Start button clicked!');
+                    try {
+                        await this.start();
+                    } catch (error) {
+                        console.error('❌ Error starting game:', error);
+                    }
+                });
+            } else {
+                console.error('❌ Start button not found!');
+            }
+        }).catch(error => {
+            console.error('❌ Error showing start overlay:', error);
         });
-        
-        document.getElementById('launcher-start-button').addEventListener('click', () => this.start());
     }
     
     initParallax() {
@@ -236,8 +251,11 @@ class SantaLauncherGame {
         // Kamera-Offset zurücksetzen (Start: Santa rechts)
         this.cameraOffset = 250;
         
-        // Verstecke Start-Button Overlay
-        document.getElementById('start-button-overlay').style.display = 'none';
+        // Verstecke Start Overlay
+        const startOverlay = document.getElementById('startOverlay');
+        if (startOverlay) {
+            startOverlay.classList.remove('active');
+        }
         
         // Regeneriere Parallax-Elemente
         this.initParallax();
@@ -1063,28 +1081,11 @@ class SantaLauncherGame {
             </li>
         `).join('');
         
-        const overlay = document.createElement('div');
-        overlay.className = 'game-over-overlay';
-        overlay.innerHTML = `
-            <div class="game-over-content">
-                <h2>🎅 Landung! 🏠</h2>
-                <div class="game-over-stats">
-                    <div class="game-over-stat-label">Deine Distanz</div>
-                    <div class="game-over-stat-value">${this.maxDistance}m</div>
-                    <div class="game-over-message">${this.getScoreMessage()}</div>
-                    <div style="margin-top: 10px; font-size: 1.2rem;">⭐ ${this.starsCollected} Sterne gesammelt</div>
-                </div>
-                <div class="game-over-highscores">
-                    <h3>🏆 Top 3 Highscores</h3>
-                    <ul class="highscore-list">${highscoresHTML}</ul>
-                </div>
-                <div class="game-over-buttons">
-                    <button class="game-over-button button-primary" onclick="location.reload()">🔄 Nochmal spielen</button>
-                    <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+        // Zeige Game Over Overlay mit globalem System
+        await statsManager.showGameOverOverlay('santa-launcher', [
+            {label: 'Distanz', value: `${this.maxDistance}m`},
+            {label: 'Sterne gesammelt', value: this.starsCollected}
+        ]);
     }
     
     getScoreMessage() {
