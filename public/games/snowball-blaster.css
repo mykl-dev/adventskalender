@@ -85,7 +85,9 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
