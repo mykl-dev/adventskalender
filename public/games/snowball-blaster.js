@@ -377,6 +377,30 @@ function update() {
         // Paddle collision
         checkExtraBallPaddleCollision(ball);
         
+        // Shield collision
+        if (gameState.shield && gameState.shield.hits > 0) {
+            const hasMegaBall = gameState.activePowerUps.some(p => p.type === 'megaball');
+            const ballRadius = hasMegaBall ? ball.radius * 3 : ball.radius;
+            
+            if (ball.y + ballRadius >= gameState.shield.y && 
+                ball.y - ballRadius <= gameState.shield.y + 5 &&
+                ball.velocityY > 0) {
+                // Shield catches ball
+                ball.y = gameState.shield.y - ballRadius;
+                ball.velocityY = -Math.abs(ball.velocityY);
+                gameState.shield.hits--;
+                
+                // Create shield particle effect
+                createShieldParticles(ball.x, gameState.shield.y);
+                
+                // Remove shield if no hits left
+                if (gameState.shield.hits <= 0) {
+                    gameState.shield = null;
+                    gameState.activePowerUps = gameState.activePowerUps.filter(p => p.type !== 'shield');
+                }
+            }
+        }
+        
         // Brick collisions
         checkBallBrickCollisions(ball);
         
@@ -447,15 +471,16 @@ function updateBall() {
     // Paddle collision
     checkPaddleCollision();
     
-    // Brick collisions
-    checkBrickCollisions();
-    
-    // Ball falls below paddle - check shield first
-    if (ball.y - ball.radius > canvas.height) {
-        // Check if shield can catch the ball
-        if (gameState.shield && gameState.shield.hits > 0) {
+    // Shield collision (before ball falls off screen)
+    if (gameState.shield && gameState.shield.hits > 0) {
+        const hasMegaBall = gameState.activePowerUps.some(p => p.type === 'megaball');
+        const ballRadius = hasMegaBall ? ball.radius * 3 : ball.radius;
+        
+        if (ball.y + ballRadius >= gameState.shield.y && 
+            ball.y - ballRadius <= gameState.shield.y + 5 &&
+            ball.velocityY > 0) {
             // Shield catches ball
-            ball.y = gameState.shield.y - ball.radius;
+            ball.y = gameState.shield.y - ballRadius;
             ball.velocityY = -Math.abs(ball.velocityY);
             gameState.shield.hits--;
             
@@ -465,15 +490,22 @@ function updateBall() {
             // Remove shield if no hits left
             if (gameState.shield.hits <= 0) {
                 gameState.shield = null;
+                gameState.activePowerUps = gameState.activePowerUps.filter(p => p.type !== 'shield');
             }
+        }
+    }
+    
+    // Brick collisions
+    checkBrickCollisions();
+    
+    // Ball falls below paddle
+    if (ball.y - ball.radius > canvas.height) {
+        // Only lose life if no extra balls are left
+        if (gameState.balls.length === 0) {
+            loseLife();
         } else {
-            // Only lose life if no extra balls are left
-            if (gameState.balls.length === 0) {
-                loseLife();
-            } else {
-                // Main ball is gone, make first extra ball the main ball
-                gameState.ball = gameState.balls.shift();
-            }
+            // Main ball is gone, make first extra ball the main ball
+            gameState.ball = gameState.balls.shift();
         }
     }
 }
