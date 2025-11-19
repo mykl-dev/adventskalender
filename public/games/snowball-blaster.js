@@ -40,6 +40,7 @@ let gameState = {
     activePowerUps: [],
     balls: [], // Additional balls for multi-ball power-up
     timeBonusUsed: false, // Track if time bonus was already given this level
+    shield: null, // Shield power-up state
     
     // Canvas
     canvas: null,
@@ -62,11 +63,11 @@ let comboTexts = [];
 // Power-Up Types
 const POWER_UP_TYPES = [
     { id: 'multiball', icon: '🎁', name: 'Doppelball', color: '#FF6B6B', duration: 0 },
-    { id: 'widepaddle', icon: '🎁', name: 'Breite Plattform', color: '#4ECDC4', duration: 10000 },
     { id: 'laser', icon: '🎁', name: 'Laser-Kanone', color: '#FFD93D', duration: 10000 },
-    { id: 'slowmo', icon: '🎁', name: 'Zeitlupe', color: '#A8E6CF', duration: 10000 },
-    { id: 'magnetball', icon: '🎁', name: 'Magnet-Ball', color: '#FF8B94', duration: 10000 },
     { id: 'fireball', icon: '🎁', name: 'Feuerball', color: '#FFA500', duration: 10000 },
+    { id: 'explosive', icon: '🎁', name: 'Explosive Bricks', color: '#FF1744', duration: 10000 },
+    { id: 'shield', icon: '🎁', name: 'Schutzschild', color: '#00E5FF', duration: 15000 },
+    { id: 'megaball', icon: '🎁', name: 'Mega Ball', color: '#76FF03', duration: 10000 },
     { id: 'timebonus', icon: '🎁', name: '+30 Sekunden', color: '#9B59B6', duration: 0 }
 ];
 
@@ -361,34 +362,9 @@ function update() {
     }
     
     // Update extra balls
-    const hasSlowmo = gameState.activePowerUps.some(p => p.type === 'slowmo');
-    const hasMagnet = gameState.activePowerUps.some(p => p.type === 'magnetball');
-    const speedMultiplier = hasSlowmo ? 0.5 : 1;
-    
     gameState.balls = gameState.balls.filter((ball, index) => {
-        // Apply magnet effect
-        if (hasMagnet) {
-            const paddle = gameState.paddle;
-            const dx = paddle.x - ball.x;
-            const dy = paddle.y - ball.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            if (distance > 0) {
-                const magnetStrength = 0.15;
-                ball.velocityX += (dx / distance) * magnetStrength;
-                ball.velocityY += (dy / distance) * magnetStrength;
-                
-                // Normalize to maintain speed
-                const currentSpeed = Math.sqrt(ball.velocityX * ball.velocityX + ball.velocityY * ball.velocityY);
-                if (currentSpeed > ball.speed) {
-                    ball.velocityX = (ball.velocityX / currentSpeed) * ball.speed;
-                    ball.velocityY = (ball.velocityY / currentSpeed) * ball.speed;
-                }
-            }
-        }
-        
-        ball.x += ball.velocityX * speedMultiplier;
-        ball.y += ball.velocityY * speedMultiplier;
+        ball.x += ball.velocityX;
+        ball.y += ball.velocityY;
         
         // Wall collisions
         if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= gameState.canvas.width) {
@@ -443,39 +419,14 @@ function updatePaddle() {
 function updateBall() {
     const ball = gameState.ball;
     const canvas = gameState.canvas;
-    const paddle = gameState.paddle;
     
-    // Check if slowmo is active
-    const hasSlowmo = gameState.activePowerUps.some(p => p.type === 'slowmo');
-    const speedMultiplier = hasSlowmo ? 0.5 : 1;
-    
-    // Check if magnet is active
-    const hasMagnet = gameState.activePowerUps.some(p => p.type === 'magnetball');
-    if (hasMagnet) {
-        // Pull ball towards paddle center
-        const paddleCenterX = paddle.x;
-        const paddleCenterY = paddle.y;
-        const dx = paddleCenterX - ball.x;
-        const dy = paddleCenterY - ball.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance > 0) {
-            const magnetStrength = 0.15;
-            ball.velocityX += (dx / distance) * magnetStrength;
-            ball.velocityY += (dy / distance) * magnetStrength;
-            
-            // Normalize to maintain speed
-            const currentSpeed = Math.sqrt(ball.velocityX * ball.velocityX + ball.velocityY * ball.velocityY);
-            if (currentSpeed > ball.speed) {
-                ball.velocityX = (ball.velocityX / currentSpeed) * ball.speed;
-                ball.velocityY = (ball.velocityY / currentSpeed) * ball.speed;
-            }
-        }
-    }
+    // Check if mega ball is active
+    const hasMegaBall = gameState.activePowerUps.some(p => p.type === 'megaball');
+    const ballRadius = hasMegaBall ? ball.radius * 3 : ball.radius;
     
     // Update position
-    ball.x += ball.velocityX * speedMultiplier;
-    ball.y += ball.velocityY * speedMultiplier;
+    ball.x += ball.velocityX;
+    ball.y += ball.velocityY;
     
     // Wall collision (left/right)
     if (ball.x - ball.radius <= 0) {
@@ -499,14 +450,30 @@ function updateBall() {
     // Brick collisions
     checkBrickCollisions();
     
-    // Ball falls below paddle - check if all balls are gone
+    // Ball falls below paddle - check shield first
     if (ball.y - ball.radius > canvas.height) {
-        // Only lose life if no extra balls are left
-        if (gameState.balls.length === 0) {
-            loseLife();
+        // Check if shield can catch the ball
+        if (gameState.shield && gameState.shield.hits > 0) {
+            // Shield catches ball
+            ball.y = gameState.shield.y - ball.radius;
+            ball.velocityY = -Math.abs(ball.velocityY);
+            gameState.shield.hits--;
+            
+            // Create shield particle effect
+            createShieldParticles(ball.x, gameState.shield.y);
+            
+            // Remove shield if no hits left
+            if (gameState.shield.hits <= 0) {
+                gameState.shield = null;
+            }
         } else {
-            // Main ball is gone, make first extra ball the main ball
-            gameState.ball = gameState.balls.shift();
+            // Only lose life if no extra balls are left
+            if (gameState.balls.length === 0) {
+                loseLife();
+            } else {
+                // Main ball is gone, make first extra ball the main ball
+                gameState.ball = gameState.balls.shift();
+            }
         }
     }
 }
@@ -543,6 +510,8 @@ function checkPaddleCollision() {
 
 function checkBrickCollisions() {
     const ball = gameState.ball;
+    const hasMegaBall = gameState.activePowerUps.some(p => p.type === 'megaball');
+    const ballRadius = hasMegaBall ? ball.radius * 3 : ball.radius;
     
     for (let brick of gameState.bricks) {
         if (!brick.visible) continue;
@@ -555,7 +524,7 @@ function checkBrickCollisions() {
         const distY = ball.y - closestY;
         const distance = Math.sqrt(distX * distX + distY * distY);
         
-        if (distance < ball.radius) {
+        if (distance < ballRadius) {
             brick.visible = false;
             
             // Combo system
@@ -568,6 +537,12 @@ function checkBrickCollisions() {
             
             createBrickParticles(brick);
             showComboText(brick.x + brick.width / 2, brick.y + brick.height / 2, points, gameState.comboMultiplier);
+            
+            // Check if explosive is active - destroy adjacent bricks
+            const hasExplosive = gameState.activePowerUps.some(p => p.type === 'explosive');
+            if (hasExplosive) {
+                explodeAdjacentBricks(brick);
+            }
             
             // 20% chance to drop power-up
             if (Math.random() < 0.2) {
@@ -663,6 +638,58 @@ function showComboText(x, y, points, multiplier) {
     });
 }
 
+function explodeAdjacentBricks(centerBrick) {
+    const brickWidth = centerBrick.width;
+    const brickHeight = centerBrick.height;
+    const padding = 5;
+    
+    // Check all 8 directions (top, bottom, left, right, and 4 diagonals)
+    const directions = [
+        { dx: 0, dy: -1 },      // top
+        { dx: 0, dy: 1 },       // bottom
+        { dx: -1, dy: 0 },      // left
+        { dx: 1, dy: 0 },       // right
+        { dx: -1, dy: -1 },     // top-left
+        { dx: 1, dy: -1 },      // top-right
+        { dx: -1, dy: 1 },      // bottom-left
+        { dx: 1, dy: 1 }        // bottom-right
+    ];
+    
+    directions.forEach(dir => {
+        const targetX = centerBrick.x + dir.dx * (brickWidth + padding);
+        const targetY = centerBrick.y + dir.dy * (brickHeight + padding);
+        
+        // Find brick at this position
+        gameState.bricks.forEach(brick => {
+            if (brick.visible && 
+                Math.abs(brick.x - targetX) < 5 && 
+                Math.abs(brick.y - targetY) < 5) {
+                
+                // Destroy adjacent brick
+                brick.visible = false;
+                gameState.totalBricksDestroyed++;
+                gameState.score += 5; // Less points for chain destruction
+                createBrickParticles(brick);
+            }
+        });
+    });
+}
+
+function createShieldParticles(x, y) {
+    for (let i = 0; i < 12; i++) {
+        const angle = (Math.PI * 2 * i) / 12;
+        particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * 4,
+            vy: Math.sin(angle) * 4 - 2,
+            life: 1.0,
+            color: '#00E5FF',
+            size: 3
+        });
+    }
+}
+
 function dropPowerUp(x, y) {
     let availableTypes = POWER_UP_TYPES.filter(t => t.id !== 'timebonus');
     
@@ -704,16 +731,6 @@ function activatePowerUp(type) {
             });
             break;
             
-        case 'widepaddle':
-            gameState.activePowerUps.push({
-                type: 'widepaddle',
-                duration: type.duration,
-                remaining: type.duration,
-                originalWidth: gameState.paddle.width
-            });
-            gameState.paddle.width = gameState.canvas.width;
-            break;
-            
         case 'laser':
             gameState.activePowerUps.push({
                 type: 'laser',
@@ -723,30 +740,42 @@ function activatePowerUp(type) {
             });
             break;
             
-        case 'slowmo':
-            gameState.activePowerUps.push({
-                type: 'slowmo',
-                duration: type.duration,
-                remaining: type.duration,
-                originalSpeed: gameState.ball.speed
-            });
-            gameState.ball.speed *= 0.5;
-            gameState.balls.forEach(b => b.speed *= 0.5);
-            break;
-            
-        case 'magnetball':
-            gameState.activePowerUps.push({
-                type: 'magnetball',
-                duration: type.duration,
-                remaining: type.duration
-            });
-            break;
-            
         case 'fireball':
             gameState.activePowerUps.push({
                 type: 'fireball',
                 duration: type.duration,
                 remaining: type.duration
+            });
+            break;
+            
+        case 'explosive':
+            gameState.activePowerUps.push({
+                type: 'explosive',
+                duration: type.duration,
+                remaining: type.duration
+            });
+            break;
+            
+        case 'shield':
+            gameState.shield = {
+                y: gameState.canvas.height - 80,
+                hits: 3,
+                startTime: Date.now(),
+                duration: type.duration
+            };
+            gameState.activePowerUps.push({
+                type: 'shield',
+                duration: type.duration,
+                remaining: type.duration
+            });
+            break;
+            
+        case 'megaball':
+            gameState.activePowerUps.push({
+                type: 'megaball',
+                duration: type.duration,
+                remaining: type.duration,
+                originalRadius: gameState.ball.radius
             });
             break;
             
@@ -858,16 +887,22 @@ function updatePowerUps() {
         }
         return true;
     });
+    
+    // Update shield timeout
+    if (gameState.shield) {
+        const elapsed = Date.now() - gameState.shield.startTime;
+        if (elapsed >= gameState.shield.duration || gameState.shield.hits <= 0) {
+            gameState.shield = null;
+            // Remove from active power-ups
+            gameState.activePowerUps = gameState.activePowerUps.filter(p => p.type !== 'shield');
+        }
+    }
 }
 
 function deactivatePowerUp(powerUp) {
     switch(powerUp.type) {
-        case 'widepaddle':
-            gameState.paddle.width = powerUp.originalWidth;
-            break;
-        case 'slowmo':
-            gameState.ball.speed = powerUp.originalSpeed;
-            gameState.balls.forEach(b => b.speed = powerUp.originalSpeed);
+        case 'shield':
+            gameState.shield = null;
             break;
     }
 }
@@ -954,6 +989,9 @@ function checkExtraBallPaddleCollision(ball) {
 
 function checkBallBrickCollisions(ball) {
     const hasFireball = gameState.activePowerUps.some(p => p.type === 'fireball');
+    const hasMegaBall = gameState.activePowerUps.some(p => p.type === 'megaball');
+    const hasExplosive = gameState.activePowerUps.some(p => p.type === 'explosive');
+    const ballRadius = hasMegaBall ? ball.radius * 3 : ball.radius;
     
     for (let brick of gameState.bricks) {
         if (!brick.visible) continue;
@@ -965,7 +1003,7 @@ function checkBallBrickCollisions(ball) {
         const distY = ball.y - closestY;
         const distance = Math.sqrt(distX * distX + distY * distY);
         
-        if (distance < ball.radius) {
+        if (distance < ballRadius) {
             brick.visible = false;
             
             // Increase combo
@@ -978,6 +1016,11 @@ function checkBallBrickCollisions(ball) {
             
             createBrickParticles(brick);
             showComboText(brick.x + brick.width / 2, brick.y + brick.height / 2, points, gameState.comboMultiplier);
+            
+            // Check if explosive is active - destroy adjacent bricks
+            if (hasExplosive) {
+                explodeAdjacentBricks(brick);
+            }
             
             // 20% chance to drop power-up
             if (Math.random() < 0.2) {
@@ -1030,6 +1073,11 @@ function draw() {
     
     // Draw power-ups
     drawPowerUps();
+    
+    // Draw shield
+    if (gameState.shield) {
+        drawShield();
+    }
     
     // Draw paddle
     drawPaddle();
@@ -1150,11 +1198,11 @@ function drawActivePowerUpIndicators() {
         // Draw appropriate icon based on power-up type
         let icon = '🎁';
         switch(powerUp.type) {
-            case 'widepaddle': icon = '↔️'; break;
             case 'laser': icon = '🔫'; break;
-            case 'slowmo': icon = '⏱️'; break;
-            case 'magnetball': icon = '🧲'; break;
             case 'fireball': icon = '🔥'; break;
+            case 'explosive': icon = '💣'; break;
+            case 'shield': icon = '🛡️'; break;
+            case 'megaball': icon = '🏐'; break;
         }
         
         ctx.fillText(icon, centerX, centerY);
@@ -1233,14 +1281,67 @@ function drawPaddle() {
     );
 }
 
+function drawShield() {
+    const ctx = gameState.ctx;
+    const canvas = gameState.canvas;
+    const shield = gameState.shield;
+    
+    // Pulsing glow effect
+    const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.7;
+    
+    ctx.save();
+    ctx.shadowColor = '#00E5FF';
+    ctx.shadowBlur = 15 * pulse;
+    
+    // Shield line
+    ctx.strokeStyle = `rgba(0, 229, 255, ${0.6 * pulse})`;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, shield.y);
+    ctx.lineTo(canvas.width, shield.y);
+    ctx.stroke();
+    
+    // Shield particles/segments
+    const segmentCount = 20;
+    for (let i = 0; i < segmentCount; i++) {
+        const x = (canvas.width / segmentCount) * i;
+        const offset = Math.sin((Date.now() / 300) + i) * 3;
+        
+        ctx.fillStyle = `rgba(0, 229, 255, ${0.4 * pulse})`;
+        ctx.beginPath();
+        ctx.arc(x, shield.y + offset, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // Hit counter (small text)
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#00E5FF';
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'right';
+    ctx.fillText(`🛡️ ${shield.hits}`, canvas.width - 10, shield.y - 10);
+    
+    ctx.restore();
+}
+
 function drawBall() {
     const ctx = gameState.ctx;
     const ball = gameState.ball;
     
+    // Check if mega ball is active
+    const hasMegaBall = gameState.activePowerUps.some(p => p.type === 'megaball');
+    const displayRadius = hasMegaBall ? ball.radius * 3 : ball.radius;
+    
+    // Add glow for mega ball
+    if (hasMegaBall) {
+        ctx.save();
+        ctx.shadowColor = '#76FF03';
+        ctx.shadowBlur = 20;
+    }
+    
     // Snowball with gradient
     const gradient = ctx.createRadialGradient(
-        ball.x - ball.radius / 3, ball.y - ball.radius / 3, 0,
-        ball.x, ball.y, ball.radius
+        ball.x - displayRadius / 3, ball.y - displayRadius / 3, 0,
+        ball.x, ball.y, displayRadius
     );
     gradient.addColorStop(0, '#FFFFFF');
     gradient.addColorStop(0.7, '#E8F4F8');
@@ -1248,14 +1349,18 @@ function drawBall() {
     
     ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.arc(ball.x, ball.y, displayRadius, 0, Math.PI * 2);
     ctx.fill();
     
     // Highlight
     ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.beginPath();
-    ctx.arc(ball.x - ball.radius / 3, ball.y - ball.radius / 3, ball.radius / 3, 0, Math.PI * 2);
+    ctx.arc(ball.x - displayRadius / 3, ball.y - displayRadius / 3, displayRadius / 3, 0, Math.PI * 2);
     ctx.fill();
+    
+    if (hasMegaBall) {
+        ctx.restore();
+    }
 }
 
 // ========================================
