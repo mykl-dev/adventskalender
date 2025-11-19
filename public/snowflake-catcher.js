@@ -63,46 +63,7 @@ class SnowflakeCatcherGame3D {
                 
                 <canvas id="snowflake-canvas" class="snowflake-canvas"></canvas>
                 
-                <!-- Instructions Overlay -->
-                <div class="snowflake-instructions-overlay" id="snowflake-instructions-overlay">
-                    <div class="instructions-content">
-                        <h2>❄️ Schneeflocken Fangen 3D ❄️</h2>
-                        <div class="instruction-items">
-                            <div class="instruction-item">
-                                <span class="item-icon">❄️</span>
-                                <span>Blaue Flocken = +10 Punkte</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">💎</span>
-                                <span>Kristall-Flocken = +25 Punkte (selten!)</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">🔥</span>
-                                <span>Rote Feuerflocken = -15 Punkte</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">✨</span>
-                                <span>Flocken teilen sich beim Klicken!</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">📱</span>
-                                <span>Touch oder Click zum Fangen</span>
-                            </div>
-                        </div>
-                        <p class="difficulty-info">⚡ 30 Sekunden Zeit - maximale Punktzahl erreichen!</p>
-                        <button class="instruction-ok-button" id="instruction-ok-button">
-                            ✓ Okay, verstanden!
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Start Button (erscheint nach OK) -->
-                <div class="start-button-overlay" id="start-button-overlay" style="display: none;">
-                    <button class="snowflake-start-button pulse" id="snowflake-start-button">
-                        <span class="button-icon">🎮</span>
-                        <span>Spiel starten!</span>
-                    </button>
-                </div>
+                <!-- Overlays werden dynamisch von stats-manager.js erstellt -->
             </div>
         `;
         
@@ -117,13 +78,13 @@ class SnowflakeCatcherGame3D {
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
         
-        // Overlay Event-Handler
-        document.getElementById('instruction-ok-button').addEventListener('click', () => {
-            document.getElementById('snowflake-instructions-overlay').style.display = 'none';
-            document.getElementById('start-button-overlay').style.display = 'flex';
+        // Show start overlay and attach event listener
+        statsManager.showGameStartOverlay('snowflake-catcher').then(() => {
+            const startBtn = document.getElementById('startButton');
+            if (startBtn) {
+                startBtn.addEventListener('click', () => this.start());
+            }
         });
-        
-        document.getElementById('snowflake-start-button').addEventListener('click', () => this.start());
         
         // Touch- und Click-Events für Canvas
         this.canvas.addEventListener('click', (e) => this.handleClick(e));
@@ -162,8 +123,11 @@ class SnowflakeCatcherGame3D {
         this.difficulty = 1;
         this.startTime = Date.now();
         
-        // Verstecke Start-Button Overlay
-        document.getElementById('start-button-overlay').style.display = 'none';
+        // Verstecke Start Overlay
+        const startOverlay = document.getElementById('gamestartOverlay');
+        if (startOverlay) {
+            startOverlay.classList.remove('active');
+        }
         
         // Aktualisiere alle Anzeigen
         document.getElementById('snowflake-score').textContent = '0';
@@ -692,27 +656,11 @@ class SnowflakeCatcherGame3D {
             </li>
         `).join('');
         
-        const overlay = document.createElement('div');
-        overlay.className = 'game-over-overlay';
-        overlay.innerHTML = `
-            <div class="game-over-content">
-                <h2>❄️ Spiel beendet! 🎄</h2>
-                <div class="game-over-stats">
-                    <div class="game-over-stat-label">Deine Punkte</div>
-                    <div class="game-over-stat-value">${this.score}</div>
-                    <div class="game-over-message">${this.getScoreMessage()}</div>
-                </div>
-                <div class="game-over-highscores">
-                    <h3>🏆 Top 3 Highscores</h3>
-                    <ul class="highscore-list">${highscoresHTML}</ul>
-                </div>
-                <div class="game-over-buttons">
-                    <button class="game-over-button button-primary" onclick="location.reload()">🔄 Nochmal spielen</button>
-                    <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+        // Zeige Game Over Overlay mit globalem System
+        await statsManager.showGameOverOverlay('snowflake-catcher', [
+            {label: 'Punkte', value: this.score},
+            {label: 'Zeit gespielt', value: '30s'}
+        ]);
     }
     
     getScoreMessage() {

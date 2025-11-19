@@ -26,7 +26,14 @@
       "category": "arcade",
       "difficulty": "medium",
       "scoreType": "points",
-      "active": true
+      "active": true,
+      "theme": "ice-theme",
+      "info": [
+        "Sammle Schneeflocken für Punkte",
+        "Vermeide Eiszapfen - Game Over!",
+        "Je mehr Schneeflocken, desto schneller",
+        "Steuerung: Touch, Maus oder Pfeiltasten"
+      ]
     },
     {
       "id": "santa-launcher",
