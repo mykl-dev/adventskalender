@@ -70,6 +70,55 @@
 }
 
 /* ========================================
+   THEME-SPEZIFISCHE TEXT-FARBEN
+   ======================================== */
+
+/* Ice Theme - Gelbe Schrift für bessere Lesbarkeit */
+.game-overlay.ice-theme .overlay-content h2,
+.game-overlay.ice-theme .overlay-content h3 {
+    color: #FFA000 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 160, 0, 0.4) !important;
+}
+
+.game-overlay.ice-theme .stat-label {
+    color: #FFB300 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.game-overlay.ice-theme .stat-value {
+    color: #FF8F00 !important;
+    font-weight: 900 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 143, 0, 0.3) !important;
+}
+
+.game-overlay.ice-theme .info-item {
+    color: #FFB300 !important;
+    font-weight: 600 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Gold Theme - Dunkle Schrift */
+.game-overlay.gold-theme .overlay-content h2,
+.game-overlay.gold-theme .overlay-content h3 {
+    color: #D84315 !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 2px 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.game-overlay.gold-theme .stat-label {
+    color: rgba(191, 54, 12, 0.9) !important;
+}
+
+.game-overlay.gold-theme .stat-value {
+    color: #D84315 !important;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3) !important;
+}
+
+.game-overlay.gold-theme .info-item {
+    color: #E65100 !important;
+}
+
+/* ========================================
    BUTTONS
    ======================================== */
 
@@ -221,8 +270,9 @@
 
 .stat-label {
     display: inline !important;
-    font-size: 0.9rem !important;
-    opacity: 0.8 !important;
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    opacity: 0.9 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     flex-shrink: 0 !important;
@@ -232,12 +282,12 @@
 
 .stat-value {
     display: inline !important;
-    font-size: 0.9rem !important;
-    font-weight: bold !important;
+    font-size: 1.3rem !important;
+    font-weight: 900 !important;
     color: #4CAF50 !important;
     text-align: right !important;
     margin-left: 15px !important;
-    text-shadow: none !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* ========================================
