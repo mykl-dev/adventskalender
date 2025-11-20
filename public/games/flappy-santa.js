@@ -55,24 +55,6 @@ class FlappySanta {
         
         root.innerHTML = `
             <div class="flappy-game-container">
-                <!-- Stats Banner -->
-                <div class="flappy-stats-banner">
-                    <div class="stat-box">
-                        <div class="stat-icon">⭐</div>
-                        <div class="stat-info">
-                            <div class="stat-value" id="score-value">0</div>
-                            <div class="stat-label">Punkte</div>
-                        </div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-icon">🛷</div>
-                        <div class="stat-info">
-                            <div class="stat-value" id="best-score">0</div>
-                            <div class="stat-label">Rekord</div>
-                        </div>
-                    </div>
-                </div>
-                
                 <canvas id="game-canvas" class="flappy-canvas"></canvas>
             </div>
         `;
@@ -95,7 +77,6 @@ class FlappySanta {
                 const top3 = await statsManager.getTop3(this.gameName);
                 if (top3.length > 0) {
                     this.bestScore = top3[0].score || 0;
-                    document.getElementById('best-score').textContent = this.bestScore;
                 }
             } catch (error) {
                 console.warn('Could not load best score:', error);
@@ -192,44 +173,17 @@ class FlappySanta {
         this.canvas.addEventListener('touchstart', this.clickHandler, { passive: false });
     }
     
-    showStartOverlay() {
-        const overlay = document.createElement('div');
-        overlay.className = 'flappy-instructions-overlay';
-        overlay.id = 'flappy-instructions-overlay';
-        overlay.innerHTML = `
-            <div class="instructions-content">
-                <h2>🎅 Flappy Santa 🛷</h2>
-                <div class="instruction-items">
-                    <div class="instruction-item">
-                        <span class="item-icon">🛷</span>
-                        <span>Fliege mit Santa durch den Himmel!</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">☁️</span>
-                        <span>Weiche den Hindernissen aus!</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">🖱️</span>
-                        <span>Klicken zum Fliegen</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">⌨️</span>
-                        <span>Leertaste zum Fliegen</span>
-                    </div>
-                </div>
-                <p class="difficulty-info">⚡ Je mehr Punkte, desto schneller wird es!</p>
-                <button class="instruction-ok-button" id="instruction-ok-button">
-                    ✓ Okay, verstanden!
-                </button>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+    async showStartOverlay() {
+        // Globales Start-Overlay anzeigen
+        await window.statsManager.showGameStartOverlay('flappy-santa');
         
-        // Button Event Listener
-        document.getElementById('instruction-ok-button').addEventListener('click', () => {
-            overlay.remove();
-            this.start();
-        });
+        // Warten auf Start-Button-Klick
+        const startButton = document.getElementById('startButton');
+        if (startButton) {
+            startButton.onclick = () => {
+                this.start();
+            };
+        }
     }
     
     async start() {
@@ -242,11 +196,11 @@ class FlappySanta {
             }
         }
         
-        // Remove overlays
-        const instructionsOverlay = document.getElementById('flappy-instructions-overlay');
-        if (instructionsOverlay) instructionsOverlay.remove();
-        const existingOverlays = document.querySelectorAll('.overlay, .game-over-overlay');
-        existingOverlays.forEach(el => el.remove());
+        // Remove global overlays
+        const startOverlay = document.getElementById('startOverlay');
+        if (startOverlay) startOverlay.remove();
+        const gameoverOverlay = document.getElementById('gameoverOverlay');
+        if (gameoverOverlay) gameoverOverlay.remove();
         
         // Reset game state
         this.score = 0;
@@ -271,7 +225,6 @@ class FlappySanta {
         this.obstacleSpawnDistance = 0;
         this.startTime = Date.now();
         
-        document.getElementById('score-value').textContent = '0';
         document.body.classList.add('playing');
         
         // Setup controls
@@ -425,12 +378,10 @@ class FlappySanta {
             if (!obstacle.scored && obstacle.x + obstacle.width < this.santa.x) {
                 obstacle.scored = true;
                 this.score++;
-                document.getElementById('score-value').textContent = this.score;
                 
                 // Update best score in real-time
                 if (this.score > this.bestScore) {
                     this.bestScore = this.score;
-                    document.getElementById('best-score').textContent = this.bestScore;
                 }
                 
                 this.increaseDifficulty();
@@ -707,42 +658,21 @@ class FlappySanta {
     }
     
     async showGameOver() {
-        // Remove any existing overlays first
-        const existingOverlays = document.querySelectorAll('.overlay, .game-over-overlay');
-        existingOverlays.forEach(el => el.remove());
+        // Globales Game-Over-Overlay anzeigen
+        await window.statsManager.showGameOverOverlay('flappy-santa', [
+            {label: 'Punkte', value: this.score},
+            {label: 'Hindernisse', value: this.score}
+        ]);
         
-        // Bestenliste laden
-        const highscores = await window.statsManager.getHighscores(this.gameName, 3);
-        
-        const highscoresHTML = highscores.map((entry, index) => `
-            <li class="highscore-item">
-                <span class="highscore-rank">${index + 1}.</span>
-                <span class="highscore-name">${entry.username}</span>
-                <span class="highscore-score">${entry.highscore} 🎁</span>
-            </li>
-        `).join('');
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'game-over-overlay';
-        overlay.innerHTML = `
-            <div class="game-over-content">
-                <h2>🎅 Game Over! 🎄</h2>
-                <div class="game-over-stats">
-                    <div class="game-over-stat-label">Deine Punkte</div>
-                    <div class="game-over-stat-value">${this.score}</div>
-                    <div class="game-over-message">${this.getScoreMessage()}</div>
-                </div>
-                <div class="game-over-highscores">
-                    <h3>🏆 Top 3 Highscores</h3>
-                    <ul class="highscore-list">${highscoresHTML}</ul>
-                </div>
-                <div class="game-over-buttons">
-                    <button class="game-over-button button-primary" onclick="game.start()">🔄 Nochmal spielen</button>
-                    <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+        // Restart-Button Event
+        const restartButton = document.getElementById('restartButton');
+        if (restartButton) {
+            restartButton.onclick = () => {
+                const overlay = document.getElementById('gameoverOverlay');
+                if (overlay) overlay.remove();
+                this.start();
+            };
+        }
     }
     
     getScoreMessage() {

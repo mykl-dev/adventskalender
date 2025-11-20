@@ -62,7 +62,14 @@
       "category": "arcade",
       "difficulty": "hard",
       "scoreType": "points",
-      "active": true
+      "active": true,
+      "theme": "sky-theme",
+      "info": [
+        "Fliege mit Santa durch den Himmel!",
+        "Weiche den Hindernissen aus!",
+        "Klicken oder Leertaste zum Fliegen",
+        "Je mehr Punkte, desto schneller wird es!"
+      ]
     },
     {
       "id": "santa-snake",
