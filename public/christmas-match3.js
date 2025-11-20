@@ -1347,10 +1347,10 @@ class ChristmasMatch3Game {
     }
     
     getScoreMessage() {
-        if (this.score >= 500) return '🌟 Unglaublich! Match-3 Meister!';
-        if (this.score >= 300) return '⭐ Fantastisch! Sehr gut gespielt!';
-        if (this.score >= 200) return '✨ Super! Tolle Kombinationen!';
-        if (this.score >= 100) return '🎄 Gut gemacht! Weiter so!';
+        if (this.score >= 500) return '🌟 Match-3 Meister!';
+        if (this.score >= 300) return '⭐ Sehr gut!';
+        if (this.score >= 200) return '✨ Super!';
+        if (this.score >= 100) return '🎄 Gut gemacht!';
         return '🎅 Guter Versuch!';
     }
 }
