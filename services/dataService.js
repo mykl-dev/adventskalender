@@ -777,6 +777,97 @@ class DataService {
       }
       stats.favoriteGame = favoriteGame;
       
+      // Calculate top1/top3 count (check if current score is in top 3)
+      const gameScores = this.getGameStats(gameName);
+      const sortedScores = gameScores.sort((a, b) => b.topScore - a.topScore);
+      const userRank = sortedScores.findIndex(s => s.username === user.displayName);
+      if (userRank === 0) {
+        stats.top1Count = (stats.top1Count || 0);
+        // Check if this is a new top score
+        if (sortedScores[0].username === user.displayName && sortedScores[0].topScore === score) {
+          stats.top1Count++;
+        }
+      }
+      if (userRank >= 0 && userRank < 3) {
+        stats.top3Count = (stats.top3Count || 0);
+        // Count games where user is in top 3
+        const gamesInTop3 = Object.keys(allGameStats).filter(game => {
+          const gameScores = this.getGameStats(game);
+          const sorted = gameScores.sort((a, b) => b.topScore - a.topScore);
+          const rank = sorted.findIndex(s => s.username === user.displayName);
+          return rank >= 0 && rank < 3;
+        }).length;
+        stats.top3Count = gamesInTop3;
+      }
+      
+      // Calculate games per day
+      if (stats.totalDaysPlayed > 0) {
+        stats.gamesPerDay = Math.round((stats.totalGamesPlayed / stats.totalDaysPlayed) * 10) / 10;
+      }
+      
+      // Calculate improvement rate (compare last 10 games with previous 10)
+      const userScores = [];
+      for (const [game, players] of Object.entries(allGameStats)) {
+        const playerStats = players.find(p => p.username === user.displayName);
+        if (playerStats && playerStats.scores) {
+          userScores.push(...playerStats.scores.map(s => s.score));
+        }
+      }
+      if (userScores.length >= 20) {
+        const recent10 = userScores.slice(-10);
+        const previous10 = userScores.slice(-20, -10);
+        const recentAvg = recent10.reduce((a, b) => a + b, 0) / 10;
+        const previousAvg = previous10.reduce((a, b) => a + b, 0) / 10;
+        if (previousAvg > 0) {
+          stats.improvementRate = Math.round(((recentAvg - previousAvg) / previousAvg) * 100);
+        }
+      } else {
+        stats.improvementRate = 0;
+      }
+      
+      // Calculate completion rate (% of games completed vs started)
+      // For now, assume all games are completed (no quit tracking)
+      stats.completionRate = 100;
+      
+      // Calculate consistency (standard deviation of scores)
+      if (userScores.length >= 5) {
+        const mean = userScores.reduce((a, b) => a + b, 0) / userScores.length;
+        const variance = userScores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / userScores.length;
+        const stdDev = Math.sqrt(variance);
+        // Consistency: 100 = perfect consistency (no deviation), 0 = high deviation
+        // Normalize: lower stdDev = higher consistency
+        stats.consistency = Math.max(0, Math.round(100 - (stdDev / mean * 100)));
+      } else {
+        stats.consistency = 0;
+      }
+      
+      // Track perfect games and comebacks
+      // Perfect game = score in top 10% for that game
+      const gameScoresForThisGame = this.getGameStats(gameName);
+      if (gameScoresForThisGame.length >= 5) {
+        const allScores = gameScoresForThisGame.map(s => s.topScore).sort((a, b) => b - a);
+        const top10PercentThreshold = allScores[Math.floor(allScores.length * 0.1)];
+        if (score >= top10PercentThreshold) {
+          stats.perfectGames = (stats.perfectGames || 0) + 1;
+        }
+      }
+      
+      // Comeback = current score is significantly higher than personal average
+      if (userScores.length >= 3) {
+        const personalAvg = userScores.reduce((a, b) => a + b, 0) / userScores.length;
+        if (score > personalAvg * 1.5) {
+          stats.comebacks = (stats.comebacks || 0) + 1;
+        }
+      }
+      
+      // Calculate Christmas Spirit Score (engagement + variety + dedication)
+      stats.christmasSpiritScore = Math.round(
+        (stats.doorsOpened * 5) + 
+        (stats.uniqueGamesPlayed * 10) + 
+        (stats.playStreak * 3) +
+        (stats.dailyLoginCount * 2)
+      );
+      
       // Update user profile
       this.updateUserProfile(userId, { stats });
       
@@ -910,6 +1001,84 @@ class DataService {
     return Object.values(users.users).sort((a, b) => {
       return (b.stars?.total || 0) - (a.stars?.total || 0);
     });
+  }
+
+  /**
+   * Track door opening
+   * @param {string} userId - User ID
+   * @param {number} day - Door day (1-24)
+   * @returns {boolean} Success status
+   */
+  trackDoorOpened(userId, day) {
+    try {
+      const user = this.getUserProfileById(userId);
+      if (!user) {
+        return false;
+      }
+      
+      // Initialize opened doors array if not exists
+      if (!user.openedDoors) {
+        user.openedDoors = [];
+      }
+      
+      // Add door if not already opened
+      if (!user.openedDoors.includes(day)) {
+        user.openedDoors.push(day);
+        user.stats.doorsOpened = user.openedDoors.length;
+        
+        this.updateUserProfile(userId, { 
+          openedDoors: user.openedDoors,
+          stats: user.stats 
+        });
+        
+        // Recalculate stars (affects engagement)
+        this.calculateUserStars(userId);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error tracking door opened:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Track daily login
+   * @param {string} userId - User ID
+   * @returns {boolean} Success status
+   */
+  trackDailyLogin(userId) {
+    try {
+      const user = this.getUserProfileById(userId);
+      if (!user) {
+        return false;
+      }
+      
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Initialize last login date if not exists
+      if (!user.lastLoginDate) {
+        user.lastLoginDate = today;
+        user.stats.dailyLoginCount = 1;
+      } else if (user.lastLoginDate !== today) {
+        // New day, increment count
+        user.lastLoginDate = today;
+        user.stats.dailyLoginCount++;
+        
+        this.updateUserProfile(userId, { 
+          lastLoginDate: user.lastLoginDate,
+          stats: user.stats 
+        });
+        
+        // Recalculate stars (affects engagement)
+        this.calculateUserStars(userId);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error tracking daily login:', error);
+      return false;
+    }
   }
 }
 

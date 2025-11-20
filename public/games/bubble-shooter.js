@@ -975,16 +975,16 @@ async function startGame() {
 async function endGame() {
     gameState.gameRunning = false;
     
-    const playTime = CONFIG.TIME_LIMIT - gameState.timeLeft;
+    const playTime = Math.floor((Date.now() - gameState.startTime) / 1000);
     
     // Save stats
-    await window.statsManager.saveStats('bubble-shooter', gameState.score, Math.round(playTime));
+    await window.statsManager.saveStats('bubble-shooter', gameState.score, playTime);
     
     // Show global game over overlay
     await window.statsManager.showGameOverOverlay('bubble-shooter', [
         {label: 'Punkte', value: gameState.score},
         {label: 'Level', value: gameState.level},
-        {label: 'Zeit', value: `${Math.round(playTime)}s`}
+        {label: 'Zeit', value: `${playTime}s`}
     ]);
     
     const restartButton = document.getElementById('restartButton');

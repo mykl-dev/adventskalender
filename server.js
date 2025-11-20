@@ -256,6 +256,9 @@ app.get('/api/auth/session', (req, res) => {
     return res.status(401).json({ authenticated: false });
   }
   
+  // Track daily login
+  dataService.trackDailyLogin(req.session.userId);
+  
   res.json({ 
     authenticated: true,
     user: {
@@ -389,6 +392,23 @@ app.get('/api/door/:day', (req, res) => {
       year: today.getFullYear()
     }
   });
+});
+
+// POST: Track door opening
+app.post('/api/door/:day/open', (req, res) => {
+  const day = parseInt(req.params.day);
+  
+  // Validierung
+  if (day < 1 || day > 24) {
+    return res.status(400).json({ error: 'Ungültiger Tag' });
+  }
+  
+  // Track door opening if user is logged in
+  if (req.session?.userId) {
+    dataService.trackDoorOpened(req.session.userId, day);
+  }
+  
+  res.json({ success: true });
 });
 
 // =====================
