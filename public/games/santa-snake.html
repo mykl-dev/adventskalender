@@ -6,7 +6,7 @@
     <title>🎅 Santa Snake - Adventskalender</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../stats.css">
-    <link rel="stylesheet" href="../game-overlay.css">
+    <link rel="stylesheet" href="../game-overlays.css">
     <style>
         * {
             margin: 0;
@@ -496,14 +496,6 @@
             </div>
             
             <div class="snake-canvas" id="snake-canvas">
-                <div class="snake-instructions">
-                    <h3>🎅 Santa Snake 🎁</h3>
-                    <p>Steuere Santa mit den Pfeiltasten oder Wisch-Gesten!</p>
-                    <p>🎁 Sammle Geschenke und werde länger</p>
-                    <p>⚠️ Berühre nicht die Wände oder dich selbst!</p>
-                    <p><strong>Viel Erfolg!</strong></p>
-                </div>
-                
                 <!-- Touch Control D-Pad -->
                 <div class="touch-dpad" id="touch-dpad" style="display: none;">
                     <button class="dpad-btn dpad-up" data-direction="up">▲</button>
@@ -512,8 +504,6 @@
                     <button class="dpad-btn dpad-down" data-direction="down">▼</button>
                 </div>
             </div>
-            
-            <button class="game-button" id="snake-start-button">Spiel starten! 🎮</button>
         </div>
     </div>
 
@@ -565,10 +555,22 @@
                 this.init();
             }
 
-            init() {
-                document.getElementById('snake-start-button').addEventListener('click', () => this.start());
+            async init() {
                 this.loadHighscore();
-                this.setupDPad();
+                await this.showStartOverlay();
+            }
+            
+            async showStartOverlay() {
+                // Globales Start-Overlay anzeigen
+                await window.statsManager.showGameStartOverlay('santa-snake');
+                
+                // Warten auf Start-Button-Klick
+                const startButton = document.getElementById('startButton');
+                if (startButton) {
+                    startButton.onclick = () => {
+                        this.start();
+                    };
+                }
             }
             
             showDPad() {
@@ -658,13 +660,15 @@
                     { x: startX - 2, y: centerY }
                 ];
 
-                const instructions = this.canvas.querySelector('.snake-instructions');
-                if (instructions) instructions.style.display = 'none';
+                // Remove global overlays
+                const startOverlay = document.getElementById('startOverlay');
+                if (startOverlay) startOverlay.remove();
+                const gameoverOverlay = document.getElementById('gameoverOverlay');
+                if (gameoverOverlay) gameoverOverlay.remove();
 
                 const existingElements = this.canvas.querySelectorAll('.snake-segment, .snake-gift, .game-over');
                 existingElements.forEach(el => el.remove());
 
-                document.getElementById('snake-start-button').style.display = 'none';
                 document.getElementById('snake-score').textContent = '0';
                 document.getElementById('snake-speed').textContent = '1';
 
@@ -1025,36 +1029,21 @@
                     `).join('')
                     : '<div class="no-highscores">Noch keine Highscores vorhanden</div>';
 
-                // Globales Overlay erstellen
-                const overlay = document.createElement('div');
-                overlay.className = 'game-over-overlay';
-                overlay.innerHTML = `
-                    <div class="game-over-content">
-                        <h2>🎅 Spiel vorbei! 🎁</h2>
-                        <div class="game-over-stats">
-                            <div class="game-over-stat-item">
-                                <div class="game-over-stat-label">${reasonText}</div>
-                            </div>
-                            <div class="game-over-stat-item">
-                                <div class="game-over-stat-label">Geschenke gesammelt</div>
-                                <div class="game-over-stat-value">${this.score}</div>
-                            </div>
-                            <div class="game-over-message">${this.getScoreMessage()}</div>
-                        </div>
-                        <div class="game-over-highscores">
-                            <h3>🏆 Top 3 Highscores</h3>
-                            <ul class="highscore-list">
-                                ${highscoresHTML}
-                            </ul>
-                        </div>
-                        <div class="game-over-buttons">
-                            <button class="game-over-button button-primary" onclick="location.reload()">🔄 Nochmal spielen</button>
-                            <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
-                        </div>
-                    </div>
-                `;
-
-                document.body.appendChild(overlay);
+                // Globales Game-Over-Overlay anzeigen
+                await window.statsManager.showGameOverOverlay('santa-snake', [
+                    {label: reasonText, value: ''},
+                    {label: 'Geschenke', value: this.score}
+                ]);
+                
+                // Restart-Button Event
+                const restartButton = document.getElementById('restartButton');
+                if (restartButton) {
+                    restartButton.onclick = () => {
+                        const overlay = document.getElementById('gameoverOverlay');
+                        if (overlay) overlay.remove();
+                        location.reload();
+                    };
+                }
             }
 
             getScoreMessage() {

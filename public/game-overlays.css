@@ -159,6 +159,72 @@
     color: #E65100 !important;
 }
 
+/* Forest Theme - Frisches Grün mit weißer Schrift */
+.game-overlay.forest-theme .overlay-content h1,
+.game-overlay.forest-theme .overlay-content h2,
+.game-overlay.forest-theme .overlay-content h3 {
+    color: #FFFFFF !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.2) !important;
+}
+
+.game-overlay.forest-theme .stat-item {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.game-overlay.forest-theme .stat-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 700 !important;
+}
+
+.game-overlay.forest-theme .stat-value {
+    color: #FFFFFF !important;
+    font-weight: 900 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.game-overlay.forest-theme .info-item {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.game-overlay.forest-theme .info-icon {
+    color: #FFFFFF !important;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+}
+
+.game-overlay.forest-theme .info-text {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-weight: 600 !important;
+}
+
+.game-overlay.forest-theme .game-button {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85)) !important;
+    color: #27AE60 !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.game-overlay.forest-theme .game-button:hover {
+    background: linear-gradient(135deg, #FFFFFF, rgba(255, 255, 255, 0.95)) !important;
+    color: #229954 !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+.game-overlay.forest-theme .game-button.secondary {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #FFFFFF !important;
+    border: 2px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+.game-overlay.forest-theme .game-button.secondary:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
 /* Sky Theme - Elegante Blautöne auf weißem Hintergrund */
 .game-overlay.sky-theme .overlay-content h1,
 .game-overlay.sky-theme .overlay-content h2,

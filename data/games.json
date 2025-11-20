@@ -79,7 +79,15 @@
       "category": "arcade",
       "difficulty": "medium",
       "scoreType": "points",
-      "active": true
+      "active": true,
+      "theme": "forest-theme",
+      "info": [
+        "Steuere Santa mit Pfeiltasten oder Wisch-Gesten",
+        "Sammle Geschenke und werde länger",
+        "Berühre nicht die Wände!",
+        "Berühre nicht deinen eigenen Körper!",
+        "Je mehr Geschenke, desto schneller wird es!"
+      ]
     },
     {
       "id": "christmas-memory",
