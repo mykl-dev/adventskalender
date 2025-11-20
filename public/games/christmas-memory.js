@@ -18,38 +18,10 @@ class ChristmasMemoryGame {
         this.init();
     }
 
-    init() {
-        const root = document.getElementById('game-root');
-        
-        root.innerHTML = `
-            <div class="game-stats">
-                <div class="stat-box">
-                    <div class="stat-label">🎯 Züge</div>
-                    <div class="stat-value" id="memory-moves">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">✨ Paare</div>
-                    <div class="stat-value" id="memory-pairs">0/8</div>
-                </div>
-            </div>
-
-            <div class="memory-container">
-                <div class="memory-instructions" id="memory-instructions">
-                    <h3>🎅 Christmas Memory 🎄</h3>
-                    <p>Finde alle passenden Weihnachts-Paare!</p>
-                    <p>🎯 Je weniger Züge, desto besser!</p>
-                </div>
-                
-                <div class="memory-grid" id="memory-grid"></div>
-                
-                <button class="game-button" id="memory-start-button">Spiel starten! 🎮</button>
-            </div>
-        `;
-
+    async init() {
         this.grid = document.getElementById('memory-grid');
-        document.getElementById('memory-start-button').addEventListener('click', () => this.start());
         this.loadHighscore();
-        this.showStartOverlay();
+        await this.showStartOverlay();
     }
 
     async loadHighscore() {
@@ -61,48 +33,20 @@ class ChristmasMemoryGame {
         }
     }
 
-    showStartOverlay() {
-        const overlay = document.createElement('div');
-        overlay.className = 'game-instructions-overlay';
-        overlay.id = 'game-instructions-overlay';
-        overlay.innerHTML = `
-            <div class="instructions-content">
-                <h2>🎄 Christmas Memory 🎁</h2>
-                <div class="instruction-items">
-                    <div class="instruction-item">
-                        <span class="item-icon">🎯</span>
-                        <span>Finde alle passenden Weihnachts-Paare!</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">🃏</span>
-                        <span>Klicke auf Karten um sie umzudrehen</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">✨</span>
-                        <span>Merke dir die Positionen der Symbole</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">⭐</span>
-                        <span>Je weniger Züge, desto besser!</span>
-                    </div>
-                </div>
-                <p class="difficulty-info">🎅 8 Paare warten auf dich!</p>
-                <button class="instruction-ok-button" id="instruction-ok-button">
-                    ✓ Los geht's!
-                </button>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+    async showStartOverlay() {
+        // Globales Start-Overlay anzeigen
+        await window.statsManager.showGameStartOverlay('christmas-memory');
         
-        // Button Event Listener
-        document.getElementById('instruction-ok-button').addEventListener('click', () => {
-            overlay.remove();
-            // Show start button pulsing
-            const startBtn = document.getElementById('memory-start-button');
-            if (startBtn) {
-                startBtn.classList.add('pulse');
-            }
-        });
+        // Warten auf Start-Button-Klick
+        const startButton = document.getElementById('startButton');
+        if (startButton) {
+            startButton.onclick = () => {
+                // Overlay entfernen und Spiel starten
+                const overlay = document.getElementById('startOverlay');
+                if (overlay) overlay.remove();
+                this.start();
+            };
+        }
     }
 
     start() {
@@ -116,11 +60,6 @@ class ChristmasMemoryGame {
         // Reset Stats
         document.getElementById('memory-moves').textContent = '0';
         document.getElementById('memory-pairs').textContent = '0/8';
-
-        // Hide button and instructions
-        document.getElementById('memory-start-button').style.display = 'none';
-        const instructions = document.getElementById('memory-instructions');
-        if (instructions) instructions.style.display = 'none';
 
         // Create shuffled cards
         this.gameCards = [...this.cards, ...this.cards];
@@ -251,66 +190,32 @@ class ChristmasMemoryGame {
     }
 
     async showGameOver(result) {
-        // Load highscores
-        let highscoresHTML = '<div class="no-highscores">Noch keine Highscores vorhanden</div>';
-        
-        if (typeof statsManager !== 'undefined') {
-            const highscores = await window.statsManager.getHighscores(this.gameName, 3);
-            if (highscores && highscores.length > 0) {
-                highscoresHTML = highscores.map((entry, index) => `
-                    <li class="highscore-item">
-                        <span class="highscore-rank">${index + 1}.</span>
-                        <span class="highscore-name">${entry.username}</span>
-                        <span class="highscore-score">${entry.highscore} Punkte</span>
-                    </li>
-                `).join('');
-            }
-        }
-
-        // Bonus-Badges
-        let badges = '';
+        // Badges für zusätzliche Info
+        let bonusInfo = [];
         if (result.perfectMoves) {
-            badges += '<div class="bonus-badge">🌟 Perfekte Züge!</div>';
+            bonusInfo.push('🌟 Perfekte Züge!');
         }
         if (result.speedBonus > 0) {
-            badges += `<div class="bonus-badge">⚡ Speed-Bonus: +${result.speedBonus}</div>`;
+            bonusInfo.push(`⚡ Speed-Bonus: +${result.speedBonus}`);
         }
-
-        // Show game over overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'game-over-overlay';
-        overlay.innerHTML = `
-            <div class="game-over-content">
-                <h2>🎉 Alle Paare gefunden! 🎄</h2>
-                <div class="game-over-stats">
-                    <div class="game-over-stat-item">
-                        <div class="game-over-stat-label">Punkte</div>
-                        <div class="game-over-stat-value">${result.score}</div>
-                    </div>
-                    <div class="score-breakdown">
-                        <div class="breakdown-item">
-                            <span>🎯 Züge: ${result.moves}</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span>⏱️ Zeit: ${result.playTime}s</span>
-                        </div>
-                    </div>
-                    ${badges ? `<div class="bonus-badges">${badges}</div>` : ''}
-                    <div class="game-over-message">${this.getScoreMessage(result)}</div>
-                </div>
-                <div class="game-over-highscores">
-                    <h3>🏆 Top 3 Highscores</h3>
-                    <ul class="highscore-list">
-                        ${highscoresHTML}
-                    </ul>
-                </div>
-                <div class="game-over-buttons">
-                    <button class="game-over-button button-primary" onclick="game.restart()">🔄 Nochmal spielen</button>
-                    <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+        
+        // Globales Game-Over-Overlay anzeigen
+        await window.statsManager.showGameOverOverlay('christmas-memory', [
+            {label: 'Punkte', value: result.score},
+            {label: 'Züge', value: result.moves},
+            {label: 'Zeit', value: `${result.playTime}s`},
+            ...(bonusInfo.length > 0 ? [{label: bonusInfo.join(' '), value: ''}] : [])
+        ]);
+        
+        // Restart-Button Event
+        const restartButton = document.getElementById('restartButton');
+        if (restartButton) {
+            restartButton.onclick = () => {
+                const overlay = document.getElementById('gameoverOverlay');
+                if (overlay) overlay.remove();
+                location.reload();
+            };
+        }
     }
 
     restart() {

@@ -98,7 +98,15 @@
       "difficulty": "easy",
       "scoreType": "moves",
       "scoreUnit": "Züge",
-      "active": true
+      "active": true,
+      "theme": "gold-theme",
+      "info": [
+        "Finde alle passenden Weihnachts-Paare!",
+        "Klicke auf Karten um sie umzudrehen",
+        "Merke dir die Positionen der Symbole",
+        "Je weniger Züge, desto besser!",
+        "🎅 8 Paare warten auf dich!"
+      ]
     },
     {
       "id": "santa-run",

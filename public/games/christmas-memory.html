@@ -6,7 +6,7 @@
     <title>Christmas Memory - Adventskalender</title>
         <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../stats.css">
-    <link rel="stylesheet" href="../game-overlay.css">
+    <link rel="stylesheet" href="../game-overlays.css">
     <style>
         * {
             margin: 0;
@@ -236,20 +236,6 @@
             }
         }
 
-        /* Instructions */
-        .memory-instructions {
-            text-align: center;
-            color: #666;
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-
-        .memory-instructions h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.3rem;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .game-title {
@@ -301,155 +287,7 @@
             }
         }
 
-        /* Game Instructions Overlay */
-        .game-instructions-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            animation: fadeIn 0.3s ease;
-        }
 
-        .instructions-content {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 90%;
-            width: 500px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.4s ease;
-        }
-
-        .instructions-content h2 {
-            font-size: 2rem;
-            margin-bottom: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .instruction-items {
-            margin: 25px 0;
-            text-align: left;
-        }
-
-        .instruction-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px;
-            margin: 10px 0;
-            background: #f8f9fa;
-            border-radius: 10px;
-            font-size: 1rem;
-        }
-
-        .item-icon {
-            font-size: 1.8rem;
-            min-width: 40px;
-            text-align: center;
-        }
-
-        .difficulty-info {
-            margin: 20px 0;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-
-        .instruction-ok-button {
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .instruction-ok-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-
-        /* Score Breakdown Styles */
-        .score-breakdown {
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            text-align: left;
-            width: 100%;
-        }
-
-        .breakdown-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 1rem;
-        }
-
-        .breakdown-item:last-child {
-            border-bottom: none;
-        }
-
-        .bonus-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
-            justify-content: center;
-        }
-
-        .bonus-badge {
-            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-            color: #333;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            animation: badgePop 0.5s ease;
-        }
-
-        @keyframes badgePop {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        @media (max-width: 768px) {
-            .instructions-content {
-                padding: 30px 20px;
-            }
-
-            .instructions-content h2 {
-                font-size: 1.5rem;
-            }
-
-            .instruction-item {
-                font-size: 0.9rem;
-            }
-
-            .item-icon {
-                font-size: 1.5rem;
-                min-width: 35px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -476,15 +314,7 @@
         </div>
 
         <div class="memory-container">
-            <div class="memory-instructions" id="memory-instructions">
-                <h3>🎅 Christmas Memory 🎄</h3>
-                <p>Finde alle passenden Weihnachts-Paare!</p>
-                <p>🎯 Je weniger Züge, desto besser!</p>
-            </div>
-            
             <div class="memory-grid" id="memory-grid"></div>
-            
-            <button class="game-button" id="memory-start-button">Spiel starten! 🎮</button>
         </div>
     </div>
 
