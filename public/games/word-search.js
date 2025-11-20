@@ -60,21 +60,31 @@ const WORD_POOL = [
 // INITIALISIERUNG
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('startButton').addEventListener('click', startGame);
-    document.getElementById('restartButton').addEventListener('click', restartGame);
+    initStartOverlay();
 });
+
+async function initStartOverlay() {
+    // Warte bis statsManager geladen ist
+    while (!window.statsManager) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    await window.statsManager.showGameStartOverlay('word-search');
+    
+    const startButton = document.getElementById('startButton');
+    if (startButton) {
+        startButton.onclick = async () => {
+            const overlay = document.getElementById('startOverlay');
+            if (overlay) overlay.remove();
+            await startGame();
+        };
+    }
+}
 
 async function startGame() {
     // Username sicherstellen
-    if (typeof statsManager !== 'undefined') {
-        try {
-            await statsManager.ensureUsername();
-        } catch (error) {
-            console.warn('Username prompt failed:', error);
-        }
-    }
+    await window.statsManager.ensureUsername();
 
-    document.getElementById('startOverlay').style.display = 'none';
     document.getElementById('gameContainer').style.display = 'block';
 
     // Responsive Grid Size
@@ -600,34 +610,25 @@ async function endGame() {
     
     const totalTime = Math.floor((Date.now() - gameState.gameStartTime) / 1000);
     
-    // Stats anzeigen
-    document.getElementById('finalWordsFound').textContent = gameState.foundWords.size;
-    document.getElementById('finalRound').textContent = gameState.round;
-    document.getElementById('finalTime').textContent = `${totalTime}s`;
-    document.getElementById('finalScore').textContent = gameState.score;
+    // Stats speichern
+    await window.statsManager.saveStats(GAME_NAME, gameState.score, totalTime);
     
-    // Speichern
-    if (typeof statsManager !== 'undefined') {
-        try {
-            console.log('Saving score:', GAME_NAME, gameState.score, totalTime);
-            const saved = await statsManager.saveStats(
-                GAME_NAME,
-                gameState.score,
-                totalTime
-            );
-            console.log('Score saved:', saved);
-            
-            // Top 3 laden
-            await loadTop3();
-        } catch (error) {
-            console.error('Error saving score:', error);
-        }
-    } else {
-        console.error('StatsManager not available');
+    // Global Overlay anzeigen
+    await window.statsManager.showGameOverOverlay('word-search', [
+        {label: 'Runde', value: gameState.round},
+        {label: 'Gefundene Wörter', value: gameState.foundWords.size},
+        {label: 'Zeit', value: `${totalTime}s`},
+        {label: 'Punkte', value: gameState.score}
+    ]);
+    
+    const restartButton = document.getElementById('restartButton');
+    if (restartButton) {
+        restartButton.onclick = () => {
+            const overlay = document.getElementById('gameoverOverlay');
+            if (overlay) overlay.remove();
+            restartGame();
+        };
     }
-    
-    // Overlay anzeigen
-    document.getElementById('gameoverOverlay').style.display = 'flex';
 }
 
 async function showMissingWords() {
@@ -662,36 +663,9 @@ async function showMissingWords() {
     });
 }
 
-async function loadTop3() {
-    const top3List = document.getElementById('top3List');
-    
-    try {
-        console.log('Loading top 3 for:', GAME_NAME);
-        const top3 = await statsManager.getTop3(GAME_NAME);
-        console.log('Top 3 loaded:', top3);
-        
-        if (!top3 || top3.length === 0) {
-            top3List.innerHTML = '<div class="no-scores">Noch keine Highscores</div>';
-            return;
-        }
-        
-        const medals = ['🥇', '🥈', '🥉'];
-        top3List.innerHTML = top3.map((entry, index) => `
-            <div class="top3-item ${index === 0 ? 'gold' : index === 1 ? 'silver' : 'bronze'}">
-                <span class="top3-rank">${medals[index]}</span>
-                <span class="top3-name">${entry.username || 'Anonym'}</span>
-                <span class="top3-score">${entry.highscore || entry.score || 0}</span>
-            </div>
-        `).join('');
-    } catch (error) {
-        console.error('Error loading top 3:', error);
-        top3List.innerHTML = '<div class="no-scores">Fehler beim Laden</div>';
-    }
-}
+// loadTop3 entfernt - wird jetzt vom globalen Overlay gemacht
 
 function restartGame() {
-    document.getElementById('gameoverOverlay').style.display = 'none';
-    
     // Spiel komplett zurücksetzen
     gameState.score = 0;
     gameState.round = 1;

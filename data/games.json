@@ -152,7 +152,15 @@
       "category": "arcade",
       "difficulty": "medium",
       "scoreType": "points",
-      "active": true
+      "active": true,
+      "theme": "sky-theme",
+      "info": [
+        "Ziehe die Kugel nach unten und lasse los",
+        "Triff die richtige Farbe oben!",
+        "Je weiter ziehen = stärker der Schuss",
+        "3 Leben - Nicht daneben schießen!",
+        "Hindernisse erscheinen ab 10 Treffern"
+      ]
     },
     {
       "id": "bubble-shooter",
@@ -162,7 +170,15 @@
       "category": "puzzle",
       "difficulty": "medium",
       "scoreType": "points",
-      "active": true
+      "active": true,
+      "theme": "forest-theme",
+      "info": [
+        "Klicke oder tippe zum Schießen",
+        "Verbinde 3+ gleiche Farben!",
+        "60 Sekunden Zeit pro Level",
+        "Kugeln dürfen nicht Zeile 6 erreichen!",
+        "Combo-Treffer geben Bonus-Punkte"
+      ]
     },
     {
       "id": "word-search",
@@ -172,7 +188,15 @@
       "category": "puzzle",
       "difficulty": "medium",
       "scoreType": "points",
-      "active": true
+      "active": true,
+      "theme": "retro-theme",
+      "info": [
+        "Finde alle Weihnachtswörter im Gitter!",
+        "Markiere Wörter mit Maus oder Finger",
+        "120 Sekunden Zeit pro Runde",
+        "50 Punkte pro Wort + Zeitbonus",
+        "Alle Wörter = 500 Bonus + neue Runde!"
+      ]
     },
     {
       "id": "snowball-blaster",

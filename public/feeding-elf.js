@@ -116,7 +116,7 @@ class FeedingElfGame {
         this.init();
     }
     
-    init() {
+    async init() {
         this.container.innerHTML = `
             <div class="feeding-elf-container">
                 <div class="feeding-elf-header">
@@ -131,43 +131,6 @@ class FeedingElfGame {
                 </div>
                 
                 <canvas id="feeding-elf-canvas" class="feeding-elf-canvas"></canvas>
-                
-                <!-- Instructions Overlay -->
-                <div class="santa-instructions-overlay" id="elf-instructions-overlay">
-                    <div class="instructions-content">
-                        <h2>🎯 Feeding Elf! 🎄</h2>
-                        <div class="instruction-items">
-                            <div class="instruction-item">
-                                <span class="item-icon">🔴</span>
-                                <span>Triff die richtige Farbe!</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">👆</span>
-                                <span>Ziehe die Kugel nach unten und lasse los</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">🎯</span>
-                                <span>Lenke zur passenden Farbe</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">❤️</span>
-                                <span>3 Leben - Nicht verpassen!</span>
-                            </div>
-                        </div>
-                        <p class="difficulty-info">💡 Je weiter ziehen = stärker!</p>
-                        <button class="instruction-ok-button" id="elf-instruction-ok-button">
-                            ✓ Okay, verstanden!
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Start Button -->
-                <div class="start-button-overlay" id="elf-start-button-overlay" style="display: none;">
-                    <button class="santa-start-button pulse" id="elf-start-button">
-                        <span class="button-icon">🎮</span>
-                        <span>Spiel starten!</span>
-                    </button>
-                </div>
             </div>
         `;
         
@@ -182,17 +145,24 @@ class FeedingElfGame {
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
         
-        // OK Button
-        document.getElementById('elf-instruction-ok-button').addEventListener('click', () => {
-            document.getElementById('elf-instructions-overlay').style.display = 'none';
-            document.getElementById('elf-start-button-overlay').style.display = 'flex';
-        });
-        
-        // Start Button
-        document.getElementById('elf-start-button').addEventListener('click', () => this.start());
-        
         // Controls
         this.setupControls();
+        
+        // Zeige globales Start-Overlay
+        await this.showStartOverlay();
+    }
+    
+    async showStartOverlay() {
+        await window.statsManager.showGameStartOverlay('feeding-elf');
+        
+        const startButton = document.getElementById('startButton');
+        if (startButton) {
+            startButton.onclick = () => {
+                const overlay = document.getElementById('startOverlay');
+                if (overlay) overlay.remove();
+                this.start();
+            };
+        }
     }
     
     resizeCanvas() {
@@ -338,9 +308,6 @@ class FeedingElfGame {
         this.startTime = Date.now();
         this.lastFrameTime = 0;
         this.deltaTime = 16.67;
-        
-        // Verstecke Start-Button
-        document.getElementById('elf-start-button-overlay').style.display = 'none';
         
         // Update Display
         document.getElementById('elf-score').textContent = '0';
@@ -1212,63 +1179,18 @@ class FeedingElfGame {
     }
     
     async showGameOverScreen(score, playTime) {
-        const overlay = document.createElement('div');
-        overlay.className = 'username-overlay';
-        overlay.innerHTML = `
-            <div class="username-dialog" style="max-width: 500px;">
-                <h2>🎯 Game Over! 🎄</h2>
-                <div style="margin: 30px 0; font-size: 24px;">
-                    <p style="margin: 10px 0;">
-                        <span style="font-size: 32px;">🎯</span>
-                        <strong>${score}</strong> Punkte
-                    </p>
-                    <p style="margin: 10px 0;">
-                        <span style="font-size: 32px;">⏱️</span>
-                        <strong>${playTime}s</strong> gespielt
-                    </p>
-                </div>
-                
-                <div id="highscore-list-container" style="margin: 20px 0;"></div>
-                
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button id="restart-button" style="flex: 1; padding: 15px; font-size: 18px; background: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
-                        🔄 Nochmal
-                    </button>
-                    <button id="menu-button" style="flex: 1; padding: 15px; font-size: 18px; background: #2196F3; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
-                        🏠 Menü
-                    </button>
-                </div>
-            </div>
-        `;
+        await window.statsManager.showGameOverOverlay('feeding-elf', [
+            {label: 'Punkte', value: score},
+            {label: 'Zeit', value: `${playTime}s`}
+        ]);
         
-        document.body.appendChild(overlay);
-        
-        // Highscores laden
-        const highscores = await window.statsManager.getHighscores('feeding-elf', 3);
-        const container = document.getElementById('highscore-list-container');
-        
-        if (highscores && highscores.length > 0) {
-            container.innerHTML = `
-                <h3 style="margin-bottom: 15px;">🏆 Top 3 Highscores</h3>
-                <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.1); border-radius: 10px; padding: 10px;">
-                    ${highscores.map((entry, index) => `
-                        <div style="display: flex; justify-content: space-between; padding: 8px; margin: 5px 0; background: ${entry.username === window.statsManager.username ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255,255,255,0.1)'}; border-radius: 5px;">
-                            <span><strong>${index + 1}.</strong> ${entry.username}</span>
-                            <span><strong>${entry.highscore}</strong> 🎯</span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
+        const restartButton = document.getElementById('restartButton');
+        if (restartButton) {
+            restartButton.onclick = () => {
+                const overlay = document.getElementById('gameoverOverlay');
+                if (overlay) overlay.remove();
+                this.start();
+            };
         }
-        
-        // Event Listeners
-        document.getElementById('restart-button').addEventListener('click', () => {
-            overlay.remove();
-            this.start();
-        });
-        
-        document.getElementById('menu-button').addEventListener('click', () => {
-            window.location.href = '../index.html';
-        });
     }
 }

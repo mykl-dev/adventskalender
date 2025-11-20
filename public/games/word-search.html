@@ -7,65 +7,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
     <title>🎄 Wörter-Suchrätsel</title>
+    <link rel="stylesheet" href="../game-overlays.css">
     <link rel="stylesheet" href="word-search.css">
 </head>
 <body>
-    <!-- Start Overlay -->
-    <div id="startOverlay" class="overlay">
-        <div class="overlay-content">
-            <h1>🔍 Wörter-Suchrätsel 🎄</h1>
-            <div class="instructions">
-                <p>📱 Finde alle Weihnachtswörter im Gitter!</p>
-                <p>⏱️ Du hast 120 Sekunden Zeit</p>
-                <p>🎯 50 Punkte pro Wort</p>
-                <p>⚡ Zeitbonus: Übrige Sekunden × 10</p>
-                <p>🏆 Alle Wörter = 500 Bonuspunkte + neue Runde (-10s)</p>
-                <p>👆 Markiere mit Maus oder Finger</p>
-            </div>
-            <button id="startButton" class="game-button">Spiel Starten</button>
-            <a href="../index.html" class="back-link">← Zurück zum Kalender</a>
-        </div>
-    </div>
-
-    <!-- Game Over Overlay -->
-    <div id="gameoverOverlay" class="overlay" style="display: none;">
-        <div class="overlay-content">
-            <h1 id="gameoverTitle">🎉 Geschafft! 🎉</h1>
-            <div class="stats-display">
-                <div class="stat-item">
-                    <span class="stat-label">Erreichte Runde:</span>
-                    <span id="finalRound" class="stat-value">1</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Gefundene Wörter:</span>
-                    <span id="finalWordsFound" class="stat-value">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Gesamtzeit:</span>
-                    <span id="finalTime" class="stat-value">0s</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Punkte:</span>
-                    <span id="finalScore" class="stat-value">0</span>
-                </div>
-            </div>
-            
-            <!-- Top 3 Highscores -->
-            <div id="top3Container" class="top3-container">
-                <h3>🏆 Top 3 Highscores</h3>
-                <div id="top3List" class="top3-list">
-                    <div class="loading">Lade Highscores...</div>
-                </div>
-            </div>
-            
-            <div class="button-group">
-                <button id="restartButton" class="game-button">Nochmal spielen</button>
-                <a href="../dashboard.html" class="game-button secondary">Dashboard</a>
-                <a href="../index.html" class="game-button secondary">Kalender</a>
-            </div>
-        </div>
-    </div>
-
     <!-- Game Container -->
     <div id="gameContainer" style="display: none;">
         <!-- HUD -->

@@ -437,4 +437,4 @@ class StatsManager {
 }
 
 // Globale Instanz erstellen
-const statsManager = new StatsManager();
+window.statsManager = new StatsManager();

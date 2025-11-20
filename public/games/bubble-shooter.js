@@ -956,8 +956,11 @@ function updateHUD() {
 }
 
 // Start Game
-function startGame() {
-    document.getElementById('startOverlay').style.display = 'none';
+async function startGame() {
+    // Spielername sicherstellen
+    await window.statsManager.ensureUsername();
+    
+    document.querySelector('.game-container').style.display = 'flex';
     document.getElementById('hud').style.display = 'flex';
     document.getElementById('fullscreenBtn').style.display = 'flex';
     
@@ -972,19 +975,30 @@ function startGame() {
 async function endGame() {
     gameState.gameRunning = false;
     
-    // Save score
-    await saveScore(gameState.score, gameState.level);
+    const playTime = CONFIG.TIME_LIMIT - gameState.timeLeft;
     
-    // Show game over
-    document.getElementById('gameoverTitle').textContent = '🎮 Spiel Beendet!';
-    document.getElementById('finalScore').textContent = gameState.score;
-    document.getElementById('finalLevel').textContent = gameState.level;
-    document.getElementById('gameoverOverlay').style.display = 'flex';
+    // Save stats
+    await window.statsManager.saveStats('bubble-shooter', gameState.score, Math.round(playTime));
+    
+    // Show global game over overlay
+    await window.statsManager.showGameOverOverlay('bubble-shooter', [
+        {label: 'Punkte', value: gameState.score},
+        {label: 'Level', value: gameState.level},
+        {label: 'Zeit', value: `${Math.round(playTime)}s`}
+    ]);
+    
+    const restartButton = document.getElementById('restartButton');
+    if (restartButton) {
+        restartButton.onclick = () => {
+            const overlay = document.getElementById('gameoverOverlay');
+            if (overlay) overlay.remove();
+            restartGame();
+        };
+    }
 }
 
 // Restart Game
 function restartGame() {
-    document.getElementById('gameoverOverlay').style.display = 'none';
     initGame();
     gameState.gameRunning = true;
     gameState.startTime = Date.now();
@@ -1028,35 +1042,7 @@ function getCookie(name) {
 }
 
 // Save Score
-async function saveScore(score, level) {
-    const playerName = getCookie('playerName');
-    if (!playerName) {
-        console.log('No player name found');
-        return;
-    }
-
-    const playTime = CONFIG.TIME_LIMIT - gameState.timeLeft;
-
-    try {
-        const response = await fetch('/api/stats', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                gameName: GAME_NAME,
-                username: playerName,
-                score: score,
-                playTime: Math.round(playTime),
-                level: level
-            })
-        });
-
-        if (!response.ok) {
-            console.error('Failed to save score');
-        }
-    } catch (error) {
-        console.error('Error saving score:', error);
-    }
-}
+// Alte saveScore entfernt - nutzt jetzt statsManager
 
 // Load Highscores
 async function loadHighscores() {
@@ -1107,3 +1093,30 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+// Initialize Game with Start Overlay
+async function initStartOverlay() {
+    console.log('initStartOverlay called');
+    // Warte bis statsManager geladen ist
+    while (!window.statsManager) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    console.log('statsManager loaded, showing overlay');
+    await window.statsManager.showGameStartOverlay('bubble-shooter');
+    console.log('overlay should be visible now');
+    
+    const startButton = document.getElementById('startButton');
+    if (startButton) {
+        startButton.onclick = async () => {
+            const overlay = document.getElementById('startOverlay');
+            if (overlay) overlay.remove();
+            await startGame();
+        };
+    }
+}
+
+// Call init on page load
+window.addEventListener('DOMContentLoaded', () => {
+    initStartOverlay();
+});
