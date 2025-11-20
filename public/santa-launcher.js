@@ -36,8 +36,8 @@ class SantaLauncherGame {
             rotation: 0
         };
         
-        this.gravity = 0.1; // Noch langsamerer Fall (war 0.12)
-        this.airResistance = 0.9992; // Weniger Luftwiderstand = Geschwindigkeit bleibt länger (war 0.998)
+        this.gravity = 0.08; // Sehr langsamer Fall (war 0.1)
+        this.airResistance = 0.9994; // Minimaler Luftwiderstand = Geschwindigkeit bleibt sehr lange (war 0.9992)
         
         // Kamera-Offset für scrollenden Hintergrund
         this.cameraX = 0;
@@ -419,7 +419,7 @@ class SantaLauncherGame {
         
         // Berechne Start-Geschwindigkeit (moderate Power für kontrollierte Flüge)
         const angleRad = (this.angle * Math.PI) / 180;
-        const force = this.power * 0.20; // Reduzierte Kraft für langsameres Spiel (war 0.24)
+        const force = this.power * 0.17; // Noch langsamere Kraft (war 0.20)
         
         this.santa.vx = Math.cos(angleRad) * force;
         this.santa.vy = -Math.sin(angleRad) * force;
