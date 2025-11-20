@@ -129,6 +129,7 @@ function getSubmenuItemName(door) {
         const gameNames = {
             'gift-catcher': 'Gift Catcher',
             'snowflake-catcher': 'Snowflake Catcher',
+            'snowball-blaster': 'Snowball Blaster',
             'santa-launcher': 'Santa Launcher',
             'flappy-santa': 'Flappy Santa',
             'bubble-shooter': 'Bubble Shooter',

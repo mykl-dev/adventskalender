@@ -596,8 +596,9 @@ body {
 
 .games-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
+    align-items: start;
 }
 
 /* Kompakte Spiel-Karten mit Top 3 */
