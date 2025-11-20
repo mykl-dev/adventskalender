@@ -6,6 +6,11 @@ class SantaLauncherGame {
         this.ctx = null;
         this.gameActive = false;
         
+        // Toggle für Raketen-Bild vs. Canvas-Santa
+        this.useRocketImage = false; // Auf true setzen um Rakete zu testen
+        this.rocketImage = null;
+        this.loadRocketImage();
+        
         // Spiel-Phasen
         this.phase = 'angle'; // 'angle', 'power', 'flying', 'landed'
         
@@ -50,6 +55,20 @@ class SantaLauncherGame {
         this.stars = [];
         this.starSpawnTimer = 0;
         
+        // Hindernisse
+        this.trees = []; // Weihnachtsbäume am Boden
+        this.tornados = []; // Windhosen in der Luft
+        this.treeSpawnTimer = 0;
+        this.tornadoSpawnTimer = 0;
+        this.obstaclesHit = 0; // Gesamt-Treffer
+        
+        // Schwierigkeitsstufen (alle 2000m)
+        this.difficultyStage = 1;
+        // Stage 1 (0-2000m): Nur Bäume
+        // Stage 2 (2000-4000m): Bäume + Sterne rotieren
+        // Stage 3 (4000-6000m): Bäume + rotierende Sterne + Windhosen
+        // Stage 4 (6000m+): Alles + Hindernisse bewegen sich
+        
         // Score
         this.distance = 0;
         this.maxDistance = 0;
@@ -64,6 +83,18 @@ class SantaLauncherGame {
         this.initParallax();
         
         this.init();
+    }
+    
+    loadRocketImage() {
+        this.rocketImage = new Image();
+        this.rocketImage.src = '/images/santaslid.svg';
+        this.rocketImage.onload = () => {
+            console.log('Santaslid-Bild geladen!');
+        };
+        this.rocketImage.onerror = () => {
+            console.error('Santaslid-Bild konnte nicht geladen werden');
+            this.useRocketImage = false; // Fallback zu Canvas-Santa
+        };
     }
     
     init() {
@@ -97,6 +128,13 @@ class SantaLauncherGame {
                         </div>
                     </div>
                     <div class="stat-box">
+                        <div class="stat-icon">🚧</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="banner-obstacles">0</div>
+                            <div class="stat-label">Hindernisse</div>
+                        </div>
+                    </div>
+                    <div class="stat-box">
                         <div class="stat-icon">⚡</div>
                         <div class="stat-info">
                             <div class="stat-value" id="banner-energy">100%</div>
@@ -127,6 +165,14 @@ class SantaLauncherGame {
                             <div class="instruction-item">
                                 <span class="item-icon">⭐</span>
                                 <span>Sammle Sterne für mehr Energie!</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">🎄</span>
+                                <span>Vermeide Bäume am Boden!</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="item-icon">🌪️</span>
+                                <span>Vermeide Windhosen in der Luft!</span>
                             </div>
                             <div class="instruction-item">
                                 <span class="item-icon">🏠</span>
@@ -287,6 +333,9 @@ class SantaLauncherGame {
         
         // Sterne
         document.getElementById('banner-stars').textContent = this.starsCollected;
+        
+        // Hindernisse
+        document.getElementById('banner-obstacles').textContent = this.obstaclesHit;
         
         // Energie
         const energyPercent = Math.max(0, Math.floor((this.energy / this.maxEnergy) * 100));
@@ -555,11 +604,55 @@ class SantaLauncherGame {
                 this.updateBanner();
             }
             
+            // Schwierigkeitsstufe aktualisieren
+            const newStage = Math.floor(this.distance / 2000) + 1;
+            if (newStage > this.difficultyStage) {
+                this.difficultyStage = newStage;
+                let stageMessage = '';
+                if (newStage === 2) stageMessage = '⚠️ Sterne rotieren jetzt! 🌟';
+                else if (newStage === 3) stageMessage = '⚠️ Windhosen erscheinen! 🌪️';
+                else if (newStage === 4) stageMessage = '⚠️ Alles bewegt sich! 💀';
+                if (stageMessage) this.showMessage(stageMessage, '#ff6600');
+            }
+            
             // Sterne spawnen
             this.starSpawnTimer++;
             if (this.starSpawnTimer > 80) {
                 this.spawnStar();
                 this.starSpawnTimer = 0;
+            }
+            
+            // Sterne aktualisieren (Orbit-Animation)
+            this.stars.forEach(star => {
+                if (star.orbitEnabled) {
+                    star.orbitAngle += star.orbitSpeed;
+                    star.x = star.orbitCenterX + Math.cos(star.orbitAngle) * star.orbitRadiusX;
+                    star.y = star.orbitCenterY + Math.sin(star.orbitAngle) * star.orbitRadiusY;
+                }
+            });
+            
+            // Windhosen aktualisieren (Bewegung)
+            this.tornados.forEach(tornado => {
+                if (tornado.moveEnabled && !tornado.hit) {
+                    tornado.moveOffset += tornado.moveSpeed;
+                    tornado.y = tornado.initialY + Math.sin(tornado.moveOffset) * tornado.moveRange;
+                }
+            });
+            
+            // Bäume spawnen (am Boden)
+            this.treeSpawnTimer++;
+            const treeSpawnRate = Math.max(80, 140 - Math.floor(this.distance / 80));
+            if (this.treeSpawnTimer > treeSpawnRate) {
+                this.spawnTree();
+                this.treeSpawnTimer = 0;
+            }
+            
+            // Windhosen spawnen (in der Luft)
+            this.tornadoSpawnTimer++;
+            const tornadoSpawnRate = Math.max(70, 130 - Math.floor(this.distance / 100));
+            if (this.tornadoSpawnTimer > tornadoSpawnRate) {
+                this.spawnTornado();
+                this.tornadoSpawnTimer = 0;
             }
             
             // Stern-Kollision
@@ -593,6 +686,102 @@ class SantaLauncherGame {
                 return star.x > this.cameraX - 100;
             });
             
+            // Baum-Kollision (Boden-Hindernisse!)
+            for (let i = this.trees.length - 1; i >= 0; i--) {
+                const tree = this.trees[i];
+                
+                if (!tree.hit) {
+                    // Rechteck-Kollision (Baum hat Breite und Höhe)
+                    const santaLeft = this.santa.x - this.santa.size / 2;
+                    const santaRight = this.santa.x + this.santa.size / 2;
+                    const santaTop = this.santa.y - this.santa.size / 2;
+                    const santaBottom = this.santa.y + this.santa.size / 2;
+                    
+                    const treeLeft = tree.x - tree.width / 2;
+                    const treeRight = tree.x + tree.width / 2;
+                    const treeTop = tree.y - tree.height;
+                    const treeBottom = tree.y;
+                    
+                    if (santaRight > treeLeft && santaLeft < treeRight &&
+                        santaBottom > treeTop && santaTop < treeBottom) {
+                        tree.hit = true;
+                        this.obstaclesHit++;
+                        
+                        // BESTRAFUNG: Energie-Verlust und Verlangsamung!
+                        this.energy = Math.max(0, this.energy - 35);
+                        this.santa.vx *= 0.65;
+                        this.santa.vy += 1.5;
+                        
+                        // Crash-Effekt (grüne Blätter)
+                        for (let j = 0; j < 15; j++) {
+                            this.particles.push({
+                                x: tree.x + (Math.random() - 0.5) * tree.width,
+                                y: tree.y - tree.height / 2 + (Math.random() - 0.5) * tree.height,
+                                vx: (Math.random() - 0.5) * 6,
+                                vy: (Math.random() - 0.5) * 6,
+                                life: 25,
+                                color: `hsl(${120 + Math.random() * 40}, 70%, 40%)`,
+                                size: 3 + Math.random() * 4
+                            });
+                        }
+                        
+                        this.showMessage('-35 Energie! Baum getroffen! 🎄💥', '#228B22');
+                        this.updateBanner();
+                    }
+                }
+                
+                // Entferne Bäume die weit hinter Santa sind
+                if (tree.x < this.cameraX - 200) {
+                    this.trees.splice(i, 1);
+                }
+            }
+            
+            // Windhosen-Kollision (Luft-Hindernisse!)
+            for (let i = this.tornados.length - 1; i >= 0; i--) {
+                const tornado = this.tornados[i];
+                
+                if (!tornado.hit) {
+                    // Ellipsen-Kollision für Windhose
+                    const dx = this.santa.x - tornado.x;
+                    const dy = this.santa.y - tornado.y;
+                    const distX = Math.abs(dx) / (tornado.width / 2);
+                    const distY = Math.abs(dy) / (tornado.height / 2);
+                    const dist = Math.sqrt(distX * distX + distY * distY);
+                    
+                    if (dist < 1) {
+                        tornado.hit = true;
+                        this.obstaclesHit++;
+                        
+                        // BESTRAFUNG: Energie-Verlust und Wirbel-Effekt!
+                        this.energy = Math.max(0, this.energy - 45);
+                        this.santa.vx *= 0.55; // Stärkere Verlangsamung
+                        this.santa.vy += 2.5; // Wird nach unten gezogen
+                        
+                        // Wirbel-Effekt (graue Partikel)
+                        for (let j = 0; j < 20; j++) {
+                            const angle = (j / 20) * Math.PI * 2;
+                            this.particles.push({
+                                x: tornado.x + Math.cos(angle) * tornado.width,
+                                y: tornado.y + Math.sin(angle) * tornado.height / 2,
+                                vx: Math.cos(angle) * 4,
+                                vy: Math.sin(angle) * 4,
+                                life: 30,
+                                color: `hsl(${200 + Math.random() * 40}, 50%, 50%)`,
+                                size: 3 + Math.random() * 4
+                            });
+                        }
+                        
+                        this.showMessage('-45 Energie! Windhose! 🌪️💥', '#778899');
+                        this.updateBanner();
+                    }
+                }
+                
+                // Entferne Windhosen die weit hinter Santa sind
+                if (tornado.x < this.cameraX - 200) {
+                    this.tornados.splice(i, 1);
+                }
+            }
+            
             // Landung (Boden oder zu weit unten)
             if (this.santa.y >= 550) {
                 this.phase = 'landed';
@@ -611,10 +800,100 @@ class SantaLauncherGame {
     }
     
     spawnStar() {
+        let starX, starY, tooClose;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        // Versuche Stern weit genug von Hindernissen zu spawnen
+        do {
+            starX = this.santa.x + 400 + Math.random() * 200;
+            starY = 100 + Math.random() * 300;
+            tooClose = false;
+            attempts++;
+            
+            // Prüfe Abstand zu Bäumen
+            for (const tree of this.trees) {
+                const dx = starX - tree.x;
+                const dy = starY - (tree.y - tree.height / 2);
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 100) { // Mindestabstand 100px
+                    tooClose = true;
+                    break;
+                }
+            }
+            
+            // Prüfe Abstand zu Windhosen
+            if (!tooClose) {
+                for (const tornado of this.tornados) {
+                    const dx = starX - tornado.x;
+                    const dy = starY - tornado.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120) { // Mindestabstand 120px
+                        tooClose = true;
+                        break;
+                    }
+                }
+            }
+        } while (tooClose && attempts < maxAttempts);
+        
+        // Ab Stage 2 (2000m): Sterne rotieren in Ovalen
+        const orbitEnabled = this.distance >= 2000;
+        
         this.stars.push({
-            x: this.santa.x + 400 + Math.random() * 200,
-            y: 100 + Math.random() * 300,
-            size: 15
+            x: starX,
+            y: starY,
+            size: 15,
+            // Orbit-Parameter für Rotation
+            orbitEnabled: orbitEnabled,
+            orbitCenterX: starX,
+            orbitCenterY: starY,
+            orbitRadiusX: orbitEnabled ? 40 + Math.random() * 30 : 0,
+            orbitRadiusY: orbitEnabled ? 25 + Math.random() * 20 : 0,
+            orbitAngle: Math.random() * Math.PI * 2,
+            orbitSpeed: orbitEnabled ? 0.02 + Math.random() * 0.02 : 0
+        });
+    }
+    
+    spawnTree() {
+        // Weihnachtsbäume am Boden - variable Größen
+        const treeX = this.santa.x + 500 + Math.random() * 400;
+        const treeHeight = 40 + Math.random() * 60; // 40-100px hoch
+        const treeWidth = treeHeight * 0.6; // Breite proportional zur Höhe
+        
+        this.trees.push({
+            x: treeX,
+            y: 550, // Am Boden (Boden = 550)
+            width: treeWidth,
+            height: treeHeight,
+            hit: false
+        });
+    }
+    
+    spawnTornado() {
+        // Windhosen erst ab Stage 3 (4000m)
+        if (this.distance < 4000) return;
+        
+        // Windhosen in der Luft - rotierende Hindernisse
+        const tornadoX = this.santa.x + 500 + Math.random() * 350;
+        const tornadoY = 150 + Math.random() * 250; // In der Luft (150-400)
+        
+        // Ab Stage 4 (6000m): Windhosen bewegen sich
+        const moveEnabled = this.distance >= 6000;
+        
+        this.tornados.push({
+            x: tornadoX,
+            y: tornadoY,
+            initialY: tornadoY,
+            width: 40,
+            height: 80,
+            hit: false,
+            rotation: 0,
+            rotationSpeed: 0.1 + Math.random() * 0.1,
+            // Bewegungs-Parameter
+            moveEnabled: moveEnabled,
+            moveOffset: 0,
+            moveSpeed: moveEnabled ? 0.03 + Math.random() * 0.02 : 0,
+            moveRange: moveEnabled ? 60 + Math.random() * 40 : 0
         });
     }
     
@@ -652,6 +931,12 @@ class SantaLauncherGame {
         
         // Partikel-Trail
         this.particles.forEach(p => this.drawParticle(p));
+        
+        // Bäume am Boden (vor Santa)
+        this.trees.forEach(tree => this.drawTree(tree));
+        
+        // Windhosen in der Luft (vor Santa)
+        this.tornados.forEach(tornado => this.drawTornado(tornado));
         
         // Santa mit 3D-Effekt
         this.drawSanta();
@@ -701,6 +986,13 @@ class SantaLauncherGame {
         
         if (this.phase === 'flying' || this.phase === 'landed') {
             ctx.rotate(s.rotation);
+        }
+        
+        // Raketen-Bild verwenden wenn aktiviert und geladen
+        if (this.useRocketImage && this.rocketImage && this.rocketImage.complete) {
+            this.drawRocket(ctx, s);
+            ctx.restore();
+            return;
         }
         
         // 3D Schatten
@@ -770,6 +1062,37 @@ class SantaLauncherGame {
         ctx.restore();
     }
     
+    drawRocket(ctx, s) {
+        // Raketen-Größe (etwas größer als Santa)
+        const rocketWidth = s.size * 2.5;
+        const rocketHeight = s.size * 2.5;
+        
+        // Schatten unter der Rakete
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.beginPath();
+        ctx.ellipse(5, s.size/2 + 15, s.size * 0.8, s.size * 0.3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Rakete zeichnen (zentriert)
+        ctx.drawImage(
+            this.rocketImage,
+            -rocketWidth / 2,
+            -rocketHeight / 2,
+            rocketWidth,
+            rocketHeight
+        );
+        
+        // Boost-Flammen wenn aktiv (hinter der Rakete)
+        if (this.phase === 'flying' && this.boostActive && this.energy > 0) {
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = i === 0 ? '#ff6b35' : i === 1 ? '#f7931e' : '#fdc830';
+                ctx.beginPath();
+                ctx.arc(-rocketWidth/2 - 10 - i * 5, 0, 8 - i * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+    
     drawStar(star) {
         const ctx = this.ctx;
         
@@ -819,6 +1142,117 @@ class SantaLauncherGame {
         }
         
         ctx.shadowBlur = 0;
+        ctx.restore();
+    }
+    
+    drawTree(tree) {
+        const ctx = this.ctx;
+        
+        ctx.save();
+        ctx.globalAlpha = tree.hit ? 0.4 : 1;
+        
+        // Baumstamm (braun)
+        const trunkWidth = tree.width * 0.25;
+        const trunkHeight = tree.height * 0.3;
+        ctx.fillStyle = tree.hit ? '#555555' : '#654321';
+        ctx.fillRect(
+            tree.x - trunkWidth / 2,
+            tree.y - trunkHeight,
+            trunkWidth,
+            trunkHeight
+        );
+        
+        // Baumkrone (3 Dreiecke übereinander - klassischer Weihnachtsbaum)
+        ctx.fillStyle = tree.hit ? '#666666' : '#228B22';
+        
+        // Unteres Dreieck (größte Schicht)
+        const bottomSize = tree.width;
+        ctx.beginPath();
+        ctx.moveTo(tree.x, tree.y - trunkHeight - tree.height * 0.6);
+        ctx.lineTo(tree.x - bottomSize / 2, tree.y - trunkHeight);
+        ctx.lineTo(tree.x + bottomSize / 2, tree.y - trunkHeight);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Mittleres Dreieck
+        const middleSize = tree.width * 0.75;
+        ctx.beginPath();
+        ctx.moveTo(tree.x, tree.y - trunkHeight - tree.height * 0.8);
+        ctx.lineTo(tree.x - middleSize / 2, tree.y - trunkHeight - tree.height * 0.4);
+        ctx.lineTo(tree.x + middleSize / 2, tree.y - trunkHeight - tree.height * 0.4);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Oberes Dreieck (Spitze)
+        const topSize = tree.width * 0.5;
+        ctx.beginPath();
+        ctx.moveTo(tree.x, tree.y - tree.height);
+        ctx.lineTo(tree.x - topSize / 2, tree.y - trunkHeight - tree.height * 0.6);
+        ctx.lineTo(tree.x + topSize / 2, tree.y - trunkHeight - tree.height * 0.6);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Stern oben drauf (wenn nicht getroffen)
+        if (!tree.hit) {
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(tree.x, tree.y - tree.height, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+    
+    drawTornado(tornado) {
+        const ctx = this.ctx;
+        
+        // Rotation für Animation
+        tornado.rotation += tornado.rotationSpeed;
+        
+        ctx.save();
+        ctx.translate(tornado.x, tornado.y);
+        ctx.globalAlpha = tornado.hit ? 0.3 : 0.8;
+        
+        // Wirbel-Effekt mit mehreren Spiralen
+        for (let spiral = 0; spiral < 3; spiral++) {
+            ctx.strokeStyle = tornado.hit ? '#999999' : `hsl(200, 60%, ${50 + spiral * 10}%)`;
+            ctx.lineWidth = 3;
+            
+            ctx.beginPath();
+            const points = 20;
+            for (let i = 0; i <= points; i++) {
+                const t = i / points;
+                const angle = tornado.rotation + t * Math.PI * 4 + spiral * Math.PI * 0.66;
+                const radius = tornado.width / 2 * (1 - t * 0.5);
+                const y = -tornado.height / 2 + t * tornado.height;
+                const x = Math.cos(angle) * radius;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+        }
+        
+        // Wirbel-Partikel um die Windhose
+        if (!tornado.hit) {
+            ctx.fillStyle = '#B0C4DE';
+            for (let i = 0; i < 8; i++) {
+                const angle = tornado.rotation * 2 + (i / 8) * Math.PI * 2;
+                const radius = tornado.width / 2 + Math.sin(tornado.rotation * 3 + i) * 10;
+                const x = Math.cos(angle) * radius;
+                const y = -tornado.height / 4 + Math.sin(angle + tornado.rotation) * tornado.height / 3;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 2 + Math.sin(tornado.rotation * 2 + i) * 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        ctx.globalAlpha = 1;
         ctx.restore();
     }
     

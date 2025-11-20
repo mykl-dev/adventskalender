@@ -21,7 +21,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 // THEME MANAGEMENT
 // ========================================
 function initTheme() {
-    const savedTheme = localStorage.getItem('advent-theme') || 'classic';
+    let savedTheme = 'classic';
+    try {
+        savedTheme = localStorage.getItem('advent-theme') || 'classic';
+    } catch (e) {
+        console.warn('LocalStorage nicht verfügbar:', e.message);
+    }
     currentTheme = savedTheme;
     applyTheme(currentTheme);
 }
@@ -40,7 +45,11 @@ function applyTheme(theme) {
 function toggleTheme() {
     currentTheme = currentTheme === 'classic' ? 'modern' : 'classic';
     applyTheme(currentTheme);
-    localStorage.setItem('advent-theme', currentTheme);
+    try {
+        localStorage.setItem('advent-theme', currentTheme);
+    } catch (e) {
+        console.warn('Konnte Theme nicht speichern:', e.message);
+    }
     
     // Animation beim Wechsel
     document.body.style.animation = 'none';
@@ -654,7 +663,13 @@ function initPlayerAvatarDisplay() {
     if (!display) return;
     
     // Lade Custom Avatar aus localStorage
-    const customAvatar = localStorage.getItem('customAvatar');
+    let customAvatar = null;
+    try {
+        customAvatar = localStorage.getItem('customAvatar');
+    } catch (e) {
+        console.warn('LocalStorage nicht verfügbar:', e.message);
+    }
+    
     if (customAvatar) {
         try {
             const avatar = JSON.parse(customAvatar);
