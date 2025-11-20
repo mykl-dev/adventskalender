@@ -115,31 +115,19 @@ class SantaLauncherGame {
                 <div class="launcher-stats-banner">
                     <div class="stat-box">
                         <div class="stat-icon">📏</div>
-                        <div class="stat-info">
-                            <div class="stat-value" id="banner-distance">0</div>
-                            <div class="stat-label">Distanz (m)</div>
-                        </div>
+                        <div class="stat-value" id="banner-distance">0</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-icon">⭐</div>
-                        <div class="stat-info">
-                            <div class="stat-value" id="banner-stars">0</div>
-                            <div class="stat-label">Sterne</div>
-                        </div>
+                        <div class="stat-value" id="banner-stars">0</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-icon">🚧</div>
-                        <div class="stat-info">
-                            <div class="stat-value" id="banner-obstacles">0</div>
-                            <div class="stat-label">Hindernisse</div>
-                        </div>
+                        <div class="stat-value" id="banner-obstacles">0</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-icon">⚡</div>
-                        <div class="stat-info">
-                            <div class="stat-value" id="banner-energy">100%</div>
-                            <div class="stat-label">Energie</div>
-                        </div>
+                        <div class="stat-value" id="banner-energy">100%</div>
                     </div>
                 </div>
                 

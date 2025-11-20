@@ -94,9 +94,10 @@
 
 .stat-box {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 6px;
-    padding: 6px 8px;
+    gap: 2px;
+    padding: 4px 6px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     backdrop-filter: blur(10px);
@@ -104,7 +105,7 @@
     transition: all 0.3s ease;
     flex: 1;
     justify-content: center;
-    margin: 0 3px;
+    margin: 0 2px;
 }
 
 .stat-box.energy-warning {
@@ -128,31 +129,17 @@
 }
 
 .stat-icon {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     line-height: 1;
 }
 
-.stat-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    line-height: 1.1;
-}
-
 .stat-box .stat-value {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: bold;
     color: #FFD700;
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5),
                  1px 1px 3px rgba(0, 0, 0, 0.8);
-}
-
-.stat-box .stat-label {
-    font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.8);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    font-weight: 600;
+    line-height: 1;
 }
 
 /* Canvas */
@@ -192,25 +179,21 @@
     }
     
     .launcher-stats-banner {
-        padding: 6px 4px;
+        padding: 5px 3px;
     }
     
     .stat-box {
-        padding: 4px 6px;
-        gap: 4px;
-        margin: 0 2px;
+        padding: 3px 4px;
+        gap: 2px;
+        margin: 0 1px;
     }
     
     .stat-icon {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
     }
     
     .stat-box .stat-value {
-        font-size: 0.85rem;
-    }
-    
-    .stat-box .stat-label {
-        font-size: 0.55rem;
+        font-size: 0.75rem;
     }
     
 }
@@ -231,24 +214,20 @@
     }
     
     .launcher-stats-banner {
-        padding: 5px 3px;
+        padding: 4px 2px;
     }
     
     .stat-box {
-        padding: 3px 4px;
-        gap: 3px;
+        padding: 2px 3px;
+        gap: 1px;
         margin: 0 1px;
     }
     
     .stat-icon {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
     
     .stat-box .stat-value {
-        font-size: 0.75rem;
-    }
-    
-    .stat-box .stat-label {
-        font-size: 0.5rem;
+        font-size: 0.7rem;
     }
 }
