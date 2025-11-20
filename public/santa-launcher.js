@@ -637,7 +637,7 @@ class SantaLauncherGame {
             
             // Windhosen spawnen (in der Luft)
             this.tornadoSpawnTimer++;
-            const tornadoSpawnRate = Math.max(70, 130 - Math.floor(this.distance / 100));
+            const tornadoSpawnRate = Math.max(100, 180 - Math.floor(this.distance / 120)); // Langsamer Spawn (war 70, 130)
             if (this.tornadoSpawnTimer > tornadoSpawnRate) {
                 this.spawnTornado();
                 this.tornadoSpawnTimer = 0;
@@ -654,8 +654,8 @@ class SantaLauncherGame {
                     this.starsCollected++;
                     this.energy = Math.min(this.maxEnergy, this.energy + 30); // Mehr Energie (war 20)
                     
-                    // Moderater Geschwindigkeits-Boost (beschleunigt, aber nicht zu viel)
-                    this.santa.vx += 1.5; // Gibt Speed, aber weniger als vorher (war 2.5)
+                    // Sanfter Geschwindigkeits-Boost (nicht zu schnell)
+                    this.santa.vx += 0.8; // Moderater Speed (war 1.5)
                     
                     // Sanfter Auftrieb ähnlich wie manueller Boost
                     this.santa.vy -= 0.4;
@@ -861,8 +861,8 @@ class SantaLauncherGame {
         // Windhosen erst ab Stage 3 (4000m)
         if (this.distance < 4000) return;
         
-        // Windhosen in der Luft - rotierende Hindernisse
-        const tornadoX = this.santa.x + 500 + Math.random() * 350;
+        // Windhosen in der Luft - rotierende Hindernisse mit mehr Abstand
+        const tornadoX = this.santa.x + 600 + Math.random() * 500; // Mehr Abstand (war 500 + 350)
         const tornadoY = 150 + Math.random() * 250; // In der Luft (150-400)
         
         // Ab Stage 4 (6000m): Windhosen bewegen sich
