@@ -1515,6 +1515,6 @@ class SantaLauncherGame {
         if (this.maxDistance >= 500) return '⭐ Fantastisch! Super weit!';
         if (this.maxDistance >= 300) return '✨ Sehr gut! Tolle Flugkurve!';
         if (this.maxDistance >= 150) return '🎄 Gut gemacht! Weiter so!';
-        return '🎅 Guter Versuch! Probier es nochmal!';
+        return '🎅 Guter Versuch!';
     }
 }

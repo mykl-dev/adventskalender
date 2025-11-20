@@ -47,48 +47,11 @@ class SantaRunGame {
         this.init();
     }
     
-    init() {
+    async init() {
         this.container.innerHTML = `
             <div class="santa-run-container">
                 <div class="score-display" id="santa-distance">00000</div>
                 <canvas id="santa-run-canvas" class="santa-run-canvas"></canvas>
-                
-                <!-- Instructions Overlay -->
-                <div class="santa-instructions-overlay" id="santa-instructions-overlay">
-                    <div class="instructions-content">
-                        <h2>🎅 Santa Run! 🏃</h2>
-                        <div class="instruction-items">
-                            <div class="instruction-item">
-                                <span class="item-icon">⬆️</span>
-                                <span>Springe über Hindernisse!</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">📱</span>
-                                <span>Tippe auf den Bildschirm</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">⌨️</span>
-                                <span>oder drücke LEERTASTE</span>
-                            </div>
-                            <div class="instruction-item">
-                                <span class="item-icon">🚀</span>
-                                <span>Je weiter du läufst, desto schneller!</span>
-                            </div>
-                        </div>
-                        <p class="difficulty-info">⚠️ Berühre kein Hindernis!</p>
-                        <button class="instruction-ok-button" id="instruction-ok-button">
-                            ✓ Okay, verstanden!
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Start Button (erscheint nach OK) -->
-                <div class="start-button-overlay" id="start-button-overlay" style="display: none;">
-                    <button class="santa-start-button pulse" id="santa-start-button">
-                        <span class="button-icon">🎮</span>
-                        <span>Spiel starten!</span>
-                    </button>
-                </div>
             </div>
         `;
         
@@ -103,17 +66,24 @@ class SantaRunGame {
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
         
-        // OK Button
-        document.getElementById('instruction-ok-button').addEventListener('click', () => {
-            document.getElementById('santa-instructions-overlay').style.display = 'none';
-            document.getElementById('start-button-overlay').style.display = 'flex';
-        });
-        
-        // Start Button
-        document.getElementById('santa-start-button').addEventListener('click', () => this.start());
-        
         // Controls
         this.setupControls();
+        
+        // Globales Start-Overlay anzeigen
+        await this.showStartOverlay();
+    }
+    
+    async showStartOverlay() {
+        await window.statsManager.showGameStartOverlay('santa-run');
+        
+        const startButton = document.getElementById('startButton');
+        if (startButton) {
+            startButton.onclick = () => {
+                const overlay = document.getElementById('startOverlay');
+                if (overlay) overlay.remove();
+                this.start();
+            };
+        }
     }
     
     resizeCanvas() {
@@ -206,9 +176,6 @@ class SantaRunGame {
         this.startTime = Date.now();
         this.lastFrameTime = 0;
         this.deltaTime = 16.67;
-        
-        // Verstecke Start-Button
-        document.getElementById('start-button-overlay').style.display = 'none';
         
         // Update Distance Display
         document.getElementById('santa-distance').textContent = '00000';
@@ -690,64 +657,21 @@ class SantaRunGame {
     }
     
     async showGameOverScreen(distance, playTime) {
-        const overlay = document.createElement('div');
-        overlay.className = 'username-overlay';
-        overlay.innerHTML = `
-            <div class="username-dialog" style="max-width: 500px;">
-                <h2>🎅 Game Over! 🏃</h2>
-                <div style="margin: 30px 0; font-size: 24px;">
-                    <p style="margin: 10px 0;">
-                        <span style="font-size: 32px;">🏃</span>
-                        <strong>${distance}m</strong> gelaufen
-                    </p>
-                    <p style="margin: 10px 0;">
-                        <span style="font-size: 32px;">⏱️</span>
-                        <strong>${playTime}s</strong> gespielt
-                    </p>
-                </div>
-                
-                <div id="highscore-list-container" style="margin: 20px 0;"></div>
-                
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button id="restart-button" style="flex: 1; padding: 15px; font-size: 18px; background: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
-                        🔄 Nochmal
-                    </button>
-                    <button id="menu-button" style="flex: 1; padding: 15px; font-size: 18px; background: #2196F3; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
-                        🏠 Menü
-                    </button>
-                </div>
-            </div>
-        `;
+        // Globales Game-Over-Overlay anzeigen
+        await window.statsManager.showGameOverOverlay('santa-run', [
+            {label: 'Distanz', value: `${distance}m`},
+            {label: 'Zeit', value: `${playTime}s`}
+        ]);
         
-        document.body.appendChild(overlay);
-        
-        // Highscores laden
-        const highscores = await window.statsManager.getHighscores('santa-run', 3);
-        const container = document.getElementById('highscore-list-container');
-        
-        if (highscores && highscores.length > 0) {
-            container.innerHTML = `
-                <h3 style="margin-bottom: 15px;">🏆 Top 3 Highscores</h3>
-                <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.1); border-radius: 10px; padding: 10px;">
-                    ${highscores.map((entry, index) => `
-                        <div style="display: flex; justify-content: space-between; padding: 8px; margin: 5px 0; background: ${entry.username === window.statsManager.username ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255,255,255,0.1)'}; border-radius: 5px;">
-                            <span><strong>${index + 1}.</strong> ${entry.username}</span>
-                            <span><strong>${entry.highscore}m</strong></span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
+        // Restart-Button Event
+        const restartButton = document.getElementById('restartButton');
+        if (restartButton) {
+            restartButton.onclick = () => {
+                const overlay = document.getElementById('gameoverOverlay');
+                if (overlay) overlay.remove();
+                this.start();
+            };
         }
-        
-        // Event Listeners
-        document.getElementById('restart-button').addEventListener('click', () => {
-            overlay.remove();
-            this.start();
-        });
-        
-        document.getElementById('menu-button').addEventListener('click', () => {
-            window.location.href = '../index.html';
-        });
     }
 }
 

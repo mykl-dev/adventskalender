@@ -116,7 +116,15 @@
       "category": "arcade",
       "difficulty": "hard",
       "scoreType": "points",
-      "active": true
+      "active": true,
+      "theme": "retro-theme",
+      "info": [
+        "Springe über Hindernisse im Retro-Style!",
+        "Tippe oder drücke LEERTASTE zum Springen",
+        "Je weiter du läufst, desto schneller wird es!",
+        "Berühre kein Hindernis!",
+        "Klassisches Endless-Runner-Gameplay"
+      ]
     },
     {
       "id": "christmas-match3",
@@ -126,7 +134,15 @@
       "category": "puzzle",
       "difficulty": "medium",
       "scoreType": "points",
-      "active": true
+      "active": true,
+      "theme": "sky-theme",
+      "info": [
+        "Handy: Wische Kugel in gewünschte Richtung!",
+        "PC: Klicke 2 benachbarte Kugeln zum Tauschen",
+        "Du hast 30 Züge und 20 Sekunden Startzeit",
+        "+0.8s pro eliminierte Kugel, Kettenreaktionen: +2.5s",
+        "Geschenke verdoppeln deine Punkte!"
+      ]
     },
     {
       "id": "feeding-elf",

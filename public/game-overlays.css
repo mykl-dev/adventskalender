@@ -78,6 +78,16 @@
     border: 2px solid rgba(100, 181, 246, 0.3);
 }
 
+/* Retro Theme - Klassischer Schwarz-Weiß-Graustufen Look */
+.game-overlay.retro-theme .overlay-content {
+    background: linear-gradient(135deg, rgba(245, 245, 245, 0.98), rgba(220, 220, 220, 0.98));
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 100px rgba(0, 0, 0, 0.1),
+                inset 0 2px 0 rgba(255, 255, 255, 0.8),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+    border: 3px solid rgba(50, 50, 50, 0.5);
+}
+
 /* ========================================
    THEME-SPEZIFISCHE TEXT-FARBEN
    ======================================== */
@@ -184,7 +194,57 @@
     font-weight: 600 !important;
 }
 
-/* Forest Theme - Frisches Grün mit weißer Schrift */
+/* Retro Theme - Schwarz-Weiß mit starkem Kontrast */
+.game-overlay.retro-theme .overlay-content h1,
+.game-overlay.retro-theme .overlay-content h2,
+.game-overlay.retro-theme .overlay-content h3 {
+    color: #000000 !important;
+    text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.8), 
+                 0 0 20px rgba(0, 0, 0, 0.1) !important;
+    font-weight: 900 !important;
+    letter-spacing: 1px !important;
+}
+
+.game-overlay.retro-theme .stat-item {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 240, 240, 0.9)) !important;
+    border: 2px solid rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+}
+
+.game-overlay.retro-theme .stat-label {
+    color: #333333 !important;
+    font-weight: 700 !important;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+.game-overlay.retro-theme .stat-value {
+    color: #000000 !important;
+    font-weight: 900 !important;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+.game-overlay.retro-theme .info-item {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 245, 245, 0.95)) !important;
+    color: #1a1a1a !important;
+    font-weight: 600 !important;
+    border: 2px solid rgba(0, 0, 0, 0.2) !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+}
+
+.game-overlay.retro-theme .info-icon {
+    color: #333333 !important;
+    filter: drop-shadow(1px 1px 0 rgba(255, 255, 255, 0.8));
+}
+
+.game-overlay.retro-theme .info-text {
+    color: #1a1a1a !important;
+    font-weight: 600 !important;
+}
+
+/* Forest Theme - Weiße Schrift auf grünem Hintergrund */
 .game-overlay.forest-theme .overlay-content h1,
 .game-overlay.forest-theme .overlay-content h2,
 .game-overlay.forest-theme .overlay-content h3 {
@@ -348,6 +408,84 @@
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 243, 224, 0.2)) !important;
     transform: translateY(-3px) !important;
     box-shadow: 0 8px 24px rgba(245, 127, 23, 0.25) !important;
+}
+
+/* Retro Theme Buttons - Klassischer Schwarz-Weiß Look */
+.game-overlay.retro-theme .game-button {
+    background: linear-gradient(135deg, #333333, #1a1a1a) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    border: 2px solid rgba(0, 0, 0, 0.8) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+.game-overlay.retro-theme .game-button:hover {
+    background: linear-gradient(135deg, #4a4a4a, #2d2d2d) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-3px) !important;
+}
+
+.game-overlay.retro-theme .game-button.secondary {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 240, 240, 0.95)) !important;
+    color: #1a1a1a !important;
+    border: 2px solid rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 1) !important;
+}
+
+.game-overlay.retro-theme .game-button.secondary:hover {
+    background: linear-gradient(135deg, rgba(235, 235, 235, 0.95), rgba(220, 220, 220, 0.95)) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+}
+
+/* Retro Theme - Stats Display und Container */
+.game-overlay.retro-theme .stats-display {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 2px solid rgba(0, 0, 0, 0.3) !important;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.8),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.game-overlay.retro-theme .stat-item {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 2px solid rgba(0, 0, 0, 0.2) !important;
+}
+
+.game-overlay.retro-theme .stat-item:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.game-overlay.retro-theme .top3-container {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 2px solid rgba(0, 0, 0, 0.3) !important;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.8),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.game-overlay.retro-theme .top3-container h3 {
+    color: #1a1a1a !important;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+.game-overlay.retro-theme .top3-list {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 2px solid rgba(0, 0, 0, 0.2) !important;
+}
+
+.game-overlay.retro-theme .highscore-row {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.game-overlay.retro-theme .highscore-row:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Gold Theme - Stats Display mit weniger Gold */
@@ -674,6 +812,40 @@
     font-size: 1.1rem;
     color: #4CAF50;
     text-align: right;
+}
+
+/* Retro Theme - Player Names in Schwarz */
+.game-overlay.retro-theme .highscore-row .player-name {
+    color: #1a1a1a !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+.game-overlay.retro-theme .highscore-row.current-player .player-name {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+.game-overlay.retro-theme .highscore-row .player-score {
+    color: #000000 !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Sky Theme - Player Names in Dunkelgrau */
+.game-overlay.sky-theme .highscore-row .player-name {
+    color: #263238 !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+.game-overlay.sky-theme .highscore-row.current-player .player-name {
+    color: #0D47A1 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+.game-overlay.sky-theme .highscore-row .player-score {
+    color: #1565C0 !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) !important;
 }
 
 .highscore-row.current-player .player-score {

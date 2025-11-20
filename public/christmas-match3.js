@@ -74,63 +74,22 @@ class ChristmasMatch3Game {
         
         document.getElementById('match3-start-button').addEventListener('click', () => this.start());
         
-        // Zeige Start-Overlay nach kurzer Verzögerung
+        // Zeige globales Start-Overlay
         setTimeout(() => this.showStartOverlay(), 100);
     }
     
-    showStartOverlay() {
-        const overlay = document.createElement('div');
-        overlay.className = 'game-instructions-overlay';
-        overlay.innerHTML = `
-            <div class="instructions-content">
-                <h2>🎄 Christmas Match-3 ⏱️</h2>
-                <div class="instruction-items">
-                    <div class="instruction-item">
-                        <span class="item-icon">📱</span>
-                        <span>Handy: Wische Kugel in gewünschte Richtung!</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">🖱️</span>
-                        <span>PC: Klicke 2 benachbarte Kugeln zum Tauschen!</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">🎲</span>
-                        <span>Du hast 30 Züge!</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">⏱️</span>
-                        <span>Startzeit: 20s (Maximum: 60s)</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">🔴</span>
-                        <span>+0.8 Sekunden pro eliminierte Kugel</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">🔥</span>
-                        <span>Kettenreaktionen: +2.5 Sekunden Bonus!</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">🎲</span>
-                        <span>5+ Kugeln: +1 Zug | 7+: +2 Züge | 9+: +3 Züge</span>
-                    </div>
-                    <div class="instruction-item">
-                        <span class="item-icon">🎁</span>
-                        <span>Geschenke verdoppeln deine Punkte!</span>
-                    </div>
-                </div>
-                <p class="difficulty-info">🎯 Wie lange kannst du überleben?</p>
-                <button class="instruction-ok-button" id="instruction-ok-button">
-                    ✓ Los geht's!
-                </button>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+    async showStartOverlay() {
+        await window.statsManager.showGameStartOverlay('christmas-match3');
         
-        document.getElementById('instruction-ok-button').addEventListener('click', () => {
-            overlay.remove();
-            const startBtn = document.getElementById('match3-start-button');
-            if (startBtn) startBtn.classList.add('pulse');
-        });
+        const startButton = document.getElementById('startButton');
+        if (startButton) {
+            startButton.onclick = () => {
+                const overlay = document.getElementById('startOverlay');
+                if (overlay) overlay.remove();
+                const startBtn = document.getElementById('match3-start-button');
+                if (startBtn) startBtn.classList.add('pulse');
+            };
+        }
     }
 
     async start() {
@@ -154,9 +113,6 @@ class ChristmasMatch3Game {
         document.getElementById('match3-moves').textContent = '30';
         document.getElementById('match3-time').textContent = '20';
         document.getElementById('combo-display').style.display = 'none';
-        
-        // Zeige Highscores beim Start
-        await this.showHighscores();
         
         this.initializeGrid();
         this.renderBoard();
@@ -340,8 +296,7 @@ class ChristmasMatch3Game {
         
         if (isFirstRender) {
             board.innerHTML = '';
-            board.style.width = (this.gridSize * this.tileSize) + 'px';
-            board.style.height = (this.gridSize * this.tileSize) + 'px';
+            // CSS Grid bestimmt die Größe automatisch
         }
         
         // Screen Shake Effekt - nur auf tiles anwenden, nicht auf board-container
@@ -652,13 +607,43 @@ class ChristmasMatch3Game {
             return;
         }
         
-        // Tauschen (bleibt IMMER getauscht!)
+        // Tauschen im Grid
         const temp = this.grid[row1][col1];
         this.grid[row1][col1] = this.grid[row2][col2];
         this.grid[row2][col2] = temp;
         
+        // Animiere Swipe-Effekt NACH dem Tausch
+        const board = document.getElementById('match3-board');
+        const tile1 = board.children[row1 * this.gridSize + col1];
+        const tile2 = board.children[row2 * this.gridSize + col2];
+        
+        if (tile1 && tile2) {
+            // Berechne Richtung (umgekehrt, da Grid schon getauscht)
+            const deltaRow = row2 - row1;
+            const deltaCol = col2 - col1;
+            const offsetX = deltaCol * this.tileSize;
+            const offsetY = deltaRow * this.tileSize;
+            
+            // Starte von vertauschter Position
+            tile1.style.transition = 'none';
+            tile2.style.transition = 'none';
+            tile1.style.transform = `translate(${-offsetX}px, ${-offsetY}px)`;
+            tile2.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            
+            // Erzwinge Reflow
+            tile1.offsetHeight;
+            
+            // Animiere zur richtigen Position
+            tile1.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            tile2.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            tile1.style.transform = 'translate(0, 0)';
+            tile2.style.transform = 'translate(0, 0)';
+            
+            await this.sleep(300);
+        }
+        
+        // Render Board um Transform zurückzusetzen
         this.renderBoard();
-        await this.sleep(400); // Länger für flüssigere Animation
         
         // Prüfen ob Match entsteht
         const matches = this.findMatches();
@@ -1260,57 +1245,28 @@ class ChristmasMatch3Game {
         }
         
         // Berechne Spielzeit
-        const playTime = Math.floor((Date.now() - this.startTime) / 1000); // in Sekunden
+        const playTime = Math.floor((Date.now() - this.startTime) / 1000);
         
         // Speichere Statistik
         await window.statsManager.saveStats('christmas-match3', this.score, playTime);
         
-        // Lade Highscores
-        const highscores = await window.statsManager.getHighscores('christmas-match3', 3);
-        let highscoresHTML = '<div class="no-highscores">Noch keine Highscores vorhanden</div>';
+        // Globales Game-Over-Overlay anzeigen
+        await window.statsManager.showGameOverOverlay('christmas-match3', [
+            {label: 'Punkte', value: this.score},
+            {label: 'Züge verwendet', value: `${30 - this.movesLeft}/30`},
+            {label: 'Kugeln eliminiert', value: this.totalTilesCleared},
+            {label: this.getScoreMessage(), value: ''}
+        ]);
         
-        if (highscores && highscores.length > 0) {
-            highscoresHTML = highscores.map((entry, index) => `
-                <li class="highscore-item">
-                    <span class="highscore-rank">${index + 1}.</span>
-                    <span class="highscore-name">${entry.username}</span>
-                    <span class="highscore-score">${entry.highscore} Punkte</span>
-                </li>
-            `).join('');
+        // Restart-Button Event
+        const restartButton = document.getElementById('restartButton');
+        if (restartButton) {
+            restartButton.onclick = () => {
+                const overlay = document.getElementById('gameoverOverlay');
+                if (overlay) overlay.remove();
+                location.reload();
+            };
         }
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'game-over-overlay';
-        overlay.innerHTML = `
-            <div class="game-over-content">
-                <h2>${this.movesLeft <= 0 ? '🎲 Keine Züge mehr!' : '⏱️ Zeit abgelaufen!'} 🎄</h2>
-                <div class="game-over-stats">
-                    <div class="game-over-stat-item">
-                        <div class="game-over-stat-label">Punkte</div>
-                        <div class="game-over-stat-value">${this.score}</div>
-                    </div>
-                    <div class="game-over-stat-item">
-                        <div class="game-over-stat-label">Züge verwendet</div>
-                        <div class="game-over-stat-value">${30 - this.movesLeft}/30</div>
-                    </div>
-                    <div class="game-over-stat-item">
-                        <div class="game-over-stat-label">Kugeln eliminiert</div>
-                        <div class="game-over-stat-value">${this.totalTilesCleared}</div>
-                    </div>
-                    <div class="game-over-message">${this.getScoreMessage()}</div>
-                </div>
-                <div class="game-over-highscores">
-                    <h3>🏆 Top 3 Highscores</h3>
-                    <ul class="highscore-list">${highscoresHTML}</ul>
-                </div>
-                <div class="game-over-buttons">
-                    <button class="game-over-button button-primary" onclick="location.reload()">🔄 Nochmal spielen</button>
-                    <button class="game-over-button button-secondary" onclick="window.location.href='/'">🏠 Zurück zum Kalender</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(overlay);
     }
     
     async showFullHighscores() {
@@ -1395,6 +1351,6 @@ class ChristmasMatch3Game {
         if (this.score >= 300) return '⭐ Fantastisch! Sehr gut gespielt!';
         if (this.score >= 200) return '✨ Super! Tolle Kombinationen!';
         if (this.score >= 100) return '🎄 Gut gemacht! Weiter so!';
-        return '🎅 Guter Versuch! Probier es nochmal!';
+        return '🎅 Guter Versuch!';
     }
 }
