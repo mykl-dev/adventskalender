@@ -43,7 +43,7 @@
     {
       "day": 7,
       "type": "video",
-      "content": "http://192.168.178.110:8080/share.cgi/15.Ruthe.de%20-%20TV%20Total%20Weihnachts-Show%20(720p_25fps_H264-128kbit_AAC).mp4?ssid=0lHeaeR&fid=0lHeaeR&open=normal&ep=",
+      "content": "http://192.168.178.110:8080/share.cgi?ssid=0KgnlSp",
       "description": "Ein lustiges Weihnachtsvideo! 🎬",
       "opened": false
     },
