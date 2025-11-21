@@ -2,35 +2,35 @@
   "doors": [
     {
       "day": 1,
-      "type": "quote",
-      "content": "Die schönste Zeit des Jahres hat begonnen! Genieße jeden Moment und jedes Lächeln. 🎄",
+      "type": "video",
+      "content": "/videos/9.TASSENshorts.mp4",
       "opened": false
     },
     {
       "day": 2,
-      "type": "joke",
-      "content": "Was ist weiß und steht hinter einem Baum? Eine schüchterne Schneeflocke! ❄️",
-      "opened": false
-    },
-    {
-      "day": 3,
       "type": "game",
       "content": "gift-catcher",
       "description": "Spiel: Fange die Geschenke und weiche der Kohle aus! 🎅�",
       "opened": false
     },
     {
+      "day": 3,
+      "type": "video",
+      "content": "/videos/13.TASSENshorts.mp4",
+      "opened": false
+    },
+    {
       "day": 4,
       "type": "game",
-      "content": "snowball-blaster",
-      "description": "Spiel: Snowball Blaster - Zerstöre alle Eisblöcke! ❄️⚡",
+      "content": "word-search",
+      "description": "Spiel: Wörter-Suchrätsel - Finde alle Weihnachtswörter! 🔍🎄",
       "opened": false
     },
     {
       "day": 5,
-      "type": "game",
-      "content": "word-search",
-      "description": "Spiel: Wörter-Suchrätsel - Finde alle Weihnachtswörter! 🔍🎄",
+      "type": "video",
+      "content": "/videos/14.TASSENshorts.mp4",
+      "description": "Ein lustiges Weihnachtsvideo! 🎬",
       "opened": false
     },
     {
@@ -43,14 +43,14 @@
     {
       "day": 7,
       "type": "video",
-      "content": "http://192.168.178.110:8080/share.cgi?ssid=0KgnlSp&ep=&fid=0KgnlSp&open=normal",
-      "description": "Ein lustiges Weihnachtsvideo! 🎬",
+      "content": "/videos/15.TASSENshorts.mp4",
       "opened": false
     },
     {
-      "day": 8,
-      "type": "quote",
-      "content": "In der Weihnachtszeit gibt es keine Fremden, nur Freunde, die sich noch nicht kennen! 🤗",
+    "day": 8,
+      "type": "game",
+      "content": "snowball-blaster",
+      "description": "Spiel: Snowball Blaster - Zerstöre alle Eisblöcke! ❄️⚡",
       "opened": false
     },
     {
@@ -83,8 +83,8 @@
     },
     {
       "day": 13,
-      "type": "image",
-      "content": "http://DEIN-NAS-SERVER/images/weihnacht-tag13.jpg",
+      "type": "video",
+      "content": "/videos/4.TASSENshorts_shorts.mp4",
       "description": "Magische Winterstimmung! ⛄",
       "opened": false
     },
@@ -105,14 +105,15 @@
     {
       "day": 16,
       "type": "video",
-      "content": "http://DEIN-NAS-SERVER/videos/weihnacht-tag16.mp4",
+      "content": "/videos/16.TASSENshorts.mp4",
       "description": "Ein herzerwärmendes Weihnachtsvideo! ❤️",
       "opened": false
     },
     {
       "day": 17,
-      "type": "joke",
-      "content": "Was ist grün und steht vor der Tür? Ein Klopfsalat! 🥬😂",
+      "type": "video",
+      "content": "/videos/5.Tassenshorts.mp4",
+      "description": "Weihnachtliches TASSEN-Video! 🎬",
       "opened": false
     },
     {
@@ -124,14 +125,15 @@
     },
     {
       "day": 19,
-      "type": "quote",
-      "content": "Die besten Geschenke sind die, die von Herzen kommen! 💝",
+      "type": "video",
+      "content": "/videos/6.TASSENshorts.mp4",
+      "description": "Weihnachtliches TASSEN-Video! 🎬",
       "opened": false
     },
     {
       "day": 20,
       "type": "video",
-      "content": "http://DEIN-NAS-SERVER/videos/weihnacht-tag20.mp4",
+      "content": "/videos/9.TASSENshorts.mp4",
       "description": "Nur noch 4 Tage bis Heiligabend! 🎁",
       "opened": false
     },
@@ -144,21 +146,22 @@
     },
     {
       "day": 22,
-      "type": "image",
-      "content": "http://DEIN-NAS-SERVER/images/weihnacht-tag22.jpg",
+      "type": "video",
+      "content": "/videos/8.TASSENshorts.mp4",
       "description": "Fast geschafft! Bald ist Weihnachten! 🌟",
       "opened": false
     },
     {
       "day": 23,
-      "type": "quote",
-      "content": "Morgen ist Heiligabend! Genieße die letzten Vorbereitungen und die Vorfreude! 🎊",
+      "type": "video",
+      "content": "/videos/11.TASSENshorts.mp4",
+      "description": "Morgen ist Heiligabend! 🎊",
       "opened": false
     },
     {
       "day": 24,
       "type": "video",
-      "content": "http://DEIN-NAS-SERVER/videos/weihnacht-tag24.mp4",
+      "content": "/videos/18.TASSENshorts.mp4",
       "description": "🎄🎅 FROHE WEIHNACHTEN! 🎁✨ Wir wünschen dir und deiner Familie ein besinnliches und fröhliches Fest!",
       "opened": false
     }

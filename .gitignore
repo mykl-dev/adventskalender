@@ -23,6 +23,12 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Ignoriere Videos (zu groß für Git)
+public/videos/*.mp4
+public/videos/*.avi
+public/videos/*.mov
+public/videos/*.webm
+
 # stats
 data/stats.json
 data/stusers.json
