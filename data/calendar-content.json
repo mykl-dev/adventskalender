@@ -43,7 +43,7 @@
     {
       "day": 7,
       "type": "video",
-      "content": "http://192.168.178.110:8080/share.cgi?ssid=0KgnlSp",
+      "content": "http://192.168.178.110:8080/share.cgi?ssid=0KgnlSp&ep=&fid=0KgnlSp&open=normal",
       "description": "Ein lustiges Weihnachtsvideo! 🎬",
       "opened": false
     },
