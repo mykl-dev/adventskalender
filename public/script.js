@@ -277,11 +277,46 @@ async function loadCalendarData() {
         calendarData = await response.json();
         renderCalendar();
         updateOpenedDoorsMenu(); // Aktualisiere Menü nach Laden
+        loadUnreadMessages(); // Lade ungelesene Nachrichten
     } catch (error) {
         console.error('Fehler beim Laden der Kalenderdaten:', error);
         showError('Kalender konnte nicht geladen werden.');
     }
 }
+
+// ========================================
+// NACHRICHTEN BADGE
+// ========================================
+async function loadUnreadMessages() {
+    try {
+        const response = await fetch('/api/messages/unread-count');
+        if (response.ok) {
+            const data = await response.json();
+            updateMessageBadge(data.count);
+        }
+    } catch (error) {
+        console.error('Fehler beim Laden der Nachrichten:', error);
+    }
+}
+
+function updateMessageBadge(count) {
+    const badge = document.getElementById('messageBadge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+}
+
+// Listen for updates from message page
+window.addEventListener('message', (event) => {
+    if (event.data.type === 'updateMessageCount') {
+        updateMessageBadge(event.data.count);
+    }
+});
 
 // ========================================
 // KALENDER RENDERN

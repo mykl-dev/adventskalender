@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎅 Wunschzettel - Adventskalender</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #d32f2f;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .wishlist-container {
+            background: #fffef7;
+            background-image: 
+                repeating-linear-gradient(
+                    transparent,
+                    transparent 28px,
+                    #e8d5b7 28px,
+                    #e8d5b7 30px
+                ),
+                linear-gradient(
+                    to bottom,
+                    #ff6b6b 0px,
+                    #ff6b6b 40px,
+                    transparent 40px
+                );
+            width: 90%;
+            max-width: 600px;
+            min-height: 700px;
+            padding: 60px 40px 40px;
+            border-radius: 8px;
+            box-shadow: 
+                0 1px 2px rgba(0,0,0,0.07),
+                0 2px 4px rgba(0,0,0,0.07),
+                0 4px 8px rgba(0,0,0,0.07),
+                0 8px 16px rgba(0,0,0,0.07);
+            position: relative;
+            animation: paperFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes paperFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+        }
+
+        /* Punch holes decoration */
+        .wishlist-container::before,
+        .wishlist-container::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .wishlist-container::before {
+            left: 30px;
+        }
+
+        .wishlist-container::after {
+            right: 30px;
+        }
+
+        .wishlist-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px dashed #ff6b6b;
+        }
+
+        .wishlist-header h1 {
+            font-size: 2.5rem;
+            color: #d32f2f;
+            margin: 0 0 10px 0;
+            text-shadow: 2px 2px 0px rgba(255, 107, 107, 0.3);
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        .wishlist-header p {
+            color: #666;
+            font-size: 1rem;
+            margin: 5px 0;
+        }
+
+        .wish-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-left: 10px;
+        }
+
+        .wish-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ff6b6b;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Comic Sans MS', cursive;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .wish-input:focus {
+            outline: none;
+            border-color: #d32f2f;
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+        }
+
+        .add-wish-btn {
+            padding: 12px 24px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        .add-wish-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .wishes-list {
+            padding: 0;
+            margin: 0 0 30px 0;
+        }
+
+        .wish-item {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px 15px;
+            margin: 8px 0 8px 10px;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #ff6b6b;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .wish-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(5px);
+        }
+
+        .wish-number {
+            background: #ff6b6b;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            grid-column: 1;
+        }
+
+        .wish-text {
+            font-size: 1rem;
+            color: #333;
+            word-break: break-word;
+            line-height: 1.4;
+            grid-column: 2;
+        }
+
+        .wish-item.editing .wish-text {
+            display: none;
+        }
+
+        .wish-edit-input {
+            padding: 8px 12px;
+            border: 2px solid #ff6b6b;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: 'Comic Sans MS', cursive;
+            display: none;
+            grid-column: 2;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .wish-item.editing .wish-edit-input {
+            display: block;
+        }
+
+        .wish-actions {
+            display: flex;
+            gap: 6px;
+            grid-column: 3;
+        }
+
+        .wish-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .edit-btn {
+            background: #2196f3;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #1976d2;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #d32f2f;
+        }
+
+        .save-btn {
+            background: #4caf50;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #45a049;
+        }
+
+        .cancel-btn {
+            background: #9e9e9e;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: #757575;
+        }
+
+        .wish-item.editing .edit-btn,
+        .wish-item.editing .delete-btn {
+            display: none;
+        }
+
+        .wish-item .save-btn,
+        .wish-item .cancel-btn {
+            display: none;
+        }
+
+        .wish-item.editing .save-btn,
+        .wish-item.editing .cancel-btn {
+            display: block;
+        }
+
+        .send-container {
+            text-align: center;
+            padding: 20px 10px;
+            border-top: 3px dashed #ff6b6b;
+        }
+
+        .send-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #d32f2f 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
+        }
+
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            font-size: 1.2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .sent-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .sent-overlay.active {
+            display: flex;
+        }
+
+        .sent-message {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            animation: bounceIn 0.5s ease;
+        }
+
+        .sent-message-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .sent-message h2 {
+            color: #4caf50;
+            margin: 0 0 15px 0;
+            font-size: 2rem;
+        }
+
+        .sent-message p {
+            color: #666;
+            margin: 0 0 25px 0;
+            font-size: 1.1rem;
+        }
+
+        .sent-message button {
+            padding: 12px 30px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .confirm-overlay.active {
+            display: flex;
+        }
+
+        .confirm-dialog {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .confirm-dialog h3 {
+            color: #d32f2f;
+            margin: 0 0 15px 0;
+            font-size: 1.5rem;
+        }
+
+        .confirm-dialog p {
+            color: #666;
+            margin: 0 0 25px 0;
+            font-size: 1rem;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Comic Sans MS', cursive;
+            transition: all 0.2s ease;
+        }
+
+        .confirm-yes {
+            background: #4caf50;
+            color: white;
+        }
+
+        .confirm-yes:hover {
+            background: #45a049;
+        }
+
+        .confirm-no {
+            background: #f44336;
+            color: white;
+        }
+
+        .confirm-no:hover {
+            background: #d32f2f;
+        }
+
+        .locked-message {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 10px;
+            text-align: center;
+        }
+
+        .locked-message h3 {
+            color: #856404;
+            margin: 0 0 10px 0;
+        }
+
+        .locked-message p {
+            color: #856404;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .wishlist-container {
+                width: 95%;
+                padding: 50px 20px 20px;
+            }
+
+            .wishlist-header h1 {
+                font-size: 2rem;
+            }
+
+            .wish-input-container {
+                flex-direction: column;
+            }
+
+            .wish-item {
+                flex-wrap: wrap;
+            }
+
+            .wish-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">
+        ← Zurück
+    </a>
+
+    <div class="wishlist-container" id="wishlistContainer">
+        <div class="wishlist-header">
+            <h1>🎅 Mein Wunschzettel</h1>
+            <p id="userName">Lade Benutzername...</p>
+            <p style="font-size: 0.9rem; color: #999;">Schreibe deine Wünsche auf!</p>
+        </div>
+
+        <div id="wishlistContent">
+            <!-- Content wird dynamisch geladen -->
+        </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-dialog">
+            <h3>🎅 Wunschzettel absenden?</h3>
+            <p>Möchtest du deinen Wunschzettel wirklich an den Weihnachtsmann senden?<br><br>
+            <strong>⚠️ Nach dem Absenden kannst du ihn nicht mehr bearbeiten!</strong></p>
+            <div class="confirm-actions">
+                <button class="confirm-btn confirm-yes" onclick="confirmSend()">✓ Ja, absenden!</button>
+                <button class="confirm-btn confirm-no" onclick="cancelSend()">✗ Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Dialog -->
+    <div class="confirm-overlay" id="deleteOverlay">
+        <div class="confirm-dialog">
+            <h3>🗑️ Wunsch löschen?</h3>
+            <p>Möchtest du diesen Wunsch wirklich löschen?<br><br>
+            <strong>Diese Aktion kann nicht rückgängig gemacht werden!</strong></p>
+            <div class="confirm-actions">
+                <button class="confirm-btn confirm-yes" onclick="confirmDelete()">Ja</button>
+                <button class="confirm-btn confirm-no" onclick="cancelDelete()">Nein</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sent Overlay -->
+    <div class="sent-overlay" id="sentOverlay">
+        <div class="sent-message">
+            <div class="sent-message-icon">🎅✨</div>
+            <h2>Gesendet!</h2>
+            <p>Dein Wunschzettel wurde erfolgreich an den Weihnachtsmann gesendet! 🎄</p>
+            <button onclick="window.location.href='/'">Zurück zur Startseite</button>
+        </div>
+    </div>
+
+    <script>
+        let wishes = [];
+        let isSent = false;
+        let username = 'Gast';
+        let currentDeleteIndex = null;
+        let userId = '';
+
+        async function init() {
+            // Get user session
+            try {
+                const response = await fetch('/api/auth/session');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated && data.user) {
+                        username = data.user.displayName;
+                        userId = data.user.userId;
+                        document.getElementById('userName').textContent = `${username}'s Wunschzettel`;
+                    } else {
+                        username = 'Gast';
+                        document.getElementById('userName').textContent = 'Gast Wunschzettel';
+                    }
+                } else {
+                    username = 'Gast';
+                    document.getElementById('userName').textContent = 'Gast Wunschzettel';
+                }
+            } catch (error) {
+                console.error('Error loading user:', error);
+                username = 'Gast';
+            }
+
+            // Load wishlist
+            await loadWishlist();
+            renderWishlist();
+        }
+
+        async function loadWishlist() {
+            try {
+                const response = await fetch('/api/wishlist');
+                if (response.ok) {
+                    const data = await response.json();
+                    wishes = data.wishes || [];
+                    isSent = data.sent || false;
+                }
+            } catch (error) {
+                console.error('Error loading wishlist:', error);
+            }
+        }
+
+        function renderWishlist() {
+            const container = document.getElementById('wishlistContent');
+
+            if (isSent) {
+                container.innerHTML = `
+                    <div class="locked-message">
+                        <h3>🎅 Wunschzettel bereits gesendet!</h3>
+                        <p>Dein Wunschzettel wurde bereits an den Weihnachtsmann gesendet und kann nicht mehr bearbeitet werden.</p>
+                    </div>
+                    <div class="wishes-list">
+                        ${wishes.map((wish, index) => `
+                            <div class="wish-item">
+                                <div class="wish-number">${index + 1}</div>
+                                <div class="wish-text">${escapeHtml(wish)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="wish-input-container">
+                    <input 
+                        type="text" 
+                        class="wish-input" 
+                        id="wishInput" 
+                        placeholder="Schreibe deinen Wunsch hier..."
+                        maxlength="200"
+                        onkeypress="if(event.key === 'Enter') addWish()"
+                    >
+                    <button class="add-wish-btn" onclick="addWish()">+ Hinzufügen</button>
+                </div>
+
+                <div class="wishes-list" id="wishesList">
+                    ${wishes.length === 0 ? `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <p>Noch keine Wünsche eingetragen.<br>Füge deinen ersten Wunsch hinzu!</p>
+                        </div>
+                    ` : wishes.map((wish, index) => renderWishItem(wish, index)).join('')}
+                </div>
+
+                <div class="send-container">
+                    <button 
+                        class="send-btn" 
+                        onclick="showConfirmDialog()"
+                        ${wishes.length === 0 ? 'disabled' : ''}
+                    >
+                        🎅 An den Weihnachtsmann senden
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderWishItem(wish, index) {
+            return `
+                <div class="wish-item" data-index="${index}">
+                    <div class="wish-number">${index + 1}</div>
+                    <div class="wish-text">${escapeHtml(wish)}</div>
+                    <input 
+                        type="text" 
+                        class="wish-edit-input" 
+                        value="${escapeHtml(wish)}"
+                        maxlength="200"
+                    >
+                    <div class="wish-actions">
+                        <button class="wish-btn edit-btn" onclick="editWish(${index})" title="Bearbeiten">✏️</button>
+                        <button class="wish-btn delete-btn" onclick="deleteWish(${index})" title="Löschen">🗑️</button>
+                        <button class="wish-btn save-btn" onclick="saveWish(${index})" title="Speichern">✓</button>
+                        <button class="wish-btn cancel-btn" onclick="cancelEdit(${index})" title="Abbrechen">✗</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addWish() {
+            const input = document.getElementById('wishInput');
+            const wish = input.value.trim();
+
+            if (!wish) {
+                alert('Bitte gib einen Wunsch ein!');
+                return;
+            }
+
+            if (wishes.length >= 20) {
+                alert('Du kannst maximal 20 Wünsche eintragen!');
+                return;
+            }
+
+            wishes.push(wish);
+            input.value = '';
+            saveWishlist();
+            renderWishlist();
+        }
+
+        function editWish(index) {
+            const item = document.querySelector(`[data-index="${index}"]`);
+            item.classList.add('editing');
+            const input = item.querySelector('.wish-edit-input');
+            input.focus();
+            input.select();
+        }
+
+        function saveWish(index) {
+            const item = document.querySelector(`[data-index="${index}"]`);
+            const input = item.querySelector('.wish-edit-input');
+            const newValue = input.value.trim();
+
+            if (!newValue) {
+                alert('Der Wunsch darf nicht leer sein!');
+                return;
+            }
+
+            wishes[index] = newValue;
+            saveWishlist();
+            renderWishlist();
+        }
+
+        function cancelEdit(index) {
+            renderWishlist();
+        }
+
+        function deleteWish(index) {
+            currentDeleteIndex = index;
+            document.getElementById('deleteOverlay').classList.add('active');
+        }
+
+        function cancelDelete() {
+            document.getElementById('deleteOverlay').classList.remove('active');
+            currentDeleteIndex = null;
+        }
+
+        function confirmDelete() {
+            if (currentDeleteIndex !== null) {
+                wishes.splice(currentDeleteIndex, 1);
+                saveWishlist();
+                renderWishlist();
+                currentDeleteIndex = null;
+            }
+            document.getElementById('deleteOverlay').classList.remove('active');
+        }
+
+        function showConfirmDialog() {
+            if (wishes.length === 0) return;
+            document.getElementById('confirmOverlay').classList.add('active');
+        }
+
+        function cancelSend() {
+            document.getElementById('confirmOverlay').classList.remove('active');
+        }
+
+        async function confirmSend() {
+            document.getElementById('confirmOverlay').classList.remove('active');
+            
+            try {
+                const response = await fetch('/api/wishlist/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    isSent = true;
+                    document.getElementById('sentOverlay').classList.add('active');
+                } else {
+                    alert('Fehler beim Senden des Wunschzettels.');
+                }
+            } catch (error) {
+                console.error('Error sending wishlist:', error);
+                alert('Fehler beim Senden des Wunschzettels.');
+            }
+        }
+
+        async function saveWishlist() {
+            try {
+                await fetch('/api/wishlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wishes })
+                });
+            } catch (error) {
+                console.error('Error saving wishlist:', error);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>

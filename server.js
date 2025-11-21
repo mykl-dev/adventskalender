@@ -564,6 +564,308 @@ app.get('/api/users/:username/stats', (req, res) => {
   });
 });
 
+// =====================
+// WISHLIST API ENDPOINTS
+// =====================
+
+// Load wishlists
+const loadWishlists = () => {
+  try {
+    const data = fs.readFileSync('./data/wishlists.json', 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    return {};
+  }
+};
+
+// Save wishlists
+const saveWishlists = (wishlists) => {
+  try {
+    fs.writeFileSync('./data/wishlists.json', JSON.stringify(wishlists, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving wishlists:', error);
+    return false;
+  }
+};
+
+// GET: Load user's wishlist
+app.get('/api/wishlist', (req, res) => {
+  const userId = req.session?.userId || 'guest';
+  const wishlists = loadWishlists();
+  
+  const wishlist = wishlists[userId] || {
+    wishes: [],
+    sent: false,
+    sentAt: null
+  };
+  
+  res.json(wishlist);
+});
+
+// POST: Save user's wishlist
+app.post('/api/wishlist', (req, res) => {
+  const userId = req.session?.userId || 'guest';
+  const { wishes } = req.body;
+  
+  if (!Array.isArray(wishes)) {
+    return res.status(400).json({ error: 'Invalid wishes format' });
+  }
+  
+  const wishlists = loadWishlists();
+  
+  // Check if already sent
+  if (wishlists[userId]?.sent) {
+    return res.status(403).json({ error: 'Wunschzettel bereits gesendet' });
+  }
+  
+  wishlists[userId] = {
+    wishes: wishes.slice(0, 20), // Max 20 wishes
+    sent: false,
+    sentAt: null,
+    lastUpdated: new Date().toISOString()
+  };
+  
+  if (saveWishlists(wishlists)) {
+    res.json({ success: true });
+  } else {
+    res.status(500).json({ error: 'Fehler beim Speichern' });
+  }
+});
+
+// POST: Send wishlist to Santa
+app.post('/api/wishlist/send', (req, res) => {
+  const userId = req.session?.userId || 'guest';
+  const wishlists = loadWishlists();
+  
+  if (!wishlists[userId] || wishlists[userId].wishes.length === 0) {
+    return res.status(400).json({ error: 'Keine Wünsche vorhanden' });
+  }
+  
+  if (wishlists[userId].sent) {
+    return res.status(403).json({ error: 'Wunschzettel bereits gesendet' });
+  }
+  
+  wishlists[userId].sent = true;
+  wishlists[userId].sentAt = new Date().toISOString();
+  
+  if (saveWishlists(wishlists)) {
+    res.json({ success: true, message: 'Wunschzettel gesendet!' });
+  } else {
+    res.status(500).json({ error: 'Fehler beim Senden' });
+  }
+});
+
+// =====================
+// MESSAGES API ENDPOINTS
+// =====================
+
+// Load messages
+const loadMessages = () => {
+  try {
+    const data = fs.readFileSync('./data/messages.json', 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    return {};
+  }
+};
+
+// Save messages
+const saveMessages = (messages) => {
+  try {
+    fs.writeFileSync('./data/messages.json', JSON.stringify(messages, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving messages:', error);
+    return false;
+  }
+};
+
+// GET: Load all users (for message recipients)
+app.get('/api/users/all', (req, res) => {
+  try {
+    const users = dataService.getAllUsers();
+    console.log('getAllUsers returned:', users.length, 'users');
+    if (!Array.isArray(users)) {
+      console.error('getAllUsers did not return an array:', users);
+      return res.json([]);
+    }
+    const userList = users.map(u => {
+      console.log('Processing user:', { userId: u.userId, username: u.username, displayName: u.displayName });
+      return {
+        userId: u.userId,
+        username: u.username || u.displayName || 'Unbekannt'
+      };
+    });
+    console.log('Returning userList:', userList);
+    res.json(userList);
+  } catch (error) {
+    console.error('Error in /api/users/all:', error);
+    res.status(500).json({ error: 'Fehler beim Laden der Benutzer' });
+  }
+});
+
+// GET: Load user's messages and unread counts
+app.get('/api/messages', (req, res) => {
+  const userId = req.session?.userId || 'guest';
+  const allMessages = loadMessages();
+  
+  console.log('GET /api/messages - userId:', userId);
+  console.log('All messages:', Object.keys(allMessages));
+  
+  // Filter conversations involving current user
+  const userMessages = {};
+  const unreadCounts = {};
+  
+  Object.keys(allMessages).forEach(conversationKey => {
+    // ConversationKey format: "user_xxxxx_user_yyyyy"
+    // We need to find where the second "user_" starts
+    const parts = conversationKey.split('_');
+    // Find index where second userId starts (when we see "user" again after first userId)
+    let splitIndex = -1;
+    for (let i = 2; i < parts.length; i++) {
+      if (parts[i] === 'user') {
+        splitIndex = i;
+        break;
+      }
+    }
+    
+    let user1, user2;
+    if (splitIndex > 0) {
+      user1 = parts.slice(0, splitIndex).join('_');
+      user2 = parts.slice(splitIndex).join('_');
+    } else {
+      // Fallback: assume each userId is "user_" + hash
+      const firstUserEnd = conversationKey.indexOf('_user_', 5);
+      if (firstUserEnd > 0) {
+        user1 = conversationKey.substring(0, firstUserEnd);
+        user2 = conversationKey.substring(firstUserEnd + 1);
+      } else {
+        console.error('Invalid conversation key format:', conversationKey);
+        return;
+      }
+    }
+    
+    console.log('Checking conversation:', conversationKey, 'user1:', user1, 'user2:', user2);
+    
+    if (user1 === userId || user2 === userId) {
+      console.log('Match found for userId:', userId);
+      userMessages[conversationKey] = allMessages[conversationKey];
+      
+      // Count unread messages
+      const unread = allMessages[conversationKey].filter(msg => 
+        msg.recipientId === userId && !msg.read
+      );
+      
+      if (unread.length > 0) {
+        const senderId = user1 === userId ? user2 : user1;
+        unreadCounts[senderId] = unread.length;
+      }
+    }
+  });
+  
+  console.log('Returning userMessages:', Object.keys(userMessages));
+  console.log('Returning unreadCounts:', unreadCounts);
+  
+  res.json({ 
+    messages: userMessages,
+    unreadCounts: unreadCounts
+  });
+});
+
+// GET: Get total unread message count
+app.get('/api/messages/unread-count', (req, res) => {
+  const userId = req.session?.userId || 'guest';
+  const allMessages = loadMessages();
+  
+  let totalUnread = 0;
+  
+  Object.values(allMessages).forEach(conversation => {
+    const unread = conversation.filter(msg => 
+      msg.recipientId === userId && !msg.read
+    );
+    totalUnread += unread.length;
+  });
+  
+  res.json({ count: totalUnread });
+});
+
+// POST: Send message
+app.post('/api/messages/send', (req, res) => {
+  const senderId = req.session?.userId || 'guest';
+  const { recipientId, content } = req.body;
+  
+  if (!recipientId || !content) {
+    return res.status(400).json({ error: 'Empfänger und Nachricht erforderlich' });
+  }
+  
+  if (content.length > 500) {
+    return res.status(400).json({ error: 'Nachricht zu lang (max 500 Zeichen)' });
+  }
+  
+  const allMessages = loadMessages();
+  const conversationKey = [senderId, recipientId].sort().join('_');
+  
+  if (!allMessages[conversationKey]) {
+    allMessages[conversationKey] = [];
+  }
+  
+  // Check daily limit (1 message per day per recipient)
+  const now = new Date();
+  const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())).toISOString().split('T')[0];
+  
+  const sentToday = allMessages[conversationKey].filter(msg => {
+    if (msg.senderId !== senderId) return false;
+    const msgDate = new Date(msg.timestamp);
+    const msgDateUTC = new Date(Date.UTC(msgDate.getFullYear(), msgDate.getMonth(), msgDate.getDate())).toISOString().split('T')[0];
+    return msgDateUTC === todayUTC;
+  });
+  
+  if (sentToday.length >= 1) {
+    return res.status(403).json({ error: 'Du hast heute bereits eine Nachricht an diesen Benutzer gesendet' });
+  }
+  
+  // Add message
+  allMessages[conversationKey].push({
+    senderId: senderId,
+    recipientId: recipientId,
+    content: content,
+    timestamp: new Date().toISOString(),
+    read: false
+  });
+  
+  if (saveMessages(allMessages)) {
+    res.json({ success: true });
+  } else {
+    res.status(500).json({ error: 'Fehler beim Senden' });
+  }
+});
+
+// POST: Mark messages as read
+app.post('/api/messages/mark-read', (req, res) => {
+  const userId = req.session?.userId || 'guest';
+  const { senderId } = req.body;
+  
+  if (!senderId) {
+    return res.status(400).json({ error: 'Sender ID erforderlich' });
+  }
+  
+  const allMessages = loadMessages();
+  const conversationKey = [userId, senderId].sort().join('_');
+  
+  if (allMessages[conversationKey]) {
+    allMessages[conversationKey].forEach(msg => {
+      if (msg.recipientId === userId && msg.senderId === senderId) {
+        msg.read = true;
+      }
+    });
+    
+    saveMessages(allMessages);
+  }
+  
+  res.json({ success: true });
+});
+
 // Serve HTML
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

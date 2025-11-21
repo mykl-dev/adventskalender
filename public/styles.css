@@ -325,6 +325,18 @@ body.modern-theme .slide-menu {
     font-size: 1.5rem;
 }
 
+.message-badge {
+    background: #e41e3f;
+    color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+    margin-left: auto;
+}
+
 /* Untermenü Styles */
 .menu-submenu-toggle {
     display: flex;

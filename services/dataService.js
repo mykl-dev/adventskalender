@@ -1080,6 +1080,32 @@ class DataService {
       return false;
     }
   }
+
+  /**
+   * Get all users
+   * @returns {Array} Array of all users
+   */
+  getAllUsers() {
+    try {
+      const data = fs.readFileSync(this.usersFilePath, 'utf8');
+      const usersData = JSON.parse(data);
+      
+      // Check if it's { "users": { "user_id": {...} } } structure
+      if (usersData.users && typeof usersData.users === 'object') {
+        return Object.values(usersData.users);
+      }
+      
+      // Or if it's directly { "user_id": {...} } structure
+      if (typeof usersData === 'object' && !Array.isArray(usersData) && !usersData.users) {
+        return Object.values(usersData);
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error loading users:', error);
+      return [];
+    }
+  }
 }
 
 // Export singleton instance
