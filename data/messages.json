@@ -6,6 +6,13 @@
       "content": "🎁 Du verdienst ein Geschenk!",
       "timestamp": "2025-11-21T23:05:26.277Z",
       "read": true
+    },
+    {
+      "senderId": "user_6baf7e2114d9e3376f2709b4407583a4",
+      "recipientId": "user_e82534811de8b426be59ec3b0db1f946",
+      "content": "Einen wunderschönen weihnachtstag wünsche ich dir habe einen wunderschönen tag",
+      "timestamp": "2025-11-24T09:44:18.992Z",
+      "read": false
     }
   ]
 }
