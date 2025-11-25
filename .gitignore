@@ -33,3 +33,4 @@ public/videos/*.webm
 data/stats.json
 data/stusers.json
 data/users.json
+data/messages.json
