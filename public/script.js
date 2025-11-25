@@ -301,12 +301,23 @@ async function loadUnreadMessages() {
 
 function updateMessageBadge(count) {
     const badge = document.getElementById('messageBadge');
+    const quickBadge = document.getElementById('messagesQuickBadge');
+    
     if (badge) {
         if (count > 0) {
             badge.textContent = count;
             badge.style.display = 'inline-block';
         } else {
             badge.style.display = 'none';
+        }
+    }
+    
+    if (quickBadge) {
+        if (count > 0) {
+            quickBadge.textContent = count;
+            quickBadge.style.display = 'flex';
+        } else {
+            quickBadge.style.display = 'none';
         }
     }
 }
