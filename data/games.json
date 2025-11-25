@@ -216,6 +216,25 @@
         "Schild schützt vor 3 Fehlschüssen",
         "Zeit-Bonus: Verbleibende Sekunden × 10 Punkte"
       ]
+    },
+    {
+      "id": "puzzle",
+      "name": "Schiebe-Puzzle",
+      "icon": "🧩",
+      "description": "Klassisches Sliding Puzzle - schiebe die Teile und setze das Bild zusammen!",
+      "category": "puzzle",
+      "difficulty": "medium",
+      "scoreType": "points",
+      "active": true,
+      "theme": "dark-theme",
+      "info": [
+        "Wähle ein Bild und eine Schwierigkeit",
+        "3×3 (Einfach), 4×4 (Mittel), 5×5 (Schwer)",
+        "Klicke auf Tiles neben dem leeren Feld",
+        "Bonus-Punkte für schnelle Zeit",
+        "Extra-Punkte für wenige Züge",
+        "Steuerung: Maus-Klick oder Touch"
+      ]
     }
   ]
 }

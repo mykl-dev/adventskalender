@@ -138,7 +138,8 @@ function getSubmenuItemName(door) {
             'christmas-match3': 'Match-3',
             'santa-run': 'Santa Run',
             'feeding-elf': 'Feeding Elf',
-            'word-search': 'Wörter-Suchrätsel'
+            'word-search': 'Wörter-Suchrätsel',
+            'puzzle': 'Schiebe-Puzzle'
         };
         return gameNames[door.content] || door.content;
     }
@@ -530,7 +531,8 @@ function showModal(data) {
                 'feeding-elf',
                 'bubble-shooter',
                 'word-search',
-                'snowball-blaster'
+                'snowball-blaster',
+                'puzzle'
             ];
             
             if (fullscreenGames.includes(data.content)) {

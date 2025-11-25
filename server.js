@@ -866,6 +866,130 @@ app.post('/api/messages/mark-read', (req, res) => {
   res.json({ success: true });
 });
 
+// ============================
+// Puzzle API
+// ============================
+
+// Liste verfügbare Puzzle-Bilder
+app.get('/api/puzzle/images', (req, res) => {
+  const puzzleDir = path.join(__dirname, 'public', 'images', 'puzzle');
+  
+  try {
+    if (!fs.existsSync(puzzleDir)) {
+      fs.mkdirSync(puzzleDir, { recursive: true });
+      return res.json([]);
+    }
+    
+    const files = fs.readdirSync(puzzleDir);
+    const images = files
+      .filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
+      .map(file => ({
+        name: file,
+        url: `/images/puzzle/${file}`
+      }));
+    
+    res.json(images);
+  } catch (error) {
+    console.error('Fehler beim Laden der Bilder:', error);
+    res.status(500).json({ error: 'Fehler beim Laden der Bilder' });
+  }
+});
+
+// Puzzle-Galerie laden
+const PUZZLE_GALLERY_FILE = path.join(__dirname, 'data', 'puzzle-gallery.json');
+
+const loadPuzzleGallery = () => {
+  try {
+    if (fs.existsSync(PUZZLE_GALLERY_FILE)) {
+      const data = fs.readFileSync(PUZZLE_GALLERY_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Fehler beim Laden der Galerie:', error);
+  }
+  return { completions: [] };
+};
+
+const savePuzzleGallery = (data) => {
+  try {
+    const dir = path.dirname(PUZZLE_GALLERY_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(PUZZLE_GALLERY_FILE, JSON.stringify(data, null, 2));
+  } catch (error) {
+    console.error('Fehler beim Speichern der Galerie:', error);
+    throw error;
+  }
+};
+
+// Puzzle speichern
+app.post('/api/puzzle-gallery/save', (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Nicht angemeldet' });
+  }
+  
+  const { imageName, imageUrl, difficulty, moves, time, timeSeconds } = req.body;
+  
+  if (!imageName || !imageUrl || !difficulty || !moves || !time) {
+    return res.status(400).json({ error: 'Fehlende Daten' });
+  }
+  
+  const gallery = loadPuzzleGallery();
+  const user = loadUser(req.session.userId);
+  
+  const completion = {
+    id: Date.now().toString(),
+    userId: req.session.userId,
+    userName: user.name,
+    imageName,
+    imageUrl,
+    difficulty,
+    moves,
+    time,
+    timeSeconds,
+    timestamp: new Date().toISOString()
+  };
+  
+  gallery.completions.push(completion);
+  savePuzzleGallery(gallery);
+  
+  res.json({ success: true, completion });
+});
+
+// Galerie laden
+app.get('/api/puzzle-gallery', (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Nicht angemeldet' });
+  }
+  
+  const gallery = loadPuzzleGallery();
+  res.json(gallery);
+});
+
+// Puzzle löschen
+app.delete('/api/puzzle-gallery/:id', (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Nicht angemeldet' });
+  }
+  
+  const gallery = loadPuzzleGallery();
+  const completion = gallery.completions.find(c => c.id === req.params.id);
+  
+  if (!completion) {
+    return res.status(404).json({ error: 'Puzzle nicht gefunden' });
+  }
+  
+  if (completion.userId !== req.session.userId) {
+    return res.status(403).json({ error: 'Nicht berechtigt' });
+  }
+  
+  gallery.completions = gallery.completions.filter(c => c.id !== req.params.id);
+  savePuzzleGallery(gallery);
+  
+  res.json({ success: true });
+});
+
 // Serve HTML
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

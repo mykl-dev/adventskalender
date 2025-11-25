@@ -47,6 +47,14 @@
 /* Dark Theme (z.B. Snowball Blaster) */
 .game-overlay.dark-theme .overlay-content {
     background: linear-gradient(135deg, rgba(26, 35, 126, 0.95), rgba(13, 71, 161, 0.95));
+    color: white;
+}
+
+.game-overlay.dark-theme .overlay-content h1,
+.game-overlay.dark-theme .overlay-content h2,
+.game-overlay.dark-theme .overlay-content h3,
+.game-overlay.dark-theme .overlay-content p {
+    color: white !important;
 }
 
 /* Ice Theme (z.B. Gift Catcher) */

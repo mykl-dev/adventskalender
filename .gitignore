@@ -29,8 +29,16 @@ public/videos/*.avi
 public/videos/*.mov
 public/videos/*.webm
 
+# Ignoriere Puzzle-Bilder (zu groß für Git)
+public/images/puzzle/*.jpg
+public/images/puzzle/*.jpeg
+public/images/puzzle/*.png
+public/images/puzzle/*.gif
+public/images/puzzle/*.webp
+
 # stats
 data/stats.json
 data/stusers.json
 data/users.json
 data/messages.json
+data/puzzle-gallery.json
