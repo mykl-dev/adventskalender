@@ -139,6 +139,15 @@
     }
 }
 
+@keyframes moveStar {
+    0% { 
+        transform: translate(0, 0);
+    }
+    100% { 
+        transform: translate(calc(var(--move-direction, 1) * 100px), 50px);
+    }
+}
+
 .stack-ground {
     position: absolute;
     bottom: 0;

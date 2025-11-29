@@ -392,19 +392,23 @@ class GiftStackGame {
     }
     
     addStars(canvas) {
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 20; i++) {
             const star = document.createElement('div');
             star.className = 'bg-star';
             star.textContent = ['⭐', '✨', '🌠'][Math.floor(Math.random() * 3)];
+            const moveDirection = Math.random() > 0.5 ? 1 : -1;
             star.style.cssText = `
                 position: absolute;
-                font-size: ${1 + Math.random() * 1.5}rem;
+                font-size: ${0.6 + Math.random() * 0.6}rem;
                 top: ${Math.random() * 100}%;
                 left: ${Math.random() * 100}%;
-                animation: twinkleStar ${2 + Math.random() * 3}s ease-in-out infinite;
+                animation: 
+                    twinkleStar ${2 + Math.random() * 3}s ease-in-out infinite,
+                    moveStar ${20 + Math.random() * 30}s linear infinite;
                 animation-delay: ${Math.random() * 2}s;
                 z-index: 0;
                 pointer-events: none;
+                --move-direction: ${moveDirection};
             `;
             canvas.appendChild(star);
         }
