@@ -268,11 +268,16 @@ class GiftStackGame {
         const canvas = document.getElementById('stack-canvas');
         const canvasHeight = canvas.getBoundingClientRect().height;
         
-        // Wenn Stapel höher als 60% der Canvas-Höhe, scrolle smooth nach oben
-        if (this.stackHeight > canvasHeight * 0.6) {
+        // Berechne wo der Stack aktuell ist (von unten: 50px Boden + stackHeight)
+        const stackTopPosition = canvasHeight - 50 - this.stackHeight;
+        
+        // Spawn-Zone ist bei 100px vom oberen Rand
+        // Wenn Stack diese Zone erreicht, scrolle nach unten
+        if (stackTopPosition <= 100) {
+            // Scrolle um 40px (1 Geschenk-Höhe)
             this.canvasScrollOffset += 40;
             
-            // Bewege alle gestapelten Geschenke smooth nach unten (visuell nach oben)
+            // Bewege alle gestapelten Geschenke smooth nach unten
             const stackedGifts = canvas.querySelectorAll('.stacked-gift');
             stackedGifts.forEach(g => {
                 const currentTop = parseInt(g.style.top) || 0;
@@ -280,27 +285,34 @@ class GiftStackGame {
                 g.style.top = (currentTop + 40) + 'px';
             });
             
-            // Bewege auch die Zielzone mit nach unten
+            // Bewege Zielzone nach unten
             const targetZone = canvas.querySelector('.stack-target-zone');
             if (targetZone) {
+                const currentBottom = parseInt(targetZone.style.bottom) || 50;
                 targetZone.style.transition = 'bottom 0.5s ease-out';
-                targetZone.style.bottom = (50 + this.canvasScrollOffset) + 'px';
+                targetZone.style.bottom = (currentBottom + 40) + 'px';
             }
             
-            // Bewege Boden mit nach unten
+            // Bewege Boden nach unten
             const ground = canvas.querySelector('.stack-ground');
             if (ground) {
+                const currentBottom = parseInt(ground.style.bottom) || 0;
                 ground.style.transition = 'bottom 0.5s ease-out';
-                ground.style.bottom = this.canvasScrollOffset + 'px';
+                ground.style.bottom = (currentBottom + 40) + 'px';
             }
             
-            // Setze stackHeight zurück
-            this.stackHeight = canvasHeight * 0.6;
+            // WICHTIG: Reduziere stackHeight nicht, sondern belasse bei aktueller Höhe
+            // Dadurch bleibt die Berechnung korrekt
         }
     }
     
     updateBackground(level) {
         const canvas = document.getElementById('stack-canvas');
+        
+        // Entferne alte Background-Elemente
+        const oldBgElements = canvas.querySelectorAll('.bg-bird, .bg-cloud, .bg-satellite, .bg-star');
+        oldBgElements.forEach(el => el.remove());
+        canvas.classList.remove('space-bg');
         
         // Background wechselt alle 2 Level
         const bgStage = Math.floor((level - 1) / 2);
@@ -308,18 +320,98 @@ class GiftStackGame {
         switch(bgStage) {
             case 0: // Level 1-2: Himmel mit Vögeln
                 canvas.style.background = 'linear-gradient(180deg, #87ceeb 0%, #e0f6ff 30%, #e0f6ff 70%, #d4af37 100%)';
-                canvas.style.animation = 'none';
+                this.addBirds(canvas);
                 break;
             case 1: // Level 3-4: Höher mit Wolken
                 canvas.style.background = 'linear-gradient(180deg, #4a90e2 0%, #87ceeb 40%, #b0d9f5 100%)';
+                this.addClouds(canvas);
                 break;
             case 2: // Level 5-6: Noch höher mit Satelliten
                 canvas.style.background = 'linear-gradient(180deg, #1a2a4e 0%, #2d4a7c 30%, #4a7ba7 100%)';
+                this.addSatellites(canvas);
                 break;
             default: // Level 7+: Weltall
                 canvas.style.background = 'linear-gradient(180deg, #000000 0%, #0a0a2e 50%, #1a1a3e 100%)';
                 canvas.classList.add('space-bg');
+                this.addStars(canvas);
                 break;
+        }
+    }
+    
+    addBirds(canvas) {
+        for (let i = 0; i < 3; i++) {
+            const bird = document.createElement('div');
+            bird.className = 'bg-bird';
+            bird.textContent = '🦅';
+            bird.style.cssText = `
+                position: absolute;
+                font-size: 2rem;
+                top: ${20 + i * 30}%;
+                left: -50px;
+                animation: flyBird ${8 + i * 2}s linear infinite;
+                animation-delay: ${i * 3}s;
+                z-index: 0;
+                pointer-events: none;
+            `;
+            canvas.appendChild(bird);
+        }
+    }
+    
+    addClouds(canvas) {
+        for (let i = 0; i < 4; i++) {
+            const cloud = document.createElement('div');
+            cloud.className = 'bg-cloud';
+            cloud.textContent = '☁️';
+            cloud.style.cssText = `
+                position: absolute;
+                font-size: 3rem;
+                top: ${15 + i * 25}%;
+                left: -80px;
+                animation: floatCloud ${15 + i * 3}s linear infinite;
+                animation-delay: ${i * 4}s;
+                opacity: 0.7;
+                z-index: 0;
+                pointer-events: none;
+            `;
+            canvas.appendChild(cloud);
+        }
+    }
+    
+    addSatellites(canvas) {
+        for (let i = 0; i < 2; i++) {
+            const satellite = document.createElement('div');
+            satellite.className = 'bg-satellite';
+            satellite.textContent = '🛰️';
+            satellite.style.cssText = `
+                position: absolute;
+                font-size: 2.5rem;
+                top: ${20 + i * 50}%;
+                left: -60px;
+                animation: moveSatellite ${12 + i * 4}s linear infinite;
+                animation-delay: ${i * 6}s;
+                z-index: 0;
+                pointer-events: none;
+            `;
+            canvas.appendChild(satellite);
+        }
+    }
+    
+    addStars(canvas) {
+        for (let i = 0; i < 15; i++) {
+            const star = document.createElement('div');
+            star.className = 'bg-star';
+            star.textContent = ['⭐', '✨', '🌠'][Math.floor(Math.random() * 3)];
+            star.style.cssText = `
+                position: absolute;
+                font-size: ${1 + Math.random() * 1.5}rem;
+                top: ${Math.random() * 100}%;
+                left: ${Math.random() * 100}%;
+                animation: twinkleStar ${2 + Math.random() * 3}s ease-in-out infinite;
+                animation-delay: ${Math.random() * 2}s;
+                z-index: 0;
+                pointer-events: none;
+            `;
+            canvas.appendChild(star);
         }
     }
     
