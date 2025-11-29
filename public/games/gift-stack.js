@@ -100,6 +100,19 @@ class GiftStackGame {
         const existingGifts = canvas.querySelectorAll('.falling-gift, .stacked-gift, .missed-gift, .game-over');
         existingGifts.forEach(g => g.remove());
         
+        // Setze Zielzone und Boden zurück auf Startposition
+        const targetZone = canvas.querySelector('.stack-target-zone');
+        if (targetZone) {
+            targetZone.style.bottom = '50px';
+            targetZone.style.transition = 'none';
+        }
+        
+        const ground = canvas.querySelector('.stack-ground');
+        if (ground) {
+            ground.style.bottom = '0px';
+            ground.style.transition = 'none';
+        }
+        
         document.getElementById('start-button').style.display = 'none';
         document.getElementById('stack-score').textContent = '0';
         
@@ -281,15 +294,7 @@ class GiftStackGame {
                 g.style.top = (currentTop + scrollAmount) + 'px';
             });
             
-            // Bewege Zielzone nach unten
-            const targetZone = canvas.querySelector('.stack-target-zone');
-            if (targetZone) {
-                const currentBottom = parseInt(targetZone.style.bottom) || 50;
-                targetZone.style.transition = 'bottom 0.8s ease-in-out';
-                targetZone.style.bottom = (currentBottom + scrollAmount) + 'px';
-            }
-            
-            // Boden bleibt fix unten (wird NICHT verschoben)
+            // Zielzone und Boden bleiben fix an ihrer Position (werden NICHT verschoben)
             
             // Reduziere stackHeight um scrollAmount, damit nächste Geschenke richtig positioniert werden
             this.stackHeight -= scrollAmount;
