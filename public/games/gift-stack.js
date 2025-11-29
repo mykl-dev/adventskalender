@@ -477,7 +477,10 @@ class GiftStackGame {
         // Lade Top 3 Highscores
         let top3HTML = '';
         if (typeof window.StatsManager !== 'undefined') {
+            console.log('Lade Top 3 für gift-stack...');
             const top3 = await window.StatsManager.getTop3('gift-stack');
+            console.log('Top 3 Ergebnis:', top3);
+            
             if (top3 && top3.length > 0) {
                 top3HTML = `
                     <div class="top3-container">
@@ -493,7 +496,17 @@ class GiftStackGame {
                         </div>
                     </div>
                 `;
+            } else {
+                top3HTML = `
+                    <div class="top3-container">
+                        <p style="text-align: center; color: rgba(255, 255, 255, 0.7);">
+                            Sei der Erste mit einem Highscore! 🎯
+                        </p>
+                    </div>
+                `;
             }
+        } else {
+            console.error('StatsManager nicht gefunden!');
         }
         
         const overlay = document.getElementById('overlay-container');
