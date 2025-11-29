@@ -104,6 +104,7 @@ class GiftStackGame {
         const targetZone = canvas.querySelector('.stack-target-zone');
         if (targetZone) {
             targetZone.style.bottom = '50px';
+            targetZone.style.opacity = '1';
             targetZone.style.transition = 'none';
         }
         
@@ -290,7 +291,16 @@ class GiftStackGame {
                 g.style.top = (currentTop + scrollAmount) + 'px';
             });
             
-            // Zielzone und Boden bleiben fix an ihrer Position (werden NICHT verschoben)
+            // Beim ersten Scroll (Level 2): Verschiebe Boden mit nach unten, damit er verschwindet
+            if (this.currentLevel === 2) {
+                const ground = canvas.querySelector('.stack-ground');
+                if (ground) {
+                    ground.style.transition = 'bottom 0.8s ease-in-out';
+                    ground.style.bottom = `-${scrollAmount}px`;
+                }
+            }
+            
+            // Zielzone bleibt fix (wird NICHT verschoben)
             
             // Reduziere stackHeight um scrollAmount, damit nächste Geschenke richtig positioniert werden
             this.stackHeight -= scrollAmount;
@@ -300,37 +310,45 @@ class GiftStackGame {
     updateBackground(level) {
         const canvas = document.getElementById('stack-canvas');
         const ground = canvas.querySelector('.stack-ground');
+        const targetZone = canvas.querySelector('.stack-target-zone');
         
         // Entferne alte Background-Elemente
         const oldBgElements = canvas.querySelectorAll('.bg-bird, .bg-cloud, .bg-satellite, .bg-star');
         oldBgElements.forEach(el => el.remove());
         canvas.classList.remove('space-bg');
         
-        // Background wechselt alle 2 Level
-        const bgStage = Math.floor((level - 1) / 2);
+        // Zielzonen-Opacity: 100% bei Level 1, 50% bei Level 2, 0% ab Level 3
+        if (targetZone) {
+            let opacity = 1;
+            if (level === 2) opacity = 0.5;
+            else if (level >= 3) opacity = 0;
+            
+            targetZone.style.opacity = opacity;
+            targetZone.style.transition = 'opacity 1s ease-out';
+        }
         
-        switch(bgStage) {
-            case 0: // Level 1-2: Himmel mit Vögeln (mit Boden)
-                canvas.style.background = 'linear-gradient(180deg, #87ceeb 0%, #e0f6ff 30%, #e0f6ff 70%, #d4af37 100%)';
-                if (ground) ground.style.display = 'block';
-                this.addBirds(canvas);
-                break;
-            case 1: // Level 3-4: Höher mit Wolken (kein Boden mehr)
-                canvas.style.background = 'linear-gradient(180deg, #4a90e2 0%, #87ceeb 40%, #b0d9f5 100%)';
-                if (ground) ground.style.display = 'none';
-                this.addClouds(canvas);
-                break;
-            case 2: // Level 5-6: Noch höher mit Satelliten
-                canvas.style.background = 'linear-gradient(180deg, #1a2a4e 0%, #2d4a7c 30%, #4a7ba7 100%)';
-                if (ground) ground.style.display = 'none';
-                this.addSatellites(canvas);
-                break;
-            default: // Level 7+: Weltall
-                canvas.style.background = 'linear-gradient(180deg, #000000 0%, #0a0a2e 50%, #1a1a3e 100%)';
-                if (ground) ground.style.display = 'none';
-                canvas.classList.add('space-bg');
-                this.addStars(canvas);
-                break;
+        // Hintergrund und Boden je nach Level
+        if (level <= 2) {
+            // Level 1-2: Himmel mit Vögeln (mit Boden)
+            canvas.style.background = 'linear-gradient(180deg, #87ceeb 0%, #e0f6ff 30%, #e0f6ff 70%, #d4af37 100%)';
+            if (ground) ground.style.display = 'block';
+            this.addBirds(canvas);
+        } else if (level <= 4) {
+            // Level 3-4: Höher mit Wolken (kein Boden mehr)
+            canvas.style.background = 'linear-gradient(180deg, #4a90e2 0%, #87ceeb 40%, #b0d9f5 100%)';
+            if (ground) ground.style.display = 'none';
+            this.addClouds(canvas);
+        } else if (level <= 6) {
+            // Level 5-6: Noch höher mit Satelliten
+            canvas.style.background = 'linear-gradient(180deg, #1a2a4e 0%, #2d4a7c 30%, #4a7ba7 100%)';
+            if (ground) ground.style.display = 'none';
+            this.addSatellites(canvas);
+        } else {
+            // Level 7+: Weltall
+            canvas.style.background = 'linear-gradient(180deg, #000000 0%, #0a0a2e 50%, #1a1a3e 100%)';
+            if (ground) ground.style.display = 'none';
+            canvas.classList.add('space-bg');
+            this.addStars(canvas);
         }
     }
     
