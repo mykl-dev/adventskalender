@@ -268,41 +268,39 @@ class GiftStackGame {
         const canvas = document.getElementById('stack-canvas');
         const canvasHeight = canvas.getBoundingClientRect().height;
         
-        // Berechne wo der Stack aktuell ist (von unten: 50px Boden + stackHeight)
-        const stackTopPosition = canvasHeight - 50 - this.stackHeight;
-        
-        // Spawn-Zone ist bei 100px vom oberen Rand
-        // Wenn Stack diese Zone erreicht, scrolle nach unten
-        if (stackTopPosition <= 100) {
-            // Scrolle um 40px (1 Geschenk-Höhe)
-            this.canvasScrollOffset += 40;
+        // Scrolle nur wenn Stack 350px erreicht (ca. 8-9 Geschenke)
+        // Das ist etwa bei 70% der Canvas-Höhe
+        if (this.stackHeight >= 350) {
+            // Verschiebe gesamten Stack um 200px (5 Geschenke) auf einmal
+            const scrollAmount = 200;
+            this.canvasScrollOffset += scrollAmount;
             
-            // Bewege alle gestapelten Geschenke smooth nach unten
+            // Bewege ALLE gestapelten Geschenke gleichzeitig nach unten
             const stackedGifts = canvas.querySelectorAll('.stacked-gift');
             stackedGifts.forEach(g => {
                 const currentTop = parseInt(g.style.top) || 0;
-                g.style.transition = 'top 0.5s ease-out';
-                g.style.top = (currentTop + 40) + 'px';
+                g.style.transition = 'top 0.8s ease-in-out';
+                g.style.top = (currentTop + scrollAmount) + 'px';
             });
             
             // Bewege Zielzone nach unten
             const targetZone = canvas.querySelector('.stack-target-zone');
             if (targetZone) {
                 const currentBottom = parseInt(targetZone.style.bottom) || 50;
-                targetZone.style.transition = 'bottom 0.5s ease-out';
-                targetZone.style.bottom = (currentBottom + 40) + 'px';
+                targetZone.style.transition = 'bottom 0.8s ease-in-out';
+                targetZone.style.bottom = (currentBottom + scrollAmount) + 'px';
             }
             
             // Bewege Boden nach unten
             const ground = canvas.querySelector('.stack-ground');
             if (ground) {
                 const currentBottom = parseInt(ground.style.bottom) || 0;
-                ground.style.transition = 'bottom 0.5s ease-out';
-                ground.style.bottom = (currentBottom + 40) + 'px';
+                ground.style.transition = 'bottom 0.8s ease-in-out';
+                ground.style.bottom = (currentBottom + scrollAmount) + 'px';
             }
             
-            // WICHTIG: Reduziere stackHeight nicht, sondern belasse bei aktueller Höhe
-            // Dadurch bleibt die Berechnung korrekt
+            // Reduziere stackHeight um scrollAmount, damit nächste Geschenke richtig positioniert werden
+            this.stackHeight -= scrollAmount;
         }
     }
     
