@@ -178,11 +178,34 @@ class GiftStackGame {
         const currentPositionPercent = parseFloat(gift.style.left);
         const currentPositionPx = (currentPositionPercent / 100) * canvasRect.width;
         
-        // Berechne Distanz zum letzten gestapelten Geschenk in Pixeln
-        const distance = Math.abs(currentPositionPx - this.lastGiftPosition);
+        // Geschenk-Breite (ca. 48px bei 3rem font-size)
+        const giftWidth = 48;
         
-        // Treffer-Toleranz: 40px (großzügiger als Geschenk-Breite von ~48px)
-        const tolerance = 40;
+        // Zielzone-Parameter (zentriert, 220px breit)
+        const targetZoneWidth = 220;
+        const targetZoneLeft = (canvasRect.width - targetZoneWidth) / 2;
+        const targetZoneRight = targetZoneLeft + targetZoneWidth;
+        
+        let isValidPlacement = false;
+        
+        if (this.score === 0) {
+            // Erstes Geschenk: Mindestens 50% des Geschenks muss in der grünen Zone sein
+            const giftLeft = currentPositionPx - (giftWidth / 2);
+            const giftRight = currentPositionPx + (giftWidth / 2);
+            
+            // Berechne Überlappung mit Zielzone
+            const overlapLeft = Math.max(giftLeft, targetZoneLeft);
+            const overlapRight = Math.min(giftRight, targetZoneRight);
+            const overlapWidth = Math.max(0, overlapRight - overlapLeft);
+            
+            // Mindestens 50% des Geschenks muss in der Zone sein
+            isValidPlacement = (overlapWidth >= giftWidth * 0.5);
+        } else {
+            // Weitere Geschenke: 40px Toleranz zum vorherigen Geschenk
+            const distance = Math.abs(currentPositionPx - this.lastGiftPosition);
+            const tolerance = 40;
+            isValidPlacement = (distance < tolerance);
+        }
         
         const targetBottom = canvasRect.height - 50 - this.stackHeight;
         
@@ -190,7 +213,7 @@ class GiftStackGame {
         gift.style.top = targetBottom + 'px';
         
         setTimeout(() => {
-            if (distance < tolerance) {
+            if (isValidPlacement) {
                 this.score++;
                 this.stackHeight += 40;
                 this.lastGiftPosition = currentPositionPx; // Merke Position in Pixeln für nächstes Geschenk
