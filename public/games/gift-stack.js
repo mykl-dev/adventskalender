@@ -81,13 +81,17 @@ class GiftStackGame {
         this.gameActive = true;
         this.gifts = [];
         this.currentGift = null;
-        this.lastGiftPosition = 50; // Startposition in der Mitte (50%)
+        
+        // Speichere Canvas-Breite für Pixel-basierte Berechnungen
+        const canvas = document.getElementById('stack-canvas');
+        this.canvasWidth = canvas.getBoundingClientRect().width;
+        this.lastGiftPosition = this.canvasWidth / 2; // Startposition in der Mitte (in Pixeln)
+        
         this.isDropping = false; // Verhindert Doppel-Klicks
         
         const instructions = this.container.querySelector('.game-instructions');
         if (instructions) instructions.style.display = 'none';
         
-        const canvas = document.getElementById('stack-canvas');
         const existingGifts = canvas.querySelectorAll('.falling-gift, .stacked-gift, .missed-gift, .game-over');
         existingGifts.forEach(g => g.remove());
         
@@ -170,14 +174,15 @@ class GiftStackGame {
         const canvas = document.getElementById('stack-canvas');
         const canvasRect = canvas.getBoundingClientRect();
         
-        // Aktuelle Position des fallenden Geschenks in Prozent
-        const currentPosition = parseFloat(gift.style.left);
+        // Berechne aktuelle Position in Pixeln (von Prozent)
+        const currentPositionPercent = parseFloat(gift.style.left);
+        const currentPositionPx = (currentPositionPercent / 100) * canvasRect.width;
         
-        // Berechne Distanz zum letzten gestapelten Geschenk
-        const distance = Math.abs(currentPosition - this.lastGiftPosition);
+        // Berechne Distanz zum letzten gestapelten Geschenk in Pixeln
+        const distance = Math.abs(currentPositionPx - this.lastGiftPosition);
         
-        // Treffer-Toleranz: 8% (entspricht der Geschenk-Breite)
-        const tolerance = 8;
+        // Treffer-Toleranz: 40px (großzügiger als Geschenk-Breite von ~48px)
+        const tolerance = 40;
         
         const targetBottom = canvasRect.height - 50 - this.stackHeight;
         
@@ -188,7 +193,7 @@ class GiftStackGame {
             if (distance < tolerance) {
                 this.score++;
                 this.stackHeight += 40;
-                this.lastGiftPosition = currentPosition; // Merke Position für nächstes Geschenk
+                this.lastGiftPosition = currentPositionPx; // Merke Position in Pixeln für nächstes Geschenk
                 gift.classList.remove('falling-gift');
                 gift.classList.add('stacked-gift');
                 gift.style.transition = 'none';
