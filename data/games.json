@@ -235,6 +235,25 @@
         "Extra-Punkte für wenige Züge",
         "Steuerung: Maus-Klick oder Touch"
       ]
+    },
+    {
+      "id": "gift-stack",
+      "name": "Geschenke Stapeln",
+      "icon": "🎁",
+      "description": "Staple Geschenke so hoch wie möglich und erreiche das Weltall!",
+      "category": "arcade",
+      "difficulty": "medium",
+      "scoreType": "points",
+      "active": true,
+      "theme": "sky-theme",
+      "info": [
+        "Klicke zur richtigen Zeit um Geschenke zu stapeln",
+        "Treffe die grüne Zielzone in der Mitte",
+        "Geschwindigkeit steigt mit jedem Level",
+        "Hintergründe ändern sich: Vögel → Wolken → Satelliten → Weltall",
+        "Level wechselt beim Ebenen-Verschieben",
+        "Steuerung: Maus-Klick oder Touch"
+      ]
     }
   ]
 }
