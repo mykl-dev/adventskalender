@@ -81,11 +81,16 @@ class GiftStackGame {
         this.gameActive = true;
         this.gifts = [];
         this.currentGift = null;
+        this.currentLevel = 1; // Level-System
+        this.canvasScrollOffset = 0; // Für smooth scrolling
         
         // Speichere Canvas-Breite für Pixel-basierte Berechnungen
         const canvas = document.getElementById('stack-canvas');
         this.canvasWidth = canvas.getBoundingClientRect().width;
         this.lastGiftPosition = this.canvasWidth / 2; // Startposition in der Mitte (in Pixeln)
+        
+        // Setze Startlevel-Hintergrund
+        this.updateBackground(1);
         
         this.isDropping = false; // Verhindert Doppel-Klicks
         
@@ -138,9 +143,9 @@ class GiftStackGame {
         let position = 50;
         let direction = 1;
         
-        // Geschwindigkeit erhöht sich mit jedem gestapelten Geschenk (wird schwieriger!)
-        const baseSpeed = 1.2;  // Langsamerer Start
-        const speedIncrease = this.score * 0.4; // +0.4 pro Geschenk (schnellere Steigerung)
+        // Geschwindigkeit erhöht sich mit Level (alle 5 Geschenke = 1 Level)
+        const baseSpeed = 1.0;  // Noch langsamerer Start
+        const speedIncrease = this.currentLevel * 0.15; // +0.15 pro Level (langsame Steigerung)
         const speed = baseSpeed + speedIncrease;
         
         const move = setInterval(() => {
@@ -225,9 +230,15 @@ class GiftStackGame {
                 // Speichere gestapeltes Geschenk
                 this.gifts.push(gift);
                 
-                // Visuelles Feedback bei Difficulty-Steigerung (alle 5 Punkte)
+                // Level-Wechsel alle 5 Geschenke
                 if (this.score > 0 && this.score % 5 === 0) {
-                    this.showSpeedNotification();
+                    this.currentLevel++;
+                    this.showLevelNotification();
+                    
+                    // Hintergrund-Wechsel alle 2 Level
+                    if (this.currentLevel % 2 === 1) {
+                        this.updateBackground(this.currentLevel);
+                    }
                 }
                 
                 // Scrolle Canvas nach oben, wenn Stapel zu hoch wird
@@ -255,28 +266,68 @@ class GiftStackGame {
     
     adjustCanvasView() {
         const canvas = document.getElementById('stack-canvas');
+        const canvasHeight = canvas.getBoundingClientRect().height;
         
-        // Wenn Stapel höher als 300px (ca. 7-8 Geschenke), scrolle nach oben
-        if (this.stackHeight > 300) {
-            const scrollAmount = this.stackHeight - 300;
+        // Wenn Stapel höher als 60% der Canvas-Höhe, scrolle smooth nach oben
+        if (this.stackHeight > canvasHeight * 0.6) {
+            this.canvasScrollOffset += 40;
             
-            // Bewege alle gestapelten Geschenke nach unten (visuell nach oben)
+            // Bewege alle gestapelten Geschenke smooth nach unten (visuell nach oben)
             const stackedGifts = canvas.querySelectorAll('.stacked-gift');
             stackedGifts.forEach(g => {
                 const currentTop = parseInt(g.style.top) || 0;
+                g.style.transition = 'top 0.5s ease-out';
                 g.style.top = (currentTop + 40) + 'px';
             });
             
-            // Setze stackHeight zurück, damit neue Geschenke an der richtigen Position spawnen
-            this.stackHeight = 300;
+            // Bewege auch die Zielzone mit nach unten
+            const targetZone = canvas.querySelector('.stack-target-zone');
+            if (targetZone) {
+                targetZone.style.transition = 'bottom 0.5s ease-out';
+                targetZone.style.bottom = (50 + this.canvasScrollOffset) + 'px';
+            }
+            
+            // Bewege Boden mit nach unten
+            const ground = canvas.querySelector('.stack-ground');
+            if (ground) {
+                ground.style.transition = 'bottom 0.5s ease-out';
+                ground.style.bottom = this.canvasScrollOffset + 'px';
+            }
+            
+            // Setze stackHeight zurück
+            this.stackHeight = canvasHeight * 0.6;
         }
     }
     
-    showSpeedNotification() {
+    updateBackground(level) {
+        const canvas = document.getElementById('stack-canvas');
+        
+        // Background wechselt alle 2 Level
+        const bgStage = Math.floor((level - 1) / 2);
+        
+        switch(bgStage) {
+            case 0: // Level 1-2: Himmel mit Vögeln
+                canvas.style.background = 'linear-gradient(180deg, #87ceeb 0%, #e0f6ff 30%, #e0f6ff 70%, #d4af37 100%)';
+                canvas.style.animation = 'none';
+                break;
+            case 1: // Level 3-4: Höher mit Wolken
+                canvas.style.background = 'linear-gradient(180deg, #4a90e2 0%, #87ceeb 40%, #b0d9f5 100%)';
+                break;
+            case 2: // Level 5-6: Noch höher mit Satelliten
+                canvas.style.background = 'linear-gradient(180deg, #1a2a4e 0%, #2d4a7c 30%, #4a7ba7 100%)';
+                break;
+            default: // Level 7+: Weltall
+                canvas.style.background = 'linear-gradient(180deg, #000000 0%, #0a0a2e 50%, #1a1a3e 100%)';
+                canvas.classList.add('space-bg');
+                break;
+        }
+    }
+    
+    showLevelNotification() {
         const canvas = document.getElementById('stack-canvas');
         const notification = document.createElement('div');
         notification.className = 'speed-notification';
-        notification.innerHTML = '⚡ Schneller! ⚡';
+        notification.innerHTML = `🎮 Level ${this.currentLevel}! 🎮`;
         notification.style.cssText = `
             position: absolute;
             top: 50%;

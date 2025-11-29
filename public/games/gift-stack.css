@@ -54,6 +54,35 @@
     overflow: hidden;
     border-radius: 15px;
     box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background 1s ease-in-out;
+}
+
+/* Weltall-Hintergrund mit Sternen */
+.stack-canvas.space-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent),
+        radial-gradient(1px 1px at 33% 80%, white, transparent),
+        radial-gradient(1px 1px at 15% 90%, white, transparent);
+    background-size: 200% 200%;
+    background-position: 0% 0%;
+    animation: starfield 60s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes starfield {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
 }
 
 .stack-ground {
