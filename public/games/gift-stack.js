@@ -135,8 +135,8 @@ class GiftStackGame {
         let direction = 1;
         
         // Geschwindigkeit erhöht sich mit jedem gestapelten Geschenk (wird schwieriger!)
-        const baseSpeed = 2;
-        const speedIncrease = this.score * 0.3; // +0.3 pro Geschenk
+        const baseSpeed = 1.2;  // Langsamerer Start
+        const speedIncrease = this.score * 0.4; // +0.4 pro Geschenk (schnellere Steigerung)
         const speed = baseSpeed + speedIncrease;
         
         const move = setInterval(() => {
