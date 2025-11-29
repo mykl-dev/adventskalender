@@ -235,10 +235,8 @@ class GiftStackGame {
                     this.currentLevel++;
                     this.showLevelNotification();
                     
-                    // Hintergrund-Wechsel alle 2 Level
-                    if (this.currentLevel % 2 === 1) {
-                        this.updateBackground(this.currentLevel);
-                    }
+                    // Hintergrund-Wechsel bei jedem Level
+                    this.updateBackground(this.currentLevel);
                 }
                 
                 // Scrolle Canvas nach oben, wenn Stapel zu hoch wird
@@ -291,13 +289,7 @@ class GiftStackGame {
                 targetZone.style.bottom = (currentBottom + scrollAmount) + 'px';
             }
             
-            // Bewege Boden nach unten
-            const ground = canvas.querySelector('.stack-ground');
-            if (ground) {
-                const currentBottom = parseInt(ground.style.bottom) || 0;
-                ground.style.transition = 'bottom 0.8s ease-in-out';
-                ground.style.bottom = (currentBottom + scrollAmount) + 'px';
-            }
+            // Boden bleibt fix unten (wird NICHT verschoben)
             
             // Reduziere stackHeight um scrollAmount, damit nächste Geschenke richtig positioniert werden
             this.stackHeight -= scrollAmount;
