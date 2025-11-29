@@ -47,17 +47,17 @@
       "opened": false
     },
     {
-    "day": 8,
+      "day": 8,
       "type": "game",
-      "content": "snowball-blaster",
-      "description": "Spiel: Snowball Blaster - Zerstöre alle Eisblöcke! ❄️⚡",
+      "content": "christmas-match3",
+      "description": "Spiel: Christmas Match-3 - Kombiniere Christbaumkugeln und sammle Punkte! 🎄🔴�",
       "opened": false
     },
     {
-      "day": 9,
+    "day": 9,
       "type": "game",
-      "content": "santa-launcher",
-      "description": "Spiel: Katapultiere den Weihnachtsmann so weit wie möglich! 🎅🚀",
+      "content": "snowball-blaster",
+      "description": "Spiel: Snowball Blaster - Zerstöre alle Eisblöcke! ❄️⚡",
       "opened": false
     },
     {
@@ -70,8 +70,8 @@
     {
       "day": 11,
       "type": "game",
-      "content": "bubble-shooter",
-      "description": "Spiel: Christmas Bubble Shooter - Schieße Kugeln zu gleichen Farben! 🎯🎄",
+      "content": "gift-stack",
+      "description": "Spiel: Christmas Gift Stack - Staple die Geschenke richtig! 🎁🎄",
       "opened": false
     },
     {
@@ -84,7 +84,7 @@
     {
       "day": 13,
       "type": "video",
-      "content": "/videos/4.TASSENshorts_shorts.mp4",
+      "content": "/videos/NICHTLUSTIG_Frohe_Weihnachten.mp4",
       "description": "Magische Winterstimmung! ⛄",
       "opened": false
     },
@@ -98,21 +98,21 @@
     {
       "day": 15,
       "type": "game",
-      "content": "christmas-match3",
-      "description": "Spiel: Christmas Match-3 - Kombiniere Christbaumkugeln und sammle Punkte! 🎄🔴�",
+      "content": "santa-launcher",
+      "description": "Spiel: Katapultiere den Weihnachtsmann so weit wie möglich! 🎅🚀",
       "opened": false
     },
     {
       "day": 16,
       "type": "video",
-      "content": "/videos/Vom_kleinen_Stern_der_etwas_Besonderes_sein_wollte.mp4",
+      "content": "/videos/NICHTLUSTIG_Kurzfilm.mp4",
       "description": "Ein herzerwärmendes Weihnachtsvideo! ❤️",
       "opened": false
     },
     {
       "day": 17,
       "type": "video",
-      "content": "/videos/Vom_kleinen_Stern_der_etwas_Besonderes_sein_wollte.mp4",
+      "content": "/videos/NICHTLUSTIG_Zeitreisende_Enten.mp4",
       "description": "Weihnachtliches TASSEN-Video! 🎬",
       "opened": false
     },
@@ -132,8 +132,8 @@
     },
     {
       "day": 20,
-      "type": "video",
-      "content": "/videos/Holy_Klassiker_12 _Eine_Weihnachtsgeschichte",
+      "type": "audio",
+      "content": "/videos/Holy_Klassiker_12 _Eine_Weihnachtsgeschichte.m4a",
       "description": "Nur noch 4 Tage bis Heiligabend! 🎁",
       "opened": false
     },
@@ -147,21 +147,21 @@
     {
       "day": 22,
       "type": "video",
-      "content": "/videos/8.TASSENshorts.mp4",
+      "content": "/videos/FLOSSEN-Frohe_Weihnachten.mp4",
       "description": "Fast geschafft! Bald ist Weihnachten! 🌟",
       "opened": false
     },
     {
       "day": 23,
       "type": "video",
-      "content": "/videos/11.TASSENshorts.mp4",
+      "content": "/videos/Vom_kleinen_Stern_der_etwas_Besonderes_sein_wollte.mp4",
       "description": "Morgen ist Heiligabend! 🎊",
       "opened": false
     },
     {
       "day": 24,
       "type": "video",
-      "content": "/videos/18.TASSENshorts.mp4",
+      "content": "/videos/Cosmo&Wanda_Ziemlich_verrueckte_Weihnachten.mp4",
       "description": "🎄🎅 FROHE WEIHNACHTEN! 🎁✨ Wir wünschen dir und deiner Familie ein besinnliches und fröhliches Fest!",
       "opened": false
     }

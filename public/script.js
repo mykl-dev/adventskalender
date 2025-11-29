@@ -79,6 +79,7 @@ function updateOpenedDoorsMenu() {
     const categories = {
         game: { icon: '🎮', label: 'Spiele', doors: [] },
         video: { icon: '🎥', label: 'Videos', doors: [] },
+        audio: { icon: '🎧', label: 'Audio', doors: [] },
         quote: { icon: '💭', label: 'Zitate', doors: [] },
         joke: { icon: '😄', label: 'Witze', doors: [] },
         image: { icon: '🖼️', label: 'Bilder', doors: [] }
@@ -384,6 +385,9 @@ function createDoor(day, currentDay, currentMonth) {
             case 'video':
                 icon = '🎥';
                 break;
+            case 'audio':
+                icon = '🎧';
+                break;
             case 'joke':
                 icon = '😄';
                 break;
@@ -492,6 +496,18 @@ function showModal(data) {
             }
             break;
             
+        case 'audio':
+            content += `
+                <audio class="content-audio" controls style="width: 100%; margin: 1rem 0;">
+                    <source src="${data.content}" type="audio/mpeg">
+                    <source src="${data.content}" type="audio/mp4">
+                    <source src="${data.content}" type="audio/ogg">
+                    Dein Browser unterstützt keine Audio-Wiedergabe.
+                </audio>
+                ${data.description ? `<p class="content-text">${data.description}</p>` : ''}
+            `;
+            break;
+            
         case 'image':
             content += `
                 <img class="content-image" src="${data.content}" alt="Tag ${data.day}">
@@ -524,6 +540,7 @@ function showModal(data) {
                 'christmas-match3', 
                 'santa-launcher',
                 'gift-catcher',
+                'gift-stack',
                 'flappy-santa',
                 'santa-run',
                 'santa-snake',
@@ -608,6 +625,13 @@ function closeModal() {
     videos.forEach(video => {
         video.pause();
         video.currentTime = 0;
+    });
+    
+    // Stoppe alle Audio-Player
+    const audios = modalBody.querySelectorAll('audio');
+    audios.forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
     });
     
     // Entferne alle iframes komplett (stoppt Wiedergabe zuverlässig)
