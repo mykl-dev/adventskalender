@@ -176,8 +176,7 @@ class GiftStackGame {
         // Berechne Distanz zum letzten gestapelten Geschenk
         const distance = Math.abs(currentPosition - this.lastGiftPosition);
         
-        // Treffer-Toleranz: 8% (entspricht ungefähr der Breite eines Geschenks)
-        // Bei 3rem Geschenk-Größe auf 600px Canvas = ~5% + etwas Spielraum
+        // Treffer-Toleranz: 8% (entspricht der Geschenk-Breite)
         const tolerance = 8;
         
         const targetBottom = canvasRect.height - 50 - this.stackHeight;
