@@ -67,9 +67,14 @@ class GiftStackGame {
                             </div>
                         </div>
                     </div>
-                    <button class="game-button start-pulse" onclick="document.getElementById('overlay-container').innerHTML = ''; document.getElementById('start-button').click();">
-                        Spiel starten! 🎮
-                    </button>
+                    <div class="button-group">
+                        <button class="game-button start-pulse" onclick="document.getElementById('overlay-container').innerHTML = ''; document.getElementById('start-button').click();">
+                            Spiel starten! 🎮
+                        </button>
+                        <button class="game-button secondary" onclick="history.back();">
+                            🎄 Zurück zum Kalender
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
