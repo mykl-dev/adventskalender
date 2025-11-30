@@ -9,6 +9,9 @@ class DashboardManager {
 
     async init() {
         try {
+            // Set current year
+            document.getElementById('dashboard-year').textContent = new Date().getFullYear();
+            
             // Zeige aktuellen User an
             this.showCurrentUser();
             

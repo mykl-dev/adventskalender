@@ -177,7 +177,7 @@ class AvatarManager {
         overlay.innerHTML = `
             <div class="avatar-welcome-content">
                 <div class="welcome-icon">🎄</div>
-                <h1>Willkommen beim Adventskalender 2024!</h1>
+                <h1>Willkommen beim Adventskalender ${new Date().getFullYear()}!</h1>
                 <p class="welcome-text">
                     Schön, dass du hier bist! Bevor wir starten, erstelle deinen persönlichen Avatar.
                     Du kannst ihn individuell gestalten oder einfach einen zufälligen Avatar generieren lassen.
