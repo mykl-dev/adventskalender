@@ -22,8 +22,8 @@
     {
       "day": 4,
       "type": "game",
-      "content": "word-search",
-      "description": "Spiel: Wörter-Suchrätsel - Finde alle Weihnachtswörter! 🔍🎄",
+      "content": "snowflake-catcher",
+      "description": "Spiel: Fange so viele Schneeflocken wie möglich! ❄️🎮",
       "opened": false
     },
     {
@@ -36,8 +36,8 @@
     {
       "day": 6,
       "type": "game",
-      "content": "snowflake-catcher",
-      "description": "Spiel: Fange so viele Schneeflocken wie möglich! ❄️🎮",
+      "content": "word-search",
+      "description": "Spiel: Wörter-Suchrätsel - Finde alle Weihnachtswörter! 🔍🎄",
       "opened": false
     },
     {
