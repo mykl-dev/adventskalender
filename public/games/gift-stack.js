@@ -465,9 +465,21 @@ class GiftStackGame {
     async endGame() {
         this.gameActive = false;
         
+        console.log('=== GAME OVER ===');
+        console.log('Score:', this.score);
+        console.log('statsManager verfügbar?', typeof window.statsManager !== 'undefined');
+        
         // Speichere Score in der Highscore-Liste
-        if (typeof window.StatsManager !== 'undefined') {
-            await window.StatsManager.saveScore('gift-stack', this.score, 0);
+        if (typeof window.statsManager !== 'undefined') {
+            console.log('Speichere Score für gift-stack...');
+            try {
+                const result = await window.statsManager.saveScore('gift-stack', this.score, 0);
+                console.log('Score gespeichert, Ergebnis:', result);
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+            }
+        } else {
+            console.error('statsManager nicht gefunden!');
         }
         
         this.showGameOverOverlay();
@@ -476,9 +488,9 @@ class GiftStackGame {
     async showGameOverOverlay() {
         // Lade Top 3 Highscores
         let top3HTML = '';
-        if (typeof window.StatsManager !== 'undefined') {
+        if (typeof window.statsManager !== 'undefined') {
             console.log('Lade Top 3 für gift-stack...');
-            const top3 = await window.StatsManager.getTop3('gift-stack');
+            const top3 = await window.statsManager.getTop3('gift-stack');
             console.log('Top 3 Ergebnis:', top3);
             
             if (top3 && top3.length > 0) {
@@ -487,7 +499,7 @@ class GiftStackGame {
                         <h3>🏆 Top 3 Highscores 🏆</h3>
                         <div class="top3-list">
                             ${top3.map((entry, index) => `
-                                <div class="highscore-row ${entry.username === window.StatsManager?.username ? 'current-player' : ''}">
+                                <div class="highscore-row ${entry.username === window.statsManager?.username ? 'current-player' : ''}">
                                     <span class="rank">${['🥇', '🥈', '🥉'][index]}</span>
                                     <span class="name">${entry.username}</span>
                                     <span class="score">${entry.highscore} 🎁</span>
